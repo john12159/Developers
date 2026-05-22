@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Apple Account</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      font-weight: 400;
+      font-size: 15px;
+      color: #1d1d1f;
+      background-color: #fff;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a {
+      color: #0060c8;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    a:hover,
+    a:focus {
+      text-decoration: underline;
+    }
+    .container {
+      max-width: 980px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 25px;
+      padding-right: 25px;
+    }
+    header {
+      border-bottom: 1px solid #d2d2d7;
+      background-color: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 99;
+    }
+    .top-nav {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      height: 44px;
+      font-weight: 400;
+      font-size: 14px;
+      padding: 0;
+    }
+    .top-nav .nav-left,
+    .top-nav {
+      display: flex;
+      align-items: center;
+      gap: 38px;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .nav-left {
+      flex-grow: 1;
+    }
+    .top-nav .nav-action,
+    .top-nav {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .nav-action {
+      flex-grow: 1;
+    }
+    .apple-logo {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      background-color: black;
+      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 0.77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87s2.21-1.07 3.76-.91c.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83zM13 3.5c.73-.83 1.94-1.46 2.94-1.5 0.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z'/%3E%3C/svg%3E");
+      mask-repeat: no-repeat;
+      mask-position: center;
+      mask-size: contain;
+      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 0.77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87s2.21-1.07 3.76-.91c.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83zM13 3.5c.73-.83 1.94-1.46 2.94-1.5 0.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z'/%3E%3C/svg%3E");
+      -webkit-mask-repeat: no-repeat;
+      -webkit-mask-position: center;
+      -webkit-mask-size: contain;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .top-nav a {
+      color: #1d1d1f;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 16px;
+    }
+    .top-nav a:hover,
+    .top-nav a:focus {
+      color: #0060c8;
+      text-decoration: none;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 11px 16px;
+      border: 0.5px solid #a1a1a6;
+      border-radius: 12px;
+      font-size: 15px;
+      transition: border-color 0.2s ease-in-out;
+    }
+    input[type="checkbox"] {
+      cursor: pointer;
+      width: 16px;
+      height: 16px;
+      border: 1px solid #a1a1a6;
+      border-radius: 4px;
+      background-color: #fff;
+      appearance: none;
+      -webkit-appearance: none;
+      outline-offset: 2px;
+      position: relative;
+      transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+      vertical-align: middle;
+      margin: 0;
+    }
+    input[type="checkbox"]:checked {
+      background-color: #0071e3;
+      border-color: #0071e3;
+    }
+    input[type="checkbox"]:checked::after {
+      content: "";
+      position: absolute;
+      left: 4px;
+      top: 1px;
+      width: 5px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+    button {
+      margin-top: 30px;
+      width: 320px;
+      max-width: 100%;
+      background-color: #a7c7fa;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-weight: 600;
+      font-size: 15px;
+      color: #fff;
+      user-select: none;
+      transition: background-color 0.2s ease-in-out;
+      box-shadow: inset 0 -1px rgb(0 0 0 / 0.15);
+      letter-spacing: 0.03em;
+    }
+    button.enabled {
+      background-color: #0071e3;
+      cursor: pointer;
+      box-shadow: 0 0 0 0.15em #abd4ff;
+    }
+    button.enabled:hover,
+    button.enabled:focus {
+      background-color: #004a9f;
+      outline: none;
+      box-shadow: 0 0 0 0.25em #004a9f80;
+    }
+    @media (max-width: 768px) {
+      .container {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+      .top-nav {
+        gap: 12px;
+        height: 48px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .top-nav::-webkit-scrollbar {
+        display: none;
+      }
+      .top-nav .nav-left {
+        gap: 14px;
+      }
+      .top-nav a {
+        font-size: 12px;
+      }
+      .apple-logo {
+        width: 18px;
+        height: 18px;
+      }
+      img {
+        width: 100%;
+        max-width: 400px;
+        height: auto;
+        margin-top: 0;
+        margin-left: 0;
+      }
+      .image-back {
+        width: 40px;
+        height: 40px;
+        margin-left: -20px;
+        margin-top: 100px;
+      }
+      .image-front {
+        width: 100%;
+        max-width: 400px;
+        height: auto;
+      }
+      @keyframes rotateAndScale {
+        0% {
+          transform: scale(0.6) rotate(-40deg);
+        }
+        100% {
+          transform: scale(0.5) rotate(0deg);
+        }
+      }
+      input[type="text"] {
+        width: 100% !important;
+        max-width: 100%;
+        height: 50px;
+        min-height: 44px;
+      }
+      button {
+        width: 100% !important;
+        max-width: 100%;
+        margin-top: 16px;
+        min-height: 44px;
+      }
+      .remember-forgot-row {
+        max-width: 100%;
+        padding: 0 4px;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .remember-forgot-row a {
+        font-size: 14px;
+      }
+      .create-account-link {
+        margin-left: 0;
+        padding-left: 16px;
+        padding-right: 16px;
+        text-align: left;
+        font-size: 14px;
+      }
+      #myButton1 {
+        margin-left: 0 !important;
+        margin-top: 12px !important;
+      }
+      #para {
+        width: 100% !important;
+        padding: 0 8px;
+        font-size: 11px;
+      }
+      #privacyImg {
+        margin-left: 0 !important;
+        width: 36px;
+        height: 36px;
+      }
+      center {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+    }
+    img {
+      width: 800px;
+      height: 800px;
+      margin-top: -257px;
+      margin-left: -400px;
+    }
+    img.image-front {
+      animation: rotateAndScale 1s ease-in-out forwards;
+    }
+    @keyframes rotateAndScale {
+      0% {
+        transform: scale(0.4) rotate(-40deg);
+      }
+      100% {
+        transform: scale(0.3) rotate(0deg);
+      }
+    }
+    .image-back {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      margin-left: -25px;
+      margin-top: 120px;
+      object-fit: cover;
+    }
+    .image-front {
+      position: absolute;
+      object-fit: cover;
+    }
+    .remember-forgot-row {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 450px;
+      margin: 20px auto 0;
+    }
+    .remember-forgot-row .remember-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .remember-forgot-row label {
+      font-size: 13px;
+      color: #3c3c4399;
+      vertical-align: middle;
+    }
+    .remember-forgot-row a {
+      font-size: 16px;
+    }
+    .create-account-link {
+      font-size: 16px;
+      display: block;
+      margin-top: 16px;
+      text-align: center;
+      margin-left: -230px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="top-nav container" aria-label="Primary navigation">
+      <div class="nav-left" role="menu">
+        <a href="#" aria-label="Apple homepage" role="menuitem" class="apple-logo"></a>
+        <a href="#" role="menuitem">Store</a>
+        <a href="#" role="menuitem">Mac</a>
+        <a href="#" role="menuitem">iPad</a>
+        <a href="#" role="menuitem">iPhone</a>
+        <a href="#" role="menuitem">Watch</a>
+        <a href="#" role="menuitem">Vision</a>
+        <a href="#" role="menuitem">AirPods</a>
+        <a href="#" role="menuitem">TV &amp; Home</a>
+        <a href="#" role="menuitem">Entertainment</a>
+        <a href="#" role="menuitem">Accessories</a>
+        <a href="#" role="menuitem">Support</a>
+        <a role="button" class="globalnav-link globalnav-link-search" href="" aria-label="Search apple.com"><span class="globalnav-image-regular"><svg xmlns="http://www.w3.org/2000/svg" width="15px" height="44px" viewBox="0 0 15 44">
+          <path d="M14.298,27.202l-3.87-3.87c0.701-0.929,1.122-2.081,1.122-3.332c0-3.06-2.489-5.55-5.55-5.55c-3.06,0-5.55,2.49-5.55,5.55 c0,3.061,2.49,5.55,5.55,5.55c1.251,0,2.403-0.421,3.332-1.122l3.87,3.87c0.151,0.151,0.35,0.228,0.548,0.228 s0.396-0.076,0.548-0.228C14.601,27.995,14.601,27.505,14.298,27.202z M1.55,20c0-2.454,1.997-4.45,4.45-4.45 c2.454,0,4.45,1.997,4.45,4.45S8.454,24.45,6,24.45C3.546,24.45,1.55,22.454,1.55,20z"></path>
+        </svg>
+        <a role="button" href="" aria-label="Shopping Bag" class="globalnav-link globalnav-link-bag"><span class="globalnav-image-regular"><svg height="44" viewBox="0 0 14 44" width="14" xmlns="http://www.w3.org/2000/svg"><path d="m11.3535 16.0283h-1.0205a3.4229 3.4229 0 0 0 -3.333-2.9648 3.4229 3.4229 0 0 0 -3.333 2.9648h-1.02a2.1184 2.1184 0 0 0 -2.117 2.1162v7.7155a2.1186 2.1186 0 0 0 2.1162 2.1167h8.707a2.1186 2.1186 0 0 0 2.1168-2.1167v-7.7155a2.1184 2.1184 0 0 0 -2.1165-2.1162zm-4.3535-1.8652a2.3169 2.3169 0 0 1 2.2222 1.8652h-4.4444a2.3169 2.3169 0 0 1 2.2222-1.8652zm5.37 11.6969a1.0182 1.0182 0 0 1 -1.0166 1.0171h-8.7069a1.0182 1.0182 0 0 1 -1.0165-1.0171v-7.7155a1.0178 1.0178 0 0 1 1.0166-1.0166h8.707a1.0178 1.0178 0 0 1 1.0164 1.0166z"></path></svg></span></a>
+      </div>
+    </nav>
+    <nav class="top-nav container" aria-label="Primary navigation">
+      <div class="nav-left" role="menu">
+        <strong style="font-size: 18px; color: #1F1F1F;">Apple Account</strong>
+        <a href="#" role="menuitem" tabindex="0" style="margin-left: 660px;"><span style="color: #afadad; font-size: 13px;">Sign In</span></a>
+        <a href="#" role="menuitem" tabindex="0"><span style="color: #3a3939;"> Your Apple Account</span></a>
+        <a href="#" role="menuitem" tabindex="0">FAQ</a>
+      </div>
+    </nav>
+  </header>
+  <div style="height: 250px;">
+    <center><img class="image-back" src="appleIcon13.png" alt="" /></center>
+    <center><img class="image-front" src="appleIcon.png" alt="" /></center>
+  </div>
+  <div>
+    <center><strong style="font-size: 32px; color: #494949;">Apple Account</strong></center>
+  </div>
+  <br>
+  <div>
+    <center style="font-size: 17px; color: #494949;">Manage your Apple Account</center>
+  </div>
+  <div class="container" id="container">
+    <br>
+    <center><input type="text" id="firstInput" placeholder="Email or Phone Number" style="width: 450px; height: 55px;" /></center>
+    <a id="createAccount" href="#" class="create-account-link">Create Your Apple Account</a>
+
+    <br id="br">
+    <center><img src="privacyIcon.png" id="privacyImg" style="width: 45px; height: 45px; margin-top: 10px; margin-left: 0px;"></center>
+    <center>
+      <P style="width: 430px; font-size: 12px;" id="para">
+        Your Apple Account information is used to allow you to sign in securely and access your data.
+        Apple records certain data for security, support, and reporting purposes. If you agree, Apple may also use your Apple Account information to send you marketing emails and communications,
+        including based on your use of Apple services. <a>See how your data is managed...</a>
+      </P>
+    </center>
+
+    <center><input type="text" id="secondInput" placeholder="Password" style="width: 450px; height: 55px; display: none;" /></center>
+
+    <div class="remember-forgot-row" id="rememberForgotRow">
+      <div class="remember-wrap">
+        <input type="checkbox" id="remember-me" class="form-checkbox-input">
+        <label id="remember-me-label" for="remember-me">Remember me</label>
+      </div>
+      <a id="iforgot-link" href="https://iforgot.apple.com/password/verify/appleid" target="_blank">
+        <span>Forgotten <span>password?</span>
+      </a>
+    </div>
+
+    <br id="br2">
+    <br>
+    <center style="margin-left: -230px;"><button id="myButton" onclick="showSecondInput()" style="width: 215px;" disabled>Continue</button></center>
+    <center style="margin-left: 220px; margin-top: -70px;"><button id="myButton1" style="width: 215px; background-color: rgb(16, 16, 16); color: white; cursor: pointer;">Sign in with Passkey</button></center>
+  </div>
+
+  <script>
+    let buttonTapped = false;
+    const firstInput = document.getElementById('firstInput');
+    const secondInput = document.getElementById('secondInput');
+    const button = document.getElementById('myButton');
+    const buttonForgot = document.getElementById('iforgot-link');
+    const rememberForgotRow = document.getElementById('rememberForgotRow');
+    const createAccount = document.getElementById('createAccount');
+
+    window.onload = function() {
+      firstInput.focus();
+    };
+
+    function showSecondInput() {
+      document.getElementById('secondInput').style.display = 'block';
+      document.getElementById('myButton1').style.display = 'none';
+      rememberForgotRow.style.display = 'flex';
+      createAccount.style.display = 'none';
+
+      document.getElementById('para').style.display = 'none';
+      document.getElementById('privacyImg').style.display = 'none';
+      document.getElementById('br').style.display = 'none';
+
+      secondInput.focus();
+
+      firstInput.style.borderBottom = "none";
+      firstInput.style.borderBottomLeftRadius = "0";
+      firstInput.style.borderBottomRightRadius = "0";
+
+      secondInput.style.borderTopLeftRadius = "0";
+      secondInput.style.borderTopRightRadius = "0";
+      secondInput.style.borderBottomLeftRadius = "8px";
+      secondInput.style.borderBottomRightRadius = "8px";
+
+      button.classList.remove('enabled');
+      button.style.cursor = 'default';
+    }
+
+    firstInput.addEventListener('input', function() {
+      if (firstInput.value.trim() === "") {
+        button.classList.remove('enabled');
+        button.style.cursor = 'default';
+      } else {
+        let buttonTapped = true;
+        button.disabled = false;
+        button.classList.add('enabled');
+        button.style.cursor = 'pointer';
+      }
+    });
+
+    secondInput.addEventListener('input', function() {
+      if (secondInput.value.trim() === "") {
+        button.disabled = true;
+        button.classList.remove('enabled');
+        button.style.cursor = 'default';
+      } else {
+        button.disabled = false;
+        button.disabled = true;
+        button.classList.add('enabled');
+        button.style.cursor = 'pointer';
+      }
+    });
+
+    if (buttonTapped) {
+      // console.log("true");
+      button.disabled = false;
+    } else {
+      // console.log("false");
+    }
+
+    button.addEventListener('click', () => {
+      let currentWidth = button.offsetWidth;
+      let newWidth = currentWidth + 215;
+      button.style.width = newWidth + 'px';
+      button.style.marginLeft = '220px';
+      button.style.marginTop = '100px';
+      button.textContent = 'Sign In';
+      buttonForgot.style.marginTop = '0px';
+    });
+  </script>
+</body>
+</html>
