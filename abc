@@ -2,244 +2,370 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Apple Sign In Clone</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in with Apple Account</title>
   <style>
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    body{
-      background:#f5f5f7;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      min-height:100vh;
+    :root {
+      --bg: #f5f5f7;
+      --card-bg: #ffffff;
+      --text-primary: #1d1d1f;
+      --text-secondary: #6e6e73;
+      --text-link: #0071e3;
+      --border: #d2d2d7;
+      --input-bg: #ffffff;
+      --btn-continue-bg: #b3d4f5;
+      --btn-continue-text: #ffffff;
+      --btn-passkey-bg: #1d1d1f;
+      --btn-passkey-text: #ffffff;
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
     }
 
-    .container{
-      width:100%;
-      max-width:420px;
-      background:#fff;
-      padding:40px;
-      border-radius:18px;
-      box-shadow:0 10px 30px rgba(0,0,0,0.08);
-      text-align:center;
+    html, body {
+      min-height: 100%;
+      background: var(--bg);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
     }
 
-    .apple-logo{
-      width:70px;
-      height:70px;
-      margin:0 auto 20px;
-      border-radius:50%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background: conic-gradient(
-        #ff3b30,
-        #ff9500,
-        #ffcc00,
-        #34c759,
-        #5ac8fa,
-        #007aff,
-        #af52de,
-        #ff2d55,
-        #ff3b30
-      );
-      padding:4px;
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
     }
 
-    .apple-logo span{
-      width:100%;
-      height:100%;
-      border-radius:50%;
-      background:#fff;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:34px;
+    .card {
+      background: var(--card-bg);
+      border-radius: 18px;
+      width: 100%;
+      max-width: 400px;
+      padding: clamp(32px, 6vw, 48px) clamp(24px, 5vw, 40px) clamp(28px, 5vw, 40px);
+      box-shadow: 0 2px 20px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
     }
 
-    h1{
-      font-size:30px;
-      font-weight:600;
-      margin-bottom:30px;
-      color:#1d1d1f;
+    /* ── Logo Ring ── */
+    .logo-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: clamp(20px, 4vw, 28px);
     }
 
-    .input-group{
-      margin-bottom:20px;
+    .ring-container {
+      position: relative;
+      width: clamp(100px, 22vw, 130px);
+      height: clamp(100px, 22vw, 130px);
     }
 
-    input{
-      width:100%;
-      padding:16px;
-      border:1px solid #d2d2d7;
-      border-radius:12px;
-      font-size:16px;
-      transition:0.3s;
-      outline:none;
+    .ring-svg {
+      width: 100%;
+      height: 100%;
     }
 
-    input:focus{
-      border-color:#0071e3;
-      box-shadow:0 0 0 4px rgba(0,113,227,0.15);
+    .apple-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(28px, 6vw, 36px);
+      color: #1d1d1f;
+      line-height: 1;
+      user-select: none;
     }
 
-    .create-account{
-      display:block;
-      text-align:left;
-      margin-top:10px;
-      font-size:14px;
-      color:#0071e3;
-      text-decoration:none;
+    /* ── Title ── */
+    .title {
+      text-align: center;
+      font-size: clamp(22px, 5.5vw, 28px);
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.2;
+      letter-spacing: -0.3px;
+      margin-bottom: clamp(20px, 4vw, 28px);
     }
 
-    .info{
-      text-align:left;
-      font-size:12px;
-      color:#6e6e73;
-      line-height:1.5;
-      margin:20px 0;
+    /* ── Input ── */
+    .input-wrap {
+      margin-bottom: 12px;
     }
 
-    .btn-group{
-      display:flex;
-      gap:10px;
-      margin-top:20px;
+    .input-field {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: var(--font);
+      color: var(--text-primary);
+      background: var(--input-bg);
+      outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
     }
 
-    button{
-      flex:1;
-      padding:14px;
-      border:none;
-      border-radius:10px;
-      cursor:pointer;
-      font-size:15px;
-      font-weight:500;
-      transition:0.3s;
+    .input-field::placeholder {
+      color: #aeaeb2;
     }
 
-    .continue-btn{
-      background:#0071e3;
-      color:white;
+    .input-field:focus {
+      border-color: #0071e3;
+      box-shadow: 0 0 0 3px rgba(0,113,227,0.15);
     }
 
-    .continue-btn:hover{
-      background:#005fc2;
+    /* ── Create Account Link ── */
+    .create-link {
+      display: block;
+      color: var(--text-link);
+      font-size: 14px;
+      text-decoration: none;
+      margin-bottom: clamp(16px, 3vw, 22px);
+      letter-spacing: -0.1px;
     }
 
-    .iphone-btn{
-      background:#1d1d1f;
-      color:white;
+    .create-link:hover {
+      text-decoration: underline;
     }
 
-    .iphone-btn:hover{
-      background:#000;
+    /* ── Privacy Notice ── */
+    .privacy-wrap {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: clamp(20px, 4vw, 28px);
     }
 
-    .message{
-      margin-top:18px;
-      font-size:14px;
-      color:green;
+    .privacy-icon {
+      flex-shrink: 0;
+      margin-top: 1px;
     }
 
-    .error{
-      color:red;
+    .privacy-text {
+      font-size: clamp(11px, 2.5vw, 12.5px);
+      color: var(--text-secondary);
+      line-height: 1.5;
     }
 
-    @media(max-width:500px){
-      .container{
-        margin:20px;
-        padding:30px 25px;
+    .privacy-text a {
+      color: var(--text-link);
+      text-decoration: none;
+    }
+
+    .privacy-text a:hover {
+      text-decoration: underline;
+    }
+
+    /* ── Buttons ── */
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: clamp(24px, 5vw, 36px);
+    }
+
+    .btn {
+      flex: 1;
+      padding: 14px 10px;
+      border: none;
+      border-radius: 980px;
+      font-family: var(--font);
+      font-size: clamp(13px, 2.8vw, 15px);
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .btn:active { transform: scale(0.97); }
+
+    .btn-continue {
+      background: var(--btn-continue-bg);
+      color: var(--btn-continue-text);
+      opacity: 0.85;
+    }
+
+    .btn-passkey {
+      background: var(--btn-passkey-bg);
+      color: var(--btn-passkey-text);
+    }
+
+    .btn-passkey:hover { opacity: 0.85; }
+
+    /* ── Footer ── */
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: clamp(12px, 3vw, 20px);
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      font-size: clamp(10px, 2.2vw, 12px);
+      color: var(--text-secondary);
+      text-decoration: none;
+    }
+
+    .footer-links a:hover { text-decoration: underline; }
+
+    .copyright {
+      text-align: center;
+      font-size: clamp(9px, 2vw, 11px);
+      color: var(--text-secondary);
+    }
+
+    /* ── Responsive Adjustments ── */
+
+    /* Very small phones */
+    @media (max-width: 360px) {
+      body { padding: 12px; }
+      .card { padding: 24px 16px 20px; border-radius: 14px; }
+      .btn-row { flex-direction: column; }
+      .btn { width: 100%; }
+    }
+
+    /* Tablets & up: add a little more breathing room */
+    @media (min-width: 600px) {
+      .card {
+        padding: 48px 44px 40px;
+        max-width: 430px;
       }
+    }
 
-      .btn-group{
-        flex-direction:column;
+    /* Desktop */
+    @media (min-width: 1024px) {
+      body { background: #f5f5f7; }
+      .card {
+        max-width: 440px;
+        box-shadow: 0 4px 32px rgba(0,0,0,0.10), 0 1px 6px rgba(0,0,0,0.05);
       }
     }
   </style>
 </head>
-
 <body>
 
-  <div class="container">
+<div class="card">
 
-    <div class="apple-logo">
-      <span></span>
+  <!-- Apple Logo Ring -->
+  <div class="logo-wrap">
+    <div class="ring-container">
+      <!-- SVG rainbow dot ring -->
+      <svg class="ring-svg" viewBox="0 0 130 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g id="dots"></g>
+      </svg>
+      <!-- Apple  symbol -->
+      <div class="apple-icon">
+        <svg width="36" height="44" viewBox="0 0 814 1000" fill="#1d1d1f" xmlns="http://www.w3.org/2000/svg">
+          <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-42.8-155.5-127.4C46.7 790.8 0 663.9 0 541.8c0-207.5 135.4-316.8 268.5-316.8 70.9 0 130.4 46.3 174.7 46.3 42.7 0 109.2-49 191.6-49 30.8 0 130.4 2.6 198.3 99.2zm-234-181.5c31.1-36.9 53.1-88.1 53.1-139.3 0-7.1-.6-14.3-1.9-20.1-50.6 1.9-110.8 33.7-147.1 75.8-28.5 32.4-55.1 83.6-55.1 135.5 0 7.8 1.3 15.6 1.9 18.1 3.2.6 8.4 1.3 13.6 1.3 45.4 0 102.5-30.4 135.5-71.3z"/>
+        </svg>
+      </div>
     </div>
-
-    <h1>Sign in with Apple Account</h1>
-
-    <div class="input-group">
-      <input 
-        type="text" 
-        id="email"
-        placeholder="Email or Phone Number"
-      >
-
-      <a href="#" class="create-account">
-        Create Your Apple Account
-      </a>
-    </div>
-
-    <div class="info">
-      Your Apple Account information is used to allow you to sign in securely
-      and access your data. Apple records certain data for security, support,
-      and reporting purposes.
-    </div>
-
-    <div class="btn-group">
-      <button class="continue-btn" onclick="login()">
-        Continue
-      </button>
-
-      <button class="iphone-btn" onclick="iphoneLogin()">
-         Sign in with iPhone
-      </button>
-    </div>
-
-    <div class="message" id="message"></div>
-
   </div>
 
-  <script>
+  <!-- Title -->
+  <h1 class="title">Sign in with<br>Apple Account</h1>
 
-    function login(){
+  <!-- Email Input -->
+  <div class="input-wrap">
+    <input class="input-field" type="email" placeholder="Email or Phone Number" autocomplete="username" />
+  </div>
 
-      let email = document.getElementById("email").value;
-      let message = document.getElementById("message");
+  <!-- Create link -->
+  <a class="create-link" href="#">Create Your Apple Account</a>
 
-      if(email === ""){
-        message.innerHTML = "Please enter Email or Phone Number";
-        message.classList.add("error");
-        return;
-      }
+  <!-- Privacy notice -->
+  <div class="privacy-wrap">
+    <!-- Person icon SVG -->
+    <svg class="privacy-icon" width="34" height="26" viewBox="0 0 34 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="8" r="5" fill="#4A90D9"/>
+      <path d="M2 24c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="#4A90D9" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <circle cx="24" cy="10" r="4" fill="#A0C4E8"/>
+      <path d="M18 24c0-3.866 2.686-7 6-7" stroke="#A0C4E8" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </svg>
+    <p class="privacy-text">
+      Your Apple Account information is used to allow you to sign in
+      securely and access your data. Apple records certain data for
+      security, support, and reporting purposes. If you agree, Apple
+      may also use your Apple Account information to send you
+      marketing emails and communications, including based on
+      your use of Apple services. <a href="#">See how your data is managed.</a>
+    </p>
+  </div>
 
-      // Email validation
-      let emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+  <!-- Buttons -->
+  <div class="btn-row">
+    <button class="btn btn-continue" disabled>Continue</button>
+    <button class="btn btn-passkey">
+      <!-- Passkey icon -->
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="9" cy="7" r="4" stroke="white" stroke-width="2"/>
+        <path d="M2 21c0-3.866 3.134-7 7-7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <path d="M17 14l1.5 1.5L21 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="14" y="11" width="8" height="6" rx="2" stroke="white" stroke-width="2"/>
+      </svg>
+      Sign in with Passkey
+    </button>
+  </div>
 
-      // Phone validation
-      let phonePattern = /^[0-9]{10}$/;
+  <!-- Footer -->
+  <div class="footer-links">
+    <a href="#">System Status</a>
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms &amp; Conditions</a>
+  </div>
+  <p class="copyright">Copyright &copy; 2026 Apple Inc. All rights reserved.</p>
 
-      if(email.match(emailPattern) || email.match(phonePattern)){
-        message.classList.remove("error");
-        message.innerHTML = "Login Successful!";
-      }else{
-        message.classList.add("error");
-        message.innerHTML = "Invalid Email or Phone Number";
-      }
+</div>
+
+<script>
+  // ── Generate the rainbow dot ring ──
+  (function () {
+    const svg = document.querySelector('#dots');
+    const cx = 65, cy = 65, r = 55;
+    const totalDots = 72;
+
+    // rainbow hues spaced around circle
+    for (let i = 0; i < totalDots; i++) {
+      const angle = (i / totalDots) * 2 * Math.PI - Math.PI / 2;
+      const x = cx + r * Math.cos(angle);
+      const y = cy + r * Math.sin(angle);
+
+      // hue follows the angle (0-360)
+      const hue = ((i / totalDots) * 360 + 200) % 360; // offset so red is roughly bottom-left
+      const size = 2.2 + Math.random() * 1.4;
+
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', x.toFixed(2));
+      circle.setAttribute('cy', y.toFixed(2));
+      circle.setAttribute('r', size.toFixed(2));
+      circle.setAttribute('fill', `hsl(${hue.toFixed(0)},80%,52%)`);
+      svg.appendChild(circle);
     }
+  })();
 
-    function iphoneLogin(){
-      alert("Redirecting to iPhone Sign In...");
+  // ── Enable Continue button when input has value ──
+  const input = document.querySelector('.input-field');
+  const continueBtn = document.querySelector('.btn-continue');
+
+  input.addEventListener('input', () => {
+    if (input.value.trim().length > 0) {
+      continueBtn.disabled = false;
+      continueBtn.style.opacity = '1';
+      continueBtn.style.background = '#0071e3';
+    } else {
+      continueBtn.disabled = true;
+      continueBtn.style.opacity = '';
+      continueBtn.style.background = '';
     }
-
-  </script>
-
+  });
+</script>
 </body>
 </html>
