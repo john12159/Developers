@@ -1,371 +1,1086 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sign in with Apple Account</title>
-  <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Living World — A Beautiful Day</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    :root {
-      --bg: #f5f5f7;
-      --card-bg: #ffffff;
-      --text-primary: #1d1d1f;
-      --text-secondary: #6e6e73;
-      --text-link: #0071e3;
-      --border: #d2d2d7;
-      --input-bg: #ffffff;
-      --btn-continue-bg: #b3d4f5;
-      --btn-continue-text: #ffffff;
-      --btn-passkey-bg: #1d1d1f;
-      --btn-passkey-text: #ffffff;
-      --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-    }
+  :root {
+    --sky-top: #1a1a4e;
+    --sky-mid: #f97316;
+    --sky-bottom: #fde68a;
+    --ground: #4a7c59;
+    --ground-dark: #2d5a3d;
+  }
 
-    html, body {
-      min-height: 100%;
-      background: var(--bg);
-      font-family: var(--font);
-      -webkit-font-smoothing: antialiased;
-    }
+  body {
+    font-family: 'Cormorant Garamond', serif;
+    overflow-x: hidden;
+    background: #0d0d1a;
+    cursor: none;
+  }
 
-    body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 20px; height: 20px;
+    background: radial-gradient(circle, rgba(255,220,100,0.9), rgba(255,150,50,0.4));
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s, height 0.2s;
+    box-shadow: 0 0 20px rgba(255,200,50,0.6);
+  }
 
-    .card {
-      background: var(--card-bg);
-      border-radius: 18px;
-      width: 100%;
-      max-width: 400px;
-      padding: clamp(32px, 6vw, 48px) clamp(24px, 5vw, 40px) clamp(28px, 5vw, 40px);
-      box-shadow: 0 2px 20px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
-    }
+  /* ===== SCENE WRAPPER ===== */
+  .scene {
+    width: 100%;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
 
-    /* ── Logo Ring ── */
-    .logo-wrap {
-      display: flex;
-      justify-content: center;
-      margin-bottom: clamp(20px, 4vw, 28px);
-    }
+  /* ===== SKY ===== */
+  .sky {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+      #0a0a2e 0%,
+      #1a1560 10%,
+      #4a2080 20%,
+      #c2410c 45%,
+      #f97316 60%,
+      #fbbf24 75%,
+      #fde68a 85%,
+      #a7f3d0 100%
+    );
+    animation: skyShift 20s ease-in-out infinite alternate;
+  }
 
-    .ring-container {
-      position: relative;
-      width: clamp(100px, 22vw, 130px);
-      height: clamp(100px, 22vw, 130px);
-    }
+  @keyframes skyShift {
+    0%   { filter: hue-rotate(0deg) brightness(1); }
+    50%  { filter: hue-rotate(15deg) brightness(1.1); }
+    100% { filter: hue-rotate(-10deg) brightness(0.95); }
+  }
 
-    .ring-svg {
-      width: 100%;
-      height: 100%;
-    }
+  /* ===== STARS ===== */
+  .stars {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 40%;
+    z-index: 1;
+  }
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--dur) ease-in-out infinite alternate;
+  }
+  @keyframes twinkle {
+    0%   { opacity: 0.1; transform: scale(0.8); }
+    100% { opacity: 1;   transform: scale(1.2); }
+  }
 
-    .apple-icon {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: clamp(28px, 6vw, 36px);
-      color: #1d1d1f;
-      line-height: 1;
-      user-select: none;
-    }
+  /* ===== SUN ===== */
+  .sun {
+    position: absolute;
+    top: 18%; right: 12%;
+    width: 90px; height: 90px;
+    background: radial-gradient(circle, #fff7a1 20%, #fde047 50%, #f59e0b 80%, transparent 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 60px 30px rgba(253,224,71,0.5), 0 0 120px 60px rgba(251,191,36,0.2);
+    animation: sunPulse 4s ease-in-out infinite;
+    z-index: 2;
+  }
+  @keyframes sunPulse {
+    0%,100% { box-shadow: 0 0 60px 30px rgba(253,224,71,0.5), 0 0 120px 60px rgba(251,191,36,0.2); transform: scale(1); }
+    50%      { box-shadow: 0 0 80px 40px rgba(253,224,71,0.7), 0 0 160px 80px rgba(251,191,36,0.3); transform: scale(1.05); }
+  }
+  .sun-ray {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 200px; height: 2px;
+    background: linear-gradient(90deg, rgba(253,224,71,0.6), transparent);
+    transform-origin: 0 50%;
+    animation: rayRotate 8s linear infinite;
+  }
+  @keyframes rayRotate { to { transform: rotate(360deg); } }
 
-    /* ── Title ── */
-    .title {
-      text-align: center;
-      font-size: clamp(22px, 5.5vw, 28px);
-      font-weight: 700;
-      color: var(--text-primary);
-      line-height: 1.2;
-      letter-spacing: -0.3px;
-      margin-bottom: clamp(20px, 4vw, 28px);
-    }
+  /* ===== CLOUDS ===== */
+  .cloud {
+    position: absolute;
+    z-index: 3;
+    animation: cloudDrift linear infinite;
+  }
+  .cloud-body {
+    background: rgba(255,255,255,0.85);
+    border-radius: 50px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    backdrop-filter: blur(4px);
+  }
+  @keyframes cloudDrift {
+    from { transform: translateX(-300px); }
+    to   { transform: translateX(110vw); }
+  }
 
-    /* ── Input ── */
-    .input-wrap {
-      margin-bottom: 12px;
-    }
+  /* ===== MOUNTAINS ===== */
+  .mountains {
+    position: absolute;
+    bottom: 32%;
+    width: 100%;
+    z-index: 4;
+  }
+  .mountain {
+    position: absolute;
+    bottom: 0;
+    border-style: solid;
+    border-left-color: transparent;
+    border-right-color: transparent;
+    border-bottom-color: #5b4f9e;
+    border-top: none;
+  }
+  .mountain::after {
+    content: '';
+    position: absolute;
+    top: -30px; left: 50%;
+    transform: translateX(-50%);
+    width: 40px; height: 30px;
+    background: white;
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  }
+  .mountain-2 { border-bottom-color: #7c6db5; }
+  .mountain-3 { border-bottom-color: #9d8fd4; }
 
-    .input-field {
-      width: 100%;
-      padding: 14px 16px;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      font-size: 15px;
-      font-family: var(--font);
-      color: var(--text-primary);
-      background: var(--input-bg);
-      outline: none;
-      transition: border-color 0.2s;
-      -webkit-appearance: none;
-    }
+  /* ===== GROUND ===== */
+  .ground-layer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    z-index: 5;
+  }
+  .ground-back {
+    bottom: 0;
+    height: 38%;
+    background: linear-gradient(180deg, #2d5a3d 0%, #1a3d2b 100%);
+    border-radius: 60% 60% 0 0 / 20px 20px 0 0;
+  }
+  .ground-mid {
+    bottom: 0;
+    height: 30%;
+    background: linear-gradient(180deg, #3d7a52 0%, #2d5a3d 100%);
+    border-radius: 50% 50% 0 0 / 30px 30px 0 0;
+  }
+  .ground-front {
+    bottom: 0;
+    height: 18%;
+    background: linear-gradient(180deg, #4a9060 0%, #3d7a52 100%);
+  }
+  .path {
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 60px solid transparent;
+    border-right: 60px solid transparent;
+    border-bottom: 200px solid rgba(210,180,140,0.4);
+  }
 
-    .input-field::placeholder {
-      color: #aeaeb2;
-    }
+  /* ===== WATER / RIVER ===== */
+  .river {
+    position: absolute;
+    bottom: 16%;
+    left: 5%; width: 22%;
+    height: 40px;
+    background: linear-gradient(90deg, #60a5fa, #3b82f6, #93c5fd);
+    border-radius: 50%;
+    opacity: 0.7;
+    animation: riverShimmer 3s ease-in-out infinite;
+    z-index: 6;
+  }
+  @keyframes riverShimmer {
+    0%,100% { opacity:0.7; transform: scaleX(1); }
+    50%      { opacity:0.9; transform: scaleX(1.03); }
+  }
+  .river::after {
+    content: '';
+    position: absolute;
+    top: 10px; left: 10%;
+    width: 80%; height: 8px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 10px;
+    animation: waterFlow 2s linear infinite;
+  }
+  @keyframes waterFlow {
+    from { transform: translateX(-20px); opacity: 0.2; }
+    to   { transform: translateX(20px);  opacity: 0.7; }
+  }
 
-    .input-field:focus {
-      border-color: #0071e3;
-      box-shadow: 0 0 0 3px rgba(0,113,227,0.15);
-    }
+  /* ===== TREES ===== */
+  .tree { position: absolute; z-index: 7; }
+  .tree-trunk {
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(180deg, #92400e, #78350f);
+    border-radius: 4px 4px 2px 2px;
+  }
+  .tree-foliage {
+    position: absolute;
+    border-style: solid;
+    border-left-color: transparent;
+    border-right-color: transparent;
+    border-bottom-color: var(--fc, #16a34a);
+    border-top: none;
+    left: 50%; transform: translateX(-50%);
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+    animation: treeSway 3s ease-in-out infinite;
+  }
+  @keyframes treeSway {
+    0%,100% { transform: translateX(-50%) rotate(-1deg); }
+    50%      { transform: translateX(-50%) rotate(1deg); }
+  }
 
-    /* ── Create Account Link ── */
-    .create-link {
-      display: block;
-      color: var(--text-link);
-      font-size: 14px;
-      text-decoration: none;
-      margin-bottom: clamp(16px, 3vw, 22px);
-      letter-spacing: -0.1px;
-    }
+  /* Oak tree variant */
+  .oak-leaves {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, #22c55e, #15803d);
+    box-shadow: inset -10px -10px 20px rgba(0,0,0,0.2);
+    animation: oakSway 4s ease-in-out infinite;
+  }
+  @keyframes oakSway {
+    0%,100% { transform: rotate(-2deg) scale(1); }
+    50%      { transform: rotate(2deg) scale(1.02); }
+  }
 
-    .create-link:hover {
-      text-decoration: underline;
-    }
+  /* ===== FLOWERS ===== */
+  .flower { position: absolute; z-index: 8; }
+  .flower-stem {
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 3px;
+    background: #22c55e;
+    border-radius: 2px;
+    animation: flowerSway 2.5s ease-in-out infinite;
+    transform-origin: bottom center;
+  }
+  @keyframes flowerSway {
+    0%,100% { transform: translateX(-50%) rotate(-5deg); }
+    50%      { transform: translateX(-50%) rotate(5deg); }
+  }
+  .flower-head {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 18px; height: 18px;
+  }
+  .petal {
+    position: absolute;
+    width: 8px; height: 12px;
+    border-radius: 50%;
+    top: 50%; left: 50%;
+    transform-origin: 0 0;
+    animation: petalWave 2s ease-in-out infinite;
+  }
+  @keyframes petalWave {
+    0%,100% { filter: brightness(1); }
+    50%      { filter: brightness(1.2); }
+  }
+  .flower-center {
+    position: absolute;
+    width: 8px; height: 8px;
+    background: #fef08a;
+    border-radius: 50%;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    box-shadow: 0 0 4px rgba(255,220,0,0.8);
+  }
 
-    /* ── Privacy Notice ── */
-    .privacy-wrap {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      margin-bottom: clamp(20px, 4vw, 28px);
-    }
+  /* ===== GRASS ===== */
+  .grass-blade {
+    position: absolute;
+    bottom: 0;
+    width: 3px;
+    border-radius: 2px 2px 0 0;
+    background: linear-gradient(180deg, #4ade80, #22c55e);
+    transform-origin: bottom center;
+    animation: grassWave var(--gd, 2s) ease-in-out infinite;
+  }
+  @keyframes grassWave {
+    0%,100% { transform: rotate(-8deg); }
+    50%      { transform: rotate(8deg); }
+  }
 
-    .privacy-icon {
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
+  /* ===== HUMANS ===== */
+  .human { position: absolute; z-index: 9; }
+  /* Male */
+  .male-head   { width:18px;height:18px;background:#f5cba7;border-radius:50%;position:absolute;left:50%;transform:translateX(-50%);top:0; }
+  .male-body   { width:22px;height:28px;background:#2563eb;border-radius:4px 4px 0 0;position:absolute;left:50%;transform:translateX(-50%);top:16px; }
+  .male-legs   { position:absolute;top:44px;left:50%;transform:translateX(-50%);display:flex;gap:4px; }
+  .male-leg    { width:9px;height:22px;background:#1e3a5f;border-radius:0 0 4px 4px; }
+  .male-arm    { position:absolute;top:20px;width:10px;height:20px;background:#2563eb;border-radius:5px; }
+  .male-arm.l  { left:-8px; transform:rotate(20deg); }
+  .male-arm.r  { right:-8px;transform:rotate(-20deg); }
+  /* Female */
+  .female-head { width:16px;height:16px;background:#f5cba7;border-radius:50%;position:absolute;left:50%;transform:translateX(-50%);top:0; }
+  .female-hair { width:20px;height:10px;background:#7c3aed;border-radius:10px 10px 0 0;position:absolute;left:50%;transform:translateX(-50%);top:0; }
+  .female-body { width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:30px solid #ec4899;position:absolute;left:50%;transform:translateX(-50%);top:14px; }
+  .female-legs { position:absolute;top:42px;left:50%;transform:translateX(-50%);display:flex;gap:6px; }
+  .female-leg  { width:7px;height:18px;background:#f472b6;border-radius:0 0 3px 3px; }
 
-    .privacy-text {
-      font-size: clamp(11px, 2.5vw, 12.5px);
-      color: var(--text-secondary);
-      line-height: 1.5;
-    }
+  .human-walk { animation: humanWalk 0.5s ease-in-out infinite alternate; }
+  @keyframes humanWalk {
+    0%   { transform: translateY(0) rotate(-2deg); }
+    100% { transform: translateY(-4px) rotate(2deg); }
+  }
+  .human-move { animation: humanMove linear infinite; }
+  @keyframes humanMove {
+    from { left: -80px; }
+    to   { left: 110%; }
+  }
 
-    .privacy-text a {
-      color: var(--text-link);
-      text-decoration: none;
-    }
+  /* ===== VEHICLES ===== */
+  .vehicle { position: absolute; z-index: 10; }
+  /* Car */
+  .car-body {
+    width: 90px; height: 36px;
+    background: linear-gradient(180deg, #ef4444, #dc2626);
+    border-radius: 8px;
+    position: absolute;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  .car-roof {
+    width: 52px; height: 24px;
+    background: linear-gradient(180deg, #f87171, #ef4444);
+    border-radius: 8px 8px 4px 4px;
+    position: absolute;
+    top: -20px; left: 16px;
+  }
+  .car-window {
+    position: absolute;
+    background: rgba(186,230,253,0.7);
+    border-radius: 4px;
+  }
+  .car-wheel {
+    width: 20px; height: 20px;
+    background: radial-gradient(circle, #9ca3af, #374151);
+    border-radius: 50%;
+    position: absolute;
+    bottom: -8px;
+    animation: wheelSpin 0.3s linear infinite;
+    border: 3px solid #6b7280;
+  }
+  @keyframes wheelSpin { to { transform: rotate(360deg); } }
+  .car-move { animation: carMove 12s linear infinite; }
+  @keyframes carMove {
+    from { right: -150px; }
+    to   { right: 110%; }
+  }
 
-    .privacy-text a:hover {
-      text-decoration: underline;
-    }
+  /* Hot Air Balloon */
+  .balloon {
+    position: absolute;
+    z-index: 5;
+    animation: balloonFloat 6s ease-in-out infinite;
+  }
+  @keyframes balloonFloat {
+    0%,100% { transform: translateY(0) rotate(-2deg); }
+    50%      { transform: translateY(-20px) rotate(2deg); }
+  }
+  .balloon-body {
+    width: 60px; height: 80px;
+    background: linear-gradient(180deg, #f59e0b, #ef4444, #8b5cf6);
+    border-radius: 50% 50% 40% 40%;
+    position: relative;
+    box-shadow: inset -10px -10px 20px rgba(0,0,0,0.2);
+  }
+  .balloon-stripe {
+    position: absolute;
+    width: 8px; height: 100%;
+    background: rgba(255,255,255,0.2);
+    border-radius: 4px;
+  }
+  .balloon-basket {
+    width: 28px; height: 18px;
+    background: #92400e;
+    border-radius: 4px;
+    margin: 4px auto 0;
+    border: 2px solid #78350f;
+  }
+  .balloon-rope {
+    position: absolute;
+    width: 1px;
+    background: #92400e;
+    left: 50%; transform: translateX(-50%);
+  }
 
-    /* ── Buttons ── */
-    .btn-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: clamp(24px, 5vw, 36px);
-    }
+  /* ===== ANIMALS ===== */
+  /* Cow */
+  .cow { position: absolute; z-index: 8; }
+  .cow-body { width:60px;height:34px;background:white;border-radius:10px;position:absolute; border:2px solid #d1d5db; }
+  .cow-head { width:22px;height:20px;background:white;border-radius:8px 12px 8px 4px;position:absolute;right:-18px;top:6px;border:2px solid #d1d5db; }
+  .cow-patch { position:absolute;background:#374151;border-radius:50%; }
+  .cow-leg { position:absolute;bottom:-14px;width:9px;height:16px;background:#d1d5db;border-radius:0 0 4px 4px; }
+  .cow-tail { position:absolute;left:-12px;top:8px;width:14px;height:4px;background:#d1d5db;border-radius:2px; animation: tailWag 1s ease-in-out infinite alternate; }
+  @keyframes tailWag { 0% { transform:rotate(-20deg); } 100% { transform:rotate(20deg); } }
 
-    .btn {
-      flex: 1;
-      padding: 14px 10px;
-      border: none;
-      border-radius: 980px;
-      font-family: var(--font);
-      font-size: clamp(13px, 2.8vw, 15px);
-      font-weight: 500;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.1s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      white-space: nowrap;
-    }
+  /* Butterfly */
+  .butterfly { position:absolute;z-index:11;animation:butterflyFly 8s ease-in-out infinite; }
+  @keyframes butterflyFly {
+    0%   { transform:translate(0,0) rotate(0deg); }
+    25%  { transform:translate(80px,-40px) rotate(10deg); }
+    50%  { transform:translate(160px,10px) rotate(-5deg); }
+    75%  { transform:translate(80px,40px) rotate(5deg); }
+    100% { transform:translate(0,0) rotate(0deg); }
+  }
+  .b-wing {
+    width:20px;height:16px;
+    background:radial-gradient(ellipse,#f97316,#7c3aed);
+    border-radius:50%;
+    position:absolute;
+    animation:wingFlap 0.2s ease-in-out infinite alternate;
+    opacity:0.85;
+  }
+  @keyframes wingFlap { 0%{transform:scaleX(1);} 100%{transform:scaleX(0.4);} }
+  .b-wing.left  { right:12px; transform-origin:right center; }
+  .b-wing.right { left:12px;  transform-origin:left center; }
+  .b-body { width:5px;height:14px;background:#1e1b4b;border-radius:3px;position:absolute;left:50%;transform:translateX(-50%); }
 
-    .btn:active { transform: scale(0.97); }
+  /* ===== BIRDS ===== */
+  .bird { position:absolute;z-index:12; }
+  .bird-wing {
+    width:18px;height:8px;
+    border-top: 5px solid #1e293b;
+    border-radius:50%;
+    position:absolute;
+    animation:birdFlap 0.4s ease-in-out infinite alternate;
+  }
+  @keyframes birdFlap {
+    0%   { transform:rotate(-20deg); }
+    100% { transform:rotate(20deg); }
+  }
+  .bird-wing.l { right:0; transform-origin:right bottom; }
+  .bird-wing.r { left:0;  transform-origin:left bottom; }
+  .bird-move { animation:birdFly linear infinite; }
+  @keyframes birdFly {
+    from { transform:translateX(-50px) translateY(0); }
+    to   { transform:translateX(110vw) translateY(-60px); }
+  }
 
-    .btn-continue {
-      background: var(--btn-continue-bg);
-      color: var(--btn-continue-text);
-      opacity: 0.85;
-    }
+  /* ===== FIREFLIES ===== */
+  .firefly {
+    position:absolute;
+    width:5px;height:5px;
+    background:#fef08a;
+    border-radius:50%;
+    animation:firefly var(--fd) ease-in-out infinite;
+    box-shadow:0 0 8px 4px rgba(254,240,138,0.6);
+    z-index:13;
+  }
+  @keyframes firefly {
+    0%   { transform:translate(0,0); opacity:0; }
+    25%  { opacity:1; }
+    50%  { transform:translate(var(--fx),var(--fy)); opacity:0.5; }
+    75%  { opacity:1; }
+    100% { transform:translate(0,0); opacity:0; }
+  }
 
-    .btn-passkey {
-      background: var(--btn-passkey-bg);
-      color: var(--btn-passkey-text);
-    }
+  /* ===== RAINBOW ===== */
+  .rainbow {
+    position:absolute;
+    top:35%; left:5%;
+    width:50%; height:200px;
+    z-index:3;
+    opacity:0.35;
+  }
+  .rainbow-arc {
+    position:absolute;
+    bottom:0; left:0;
+    width:100%; height:200%;
+    border-radius:50%;
+    border:12px solid transparent;
+    box-sizing:border-box;
+  }
 
-    .btn-passkey:hover { opacity: 0.85; }
+  /* ===== TITLE CARD ===== */
+  .title-card {
+    position:absolute;
+    top:6%; left:50%;
+    transform:translateX(-50%);
+    z-index:20;
+    text-align:center;
+    animation:titleFloat 4s ease-in-out infinite alternate;
+  }
+  @keyframes titleFloat {
+    0%   { transform:translateX(-50%) translateY(0); }
+    100% { transform:translateX(-50%) translateY(-8px); }
+  }
+  .title-card h1 {
+    font-family:'Playfair Display', serif;
+    font-size:clamp(1.8rem,4vw,3.5rem);
+    color:white;
+    text-shadow:0 2px 20px rgba(0,0,0,0.5), 0 0 40px rgba(255,200,50,0.4);
+    letter-spacing:0.05em;
+    line-height:1.1;
+  }
+  .title-card p {
+    font-size:clamp(0.8rem,1.5vw,1rem);
+    color:rgba(255,255,255,0.8);
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    margin-top:6px;
+  }
 
-    /* ── Footer ── */
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: clamp(12px, 3vw, 20px);
-      margin-bottom: 8px;
-      flex-wrap: wrap;
-    }
+  /* ===== PARTICLES ===== */
+  .particle {
+    position:absolute;
+    border-radius:50%;
+    pointer-events:none;
+    animation:particleFall linear infinite;
+    z-index:15;
+  }
+  @keyframes particleFall {
+    0%   { transform:translateY(-20px) rotate(0deg); opacity:1; }
+    100% { transform:translateY(100vh) rotate(720deg); opacity:0; }
+  }
 
-    .footer-links a {
-      font-size: clamp(10px, 2.2vw, 12px);
-      color: var(--text-secondary);
-      text-decoration: none;
-    }
+  /* ===== MOON ===== */
+  .moon {
+    position:absolute;
+    top:8%; left:8%;
+    width:60px;height:60px;
+    background:radial-gradient(circle at 35% 35%, #fef9c3, #fde047);
+    border-radius:50%;
+    box-shadow:0 0 40px 15px rgba(253,224,71,0.3);
+    animation:moonGlow 5s ease-in-out infinite alternate;
+    z-index:2;
+    opacity:0.6;
+  }
+  @keyframes moonGlow {
+    0%   { box-shadow:0 0 40px 15px rgba(253,224,71,0.3); }
+    100% { box-shadow:0 0 60px 25px rgba(253,224,71,0.5); }
+  }
+  .moon::after {
+    content:'';
+    position:absolute;
+    top:10px;right:8px;
+    width:14px;height:14px;
+    background:rgba(253,224,71,0.2);
+    border-radius:50%;
+  }
 
-    .footer-links a:hover { text-decoration: underline; }
-
-    .copyright {
-      text-align: center;
-      font-size: clamp(9px, 2vw, 11px);
-      color: var(--text-secondary);
-    }
-
-    /* ── Responsive Adjustments ── */
-
-    /* Very small phones */
-    @media (max-width: 360px) {
-      body { padding: 12px; }
-      .card { padding: 24px 16px 20px; border-radius: 14px; }
-      .btn-row { flex-direction: column; }
-      .btn { width: 100%; }
-    }
-
-    /* Tablets & up: add a little more breathing room */
-    @media (min-width: 600px) {
-      .card {
-        padding: 48px 44px 40px;
-        max-width: 430px;
-      }
-    }
-
-    /* Desktop */
-    @media (min-width: 1024px) {
-      body { background: #f5f5f7; }
-      .card {
-        max-width: 440px;
-        box-shadow: 0 4px 32px rgba(0,0,0,0.10), 0 1px 6px rgba(0,0,0,0.05);
-      }
-    }
-  </style>
+  /* ===== INFO OVERLAY ===== */
+  .info {
+    position:absolute;
+    bottom:2%;
+    width:100%;
+    text-align:center;
+    z-index:20;
+    color:rgba(255,255,255,0.6);
+    font-size:0.75rem;
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+    animation:infoPulse 3s ease-in-out infinite alternate;
+  }
+  @keyframes infoPulse { 0%{opacity:0.4;} 100%{opacity:0.8;} }
+</style>
 </head>
 <body>
 
-<div class="card">
+<div class="cursor" id="cursor"></div>
 
-  <!-- Apple Logo Ring -->
-  <div class="logo-wrap">
-    <div class="ring-container">
-      <!-- SVG rainbow dot ring -->
-      <svg class="ring-svg" viewBox="0 0 130 130" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <g id="dots"></g>
-      </svg>
-      <!-- Apple  symbol -->
-      <div class="apple-icon">
-        <svg width="36" height="44" viewBox="0 0 814 1000" fill="#1d1d1f" xmlns="http://www.w3.org/2000/svg">
-          <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-42.8-155.5-127.4C46.7 790.8 0 663.9 0 541.8c0-207.5 135.4-316.8 268.5-316.8 70.9 0 130.4 46.3 174.7 46.3 42.7 0 109.2-49 191.6-49 30.8 0 130.4 2.6 198.3 99.2zm-234-181.5c31.1-36.9 53.1-88.1 53.1-139.3 0-7.1-.6-14.3-1.9-20.1-50.6 1.9-110.8 33.7-147.1 75.8-28.5 32.4-55.1 83.6-55.1 135.5 0 7.8 1.3 15.6 1.9 18.1 3.2.6 8.4 1.3 13.6 1.3 45.4 0 102.5-30.4 135.5-71.3z"/>
-        </svg>
-      </div>
+<div class="scene" id="scene">
+
+  <!-- SKY -->
+  <div class="sky"></div>
+
+  <!-- MOON -->
+  <div class="moon"></div>
+
+  <!-- STARS -->
+  <div class="stars" id="stars"></div>
+
+  <!-- RAINBOW -->
+  <div class="rainbow">
+    <div class="rainbow-arc" style="border-color:rgba(239,68,68,0.8);width:100%;height:100%;bottom:0;left:0;border-radius:50% 50% 0 0;border-bottom:none;"></div>
+    <div class="rainbow-arc" style="border-color:rgba(249,115,22,0.8);width:90%;height:90%;bottom:0;left:5%;border-radius:50% 50% 0 0;border-bottom:none;"></div>
+    <div class="rainbow-arc" style="border-color:rgba(234,179,8,0.8);width:80%;height:80%;bottom:0;left:10%;border-radius:50% 50% 0 0;border-bottom:none;"></div>
+    <div class="rainbow-arc" style="border-color:rgba(34,197,94,0.8);width:70%;height:70%;bottom:0;left:15%;border-radius:50% 50% 0 0;border-bottom:none;"></div>
+    <div class="rainbow-arc" style="border-color:rgba(59,130,246,0.8);width:60%;height:60%;bottom:0;left:20%;border-radius:50% 50% 0 0;border-bottom:none;"></div>
+    <div class="rainbow-arc" style="border-color:rgba(139,92,246,0.8);width:50%;height:50%;bottom:0;left:25%;border-radius:50% 50% 0 0;border-bottom:none;"></div>
+  </div>
+
+  <!-- SUN -->
+  <div class="sun">
+    <div class="sun-ray" style="transform-origin:45px 1px;"></div>
+    <div class="sun-ray" style="transform-origin:45px 1px;transform:rotate(45deg);"></div>
+    <div class="sun-ray" style="transform-origin:45px 1px;transform:rotate(90deg);"></div>
+    <div class="sun-ray" style="transform-origin:45px 1px;transform:rotate(135deg);"></div>
+    <div class="sun-ray" style="transform-origin:45px 1px;transform:rotate(180deg);"></div>
+    <div class="sun-ray" style="transform-origin:45px 1px;transform:rotate(225deg);"></div>
+    <div class="sun-ray" style="transform-origin:45px 1px;transform:rotate(270deg);"></div>
+    <div class="sun-ray" style="transform-origin:45px 1px;transform:rotate(315deg);"></div>
+  </div>
+
+  <!-- CLOUDS -->
+  <div id="clouds"></div>
+
+  <!-- MOUNTAINS -->
+  <div class="mountains">
+    <div class="mountain" style="left:0%;border-left-width:180px;border-right-width:180px;border-bottom-width:220px;border-bottom-color:#3b3470;"></div>
+    <div class="mountain" style="left:18%;border-left-width:140px;border-right-width:140px;border-bottom-width:180px;border-bottom-color:#4a4080;"></div>
+    <div class="mountain" style="left:40%;border-left-width:200px;border-right-width:200px;border-bottom-width:260px;border-bottom-color:#322e60;"></div>
+    <div class="mountain" style="left:65%;border-left-width:160px;border-right-width:160px;border-bottom-width:200px;border-bottom-color:#3d3878;"></div>
+    <div class="mountain" style="left:80%;border-left-width:130px;border-right-width:130px;border-bottom-width:170px;border-bottom-color:#4a4590;"></div>
+  </div>
+
+  <!-- GROUND LAYERS -->
+  <div class="ground-layer ground-back" style="position:absolute;"></div>
+  <div class="ground-layer ground-mid" style="position:absolute;"></div>
+
+  <!-- RIVER -->
+  <div class="river"></div>
+
+  <!-- GROUND FRONT -->
+  <div class="ground-layer ground-front" style="position:absolute;"></div>
+  <div class="path"></div>
+
+  <!-- GRASS -->
+  <div id="grass"></div>
+
+  <!-- TREES -->
+  <div id="trees"></div>
+
+  <!-- FLOWERS -->
+  <div id="flowers"></div>
+
+  <!-- ANIMALS -->
+  <div id="animals"></div>
+
+  <!-- HUMANS -->
+  <div id="humans"></div>
+
+  <!-- VEHICLES -->
+  <div id="vehicles"></div>
+
+  <!-- BIRDS -->
+  <div id="birds"></div>
+
+  <!-- BUTTERFLIES -->
+  <div id="butterflies"></div>
+
+  <!-- HOT AIR BALLOON -->
+  <div class="balloon" style="top:15%;left:30%;">
+    <div class="balloon-body">
+      <div class="balloon-stripe" style="left:20%;"></div>
+      <div class="balloon-stripe" style="left:50%;"></div>
+      <div class="balloon-stripe" style="left:70%;"></div>
+    </div>
+    <div class="balloon-basket"></div>
+    <!-- tiny people in basket -->
+    <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px;">
+      <div style="width:6px;height:10px;background:#f5cba7;border-radius:3px 3px 0 0;"></div>
+      <div style="width:6px;height:10px;background:#ec4899;border-radius:3px 3px 0 0;"></div>
     </div>
   </div>
 
-  <!-- Title -->
-  <h1 class="title">Sign in with<br>Apple Account</h1>
+  <!-- FIREFLIES -->
+  <div id="fireflies"></div>
 
-  <!-- Email Input -->
-  <div class="input-wrap">
-    <input class="input-field" type="email" placeholder="Email or Phone Number" autocomplete="username" />
+  <!-- PARTICLES -->
+  <div id="particles"></div>
+
+  <!-- TITLE -->
+  <div class="title-card">
+    <h1>✨ The Living World ✨</h1>
+    <p>A beautiful animated nature scene</p>
   </div>
 
-  <!-- Create link -->
-  <a class="create-link" href="#">Create Your Apple Account</a>
-
-  <!-- Privacy notice -->
-  <div class="privacy-wrap">
-    <!-- Person icon SVG -->
-    <svg class="privacy-icon" width="34" height="26" viewBox="0 0 34 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="12" cy="8" r="5" fill="#4A90D9"/>
-      <path d="M2 24c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="#4A90D9" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <circle cx="24" cy="10" r="4" fill="#A0C4E8"/>
-      <path d="M18 24c0-3.866 2.686-7 6-7" stroke="#A0C4E8" stroke-width="2" fill="none" stroke-linecap="round"/>
-    </svg>
-    <p class="privacy-text">
-      Your Apple Account information is used to allow you to sign in
-      securely and access your data. Apple records certain data for
-      security, support, and reporting purposes. If you agree, Apple
-      may also use your Apple Account information to send you
-      marketing emails and communications, including based on
-      your use of Apple services. <a href="#">See how your data is managed.</a>
-    </p>
-  </div>
-
-  <!-- Buttons -->
-  <div class="btn-row">
-    <button class="btn btn-continue" disabled>Continue</button>
-    <button class="btn btn-passkey">
-      <!-- Passkey icon -->
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="9" cy="7" r="4" stroke="white" stroke-width="2"/>
-        <path d="M2 21c0-3.866 3.134-7 7-7" stroke="white" stroke-width="2" stroke-linecap="round"/>
-        <path d="M17 14l1.5 1.5L21 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <rect x="14" y="11" width="8" height="6" rx="2" stroke="white" stroke-width="2"/>
-      </svg>
-      Sign in with Passkey
-    </button>
-  </div>
-
-  <!-- Footer -->
-  <div class="footer-links">
-    <a href="#">System Status</a>
-    <a href="#">Privacy Policy</a>
-    <a href="#">Terms &amp; Conditions</a>
-  </div>
-  <p class="copyright">Copyright &copy; 2026 Apple Inc. All rights reserved.</p>
+  <div class="info">Move your mouse to create magic ✦ Everything is alive</div>
 
 </div>
 
 <script>
-  // ── Generate the rainbow dot ring ──
-  (function () {
-    const svg = document.querySelector('#dots');
-    const cx = 65, cy = 65, r = 55;
-    const totalDots = 72;
+// ===================== CURSOR =====================
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top  = e.clientY + 'px';
+  spawnMouseParticle(e.clientX, e.clientY);
+});
 
-    // rainbow hues spaced around circle
-    for (let i = 0; i < totalDots; i++) {
-      const angle = (i / totalDots) * 2 * Math.PI - Math.PI / 2;
-      const x = cx + r * Math.cos(angle);
-      const y = cy + r * Math.sin(angle);
+function spawnMouseParticle(x, y) {
+  if (Math.random() > 0.3) return;
+  const p = document.createElement('div');
+  const size = 4 + Math.random() * 6;
+  const colors = ['#fbbf24','#f97316','#ec4899','#a78bfa','#34d399','#60a5fa'];
+  p.style.cssText = `position:fixed;width:${size}px;height:${size}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:50%;left:${x}px;top:${y}px;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);`;
+  document.body.appendChild(p);
+  let vy = -2 - Math.random()*3, vx = (Math.random()-0.5)*4, opacity = 1;
+  const animate = () => {
+    vy += 0.1; vx *= 0.98;
+    const cx = parseFloat(p.style.left) + vx;
+    const cy = parseFloat(p.style.top) + vy;
+    opacity -= 0.03;
+    p.style.left = cx+'px'; p.style.top = cy+'px'; p.style.opacity = opacity;
+    if (opacity > 0) requestAnimationFrame(animate); else p.remove();
+  };
+  requestAnimationFrame(animate);
+}
 
-      // hue follows the angle (0-360)
-      const hue = ((i / totalDots) * 360 + 200) % 360; // offset so red is roughly bottom-left
-      const size = 2.2 + Math.random() * 1.4;
+// ===================== STARS =====================
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 80; i++) {
+  const s = document.createElement('div');
+  const size = 1 + Math.random() * 3;
+  s.className = 'star';
+  s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${1+Math.random()*3}s;animation-delay:${Math.random()*3}s;`;
+  starsEl.appendChild(s);
+}
 
-      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      circle.setAttribute('cx', x.toFixed(2));
-      circle.setAttribute('cy', y.toFixed(2));
-      circle.setAttribute('r', size.toFixed(2));
-      circle.setAttribute('fill', `hsl(${hue.toFixed(0)},80%,52%)`);
-      svg.appendChild(circle);
-    }
-  })();
+// ===================== CLOUDS =====================
+const cloudsEl = document.getElementById('clouds');
+const cloudDefs = [
+  { top:'8%',  dur:'30s', delay:'0s',   w:140, h:50, opacity:0.9 },
+  { top:'12%', dur:'45s', delay:'10s',  w:100, h:36, opacity:0.8 },
+  { top:'6%',  dur:'38s', delay:'20s',  w:180, h:60, opacity:0.85 },
+  { top:'18%', dur:'55s', delay:'5s',   w:120, h:40, opacity:0.7 },
+  { top:'22%', dur:'42s', delay:'15s',  w:90,  h:32, opacity:0.75 },
+];
+cloudDefs.forEach(cd => {
+  const cloud = document.createElement('div');
+  cloud.className = 'cloud';
+  cloud.style.cssText = `top:${cd.top};animation-duration:${cd.dur};animation-delay:${cd.delay};`;
+  cloud.innerHTML = `
+    <div style="position:relative;width:${cd.w}px;height:${cd.h}px;opacity:${cd.opacity};">
+      <div class="cloud-body" style="width:${cd.w}px;height:${cd.h*0.6}px;position:absolute;bottom:0;background:rgba(255,255,255,0.9);"></div>
+      <div class="cloud-body" style="width:${cd.w*0.5}px;height:${cd.h}px;position:absolute;left:${cd.w*0.2}px;bottom:${cd.h*0.3}px;background:rgba(255,255,255,0.95);border-radius:50%;"></div>
+      <div class="cloud-body" style="width:${cd.w*0.35}px;height:${cd.h*0.8}px;position:absolute;left:${cd.w*0.45}px;bottom:${cd.h*0.2}px;background:white;border-radius:50%;"></div>
+    </div>`;
+  cloudsEl.appendChild(cloud);
+});
 
-  // ── Enable Continue button when input has value ──
-  const input = document.querySelector('.input-field');
-  const continueBtn = document.querySelector('.btn-continue');
+// ===================== GRASS =====================
+const grassEl = document.getElementById('grass');
+for (let i = 0; i < 200; i++) {
+  const g = document.createElement('div');
+  const h = 15 + Math.random() * 25;
+  g.className = 'grass-blade';
+  g.style.cssText = `left:${Math.random()*100}%;height:${h}px;bottom:${Math.random()*18}%;--gd:${1.5+Math.random()*2}s;animation-delay:${Math.random()*2}s;z-index:${7+Math.floor(Math.random()*2)};`;
+  grassEl.appendChild(g);
+}
 
-  input.addEventListener('input', () => {
-    if (input.value.trim().length > 0) {
-      continueBtn.disabled = false;
-      continueBtn.style.opacity = '1';
-      continueBtn.style.background = '#0071e3';
-    } else {
-      continueBtn.disabled = true;
-      continueBtn.style.opacity = '';
-      continueBtn.style.background = '';
-    }
-  });
+// ===================== TREES =====================
+function makeTree(x, bottom, scale) {
+  const tree = document.createElement('div');
+  tree.className = 'tree';
+  const tw = 80 * scale, th = 130 * scale;
+  const trunkW = 12 * scale, trunkH = 35 * scale;
+  const greenShades = ['#15803d','#16a34a','#166534','#22c55e','#14532d'];
+  const fc = greenShades[Math.floor(Math.random() * greenShades.length)];
+  tree.style.cssText = `left:${x}%;bottom:${bottom}%;width:${tw}px;height:${th}px;`;
+  // Decide tree type
+  const type = Math.random();
+  if (type < 0.4) {
+    // Pine
+    tree.innerHTML = `
+      <div class="tree-trunk" style="width:${trunkW}px;height:${trunkH}px;"></div>
+      <div class="tree-foliage" style="--fc:${fc};border-left-width:${tw*0.35}px;border-right-width:${tw*0.35}px;border-bottom-width:${th*0.45}px;bottom:${trunkH*0.7}px;"></div>
+      <div class="tree-foliage" style="--fc:${fc};border-left-width:${tw*0.28}px;border-right-width:${tw*0.28}px;border-bottom-width:${th*0.38}px;bottom:${trunkH+th*0.18}px;"></div>
+      <div class="tree-foliage" style="--fc:${fc};border-left-width:${tw*0.2}px;border-right-width:${tw*0.2}px;border-bottom-width:${th*0.28}px;bottom:${trunkH+th*0.35}px;animation-delay:0.5s;"></div>`;
+  } else if (type < 0.7) {
+    // Oak
+    const leafSize = tw * 0.95;
+    tree.innerHTML = `
+      <div class="tree-trunk" style="width:${trunkW}px;height:${trunkH*1.3}px;"></div>
+      <div class="oak-leaves" style="width:${leafSize}px;height:${leafSize*0.85}px;bottom:${trunkH*1.0}px;left:${(tw-leafSize)/2}px;background:radial-gradient(circle at 40% 40%,${fc},${fc}cc);"></div>
+      <div class="oak-leaves" style="width:${leafSize*0.65}px;height:${leafSize*0.65}px;bottom:${trunkH*1.2}px;left:${tw*0.4}px;background:radial-gradient(circle,${fc}dd,${fc});animation-delay:0.3s;"></div>
+      <div class="oak-leaves" style="width:${leafSize*0.6}px;height:${leafSize*0.6}px;bottom:${trunkH*1.1}px;left:${-tw*0.05}px;background:radial-gradient(circle,${fc}cc,${fc}aa);animation-delay:0.6s;"></div>`;
+  } else {
+    // Tropical / palm-like
+    tree.innerHTML = `
+      <div class="tree-trunk" style="width:${trunkW*0.8}px;height:${trunkH*1.6}px;background:linear-gradient(180deg,#a16207,#78350f);border-radius:6px;transform:translateX(-50%) rotate(5deg);"></div>
+      <div class="oak-leaves" style="width:${tw*0.9}px;height:${th*0.35}px;bottom:${trunkH*1.4}px;left:0;background:radial-gradient(ellipse,${fc},${fc}99);border-radius:50%;animation-delay:0.2s;"></div>
+      <div class="oak-leaves" style="width:${tw*0.75}px;height:${th*0.28}px;bottom:${trunkH*1.55}px;left:${tw*0.1}px;background:radial-gradient(ellipse,${fc}cc,${fc}88);border-radius:50%;animation-delay:0.5s;"></div>`;
+  }
+  return tree;
+}
+
+const treesEl = document.getElementById('trees');
+const treeData = [
+  {x:2,b:18,s:1.2},{x:8,b:20,s:1},{x:14,b:22,s:1.4},{x:20,b:20,s:0.9},
+  {x:30,b:19,s:1.1},{x:38,b:21,s:1.3},{x:55,b:18,s:1},{x:62,b:20,s:1.2},
+  {x:70,b:22,s:0.95},{x:78,b:19,s:1.15},{x:85,b:21,s:1.05},{x:92,b:18,s:1.3},
+  {x:96,b:20,s:1},{x:45,b:29,s:0.7},{x:52,b:28,s:0.75}
+];
+treeData.forEach(t => treesEl.appendChild(makeTree(t.x, t.b, t.s)));
+
+// ===================== FLOWERS =====================
+const flowerColors = [
+  ['#ef4444','#fca5a5'],['#f97316','#fdba74'],['#f59e0b','#fcd34d'],
+  ['#ec4899','#f9a8d4'],['#8b5cf6','#c4b5fd'],['#06b6d4','#67e8f9'],
+  ['#ffffff','#fde68a']
+];
+const flowersEl = document.getElementById('flowers');
+for (let i = 0; i < 45; i++) {
+  const [pc, pc2] = flowerColors[Math.floor(Math.random()*flowerColors.length)];
+  const stemH = 20 + Math.random() * 30;
+  const flower = document.createElement('div');
+  flower.className = 'flower';
+  flower.style.cssText = `left:${Math.random()*95}%;bottom:${12+Math.random()*14}%;height:${stemH+20}px;width:20px;`;
+  let petals = '';
+  for (let p = 0; p < 6; p++) {
+    const angle = p * 60;
+    petals += `<div class="petal" style="background:${pc};transform:translate(-50%,-50%) rotate(${angle}deg) translateY(-8px);animation-delay:${p*0.1}s;"></div>`;
+  }
+  flower.innerHTML = `
+    <div class="flower-stem" style="height:${stemH}px;"></div>
+    <div class="flower-head" style="bottom:${stemH-6}px;">${petals}<div class="flower-center"></div></div>`;
+  flowersEl.appendChild(flower);
+}
+
+// ===================== COW =====================
+const animalsEl = document.getElementById('animals');
+[{x:'20%',b:'19%'},{x:'65%',b:'21%'}].forEach(pos => {
+  const cow = document.createElement('div');
+  cow.className = 'cow';
+  cow.style.cssText = `left:${pos.x};bottom:${pos.b};width:80px;height:50px;`;
+  cow.innerHTML = `
+    <div class="cow-body" style="top:8px;">
+      <div class="cow-patch" style="width:16px;height:12px;top:5px;left:10px;"></div>
+      <div class="cow-patch" style="width:10px;height:8px;top:14px;left:30px;"></div>
+    </div>
+    <div class="cow-head"><div style="width:8px;height:5px;background:#ef4444;border-radius:2px;position:absolute;top:12px;right:2px;"></div></div>
+    <div class="cow-tail"></div>
+    <div class="cow-leg" style="left:8px;"></div>
+    <div class="cow-leg" style="left:18px;"></div>
+    <div class="cow-leg" style="left:36px;"></div>
+    <div class="cow-leg" style="left:46px;"></div>`;
+  animalsEl.appendChild(cow);
+});
+
+// ===================== HUMANS =====================
+const humansEl = document.getElementById('humans');
+
+// Male walking
+const male = document.createElement('div');
+male.className = 'human human-move';
+male.style.cssText = `bottom:18%;animation-duration:18s;animation-delay:0s;`;
+male.innerHTML = `
+  <div style="position:relative;width:30px;height:70px;">
+    <div class="male-head"></div>
+    <div style="position:absolute;top:14px;left:50%;transform:translateX(-50%);width:6px;height:8px;background:#4b5563;border-radius:2px;"></div>
+    <div class="male-body">
+      <div class="male-arm l"></div>
+      <div class="male-arm r"></div>
+    </div>
+    <div class="male-legs">
+      <div class="male-leg human-walk" style="animation-delay:0s;"></div>
+      <div class="male-leg human-walk" style="animation-delay:0.25s;"></div>
+    </div>
+  </div>`;
+humansEl.appendChild(male);
+
+// Female
+const female = document.createElement('div');
+female.className = 'human human-move';
+female.style.cssText = `bottom:18%;animation-duration:22s;animation-delay:6s;`;
+female.innerHTML = `
+  <div style="position:relative;width:30px;height:65px;">
+    <div class="female-hair"></div>
+    <div class="female-head"></div>
+    <div class="female-body"></div>
+    <div class="female-legs">
+      <div class="female-leg human-walk" style="animation-delay:0.1s;"></div>
+      <div class="female-leg human-walk" style="animation-delay:0.35s;"></div>
+    </div>
+  </div>`;
+humansEl.appendChild(female);
+
+// Static couple holding hands
+const couple = document.createElement('div');
+couple.style.cssText = `position:absolute;bottom:19%;left:45%;display:flex;align-items:flex-end;gap:8px;z-index:9;`;
+couple.innerHTML = `
+  <div style="position:relative;width:28px;height:68px;">
+    <div style="width:17px;height:17px;background:#f5cba7;border-radius:50%;position:absolute;left:50%;transform:translateX(-50%);top:0;"></div>
+    <div style="width:5px;height:7px;background:#1d4ed8;border-radius:1px;position:absolute;top:13px;left:50%;transform:translateX(-50%);"></div>
+    <div style="width:20px;height:26px;background:#1d4ed8;border-radius:4px 4px 0 0;position:absolute;left:50%;transform:translateX(-50%);top:15px;"></div>
+    <div style="display:flex;gap:4px;position:absolute;top:42px;left:50%;transform:translateX(-50%);">
+      <div style="width:8px;height:20px;background:#1e3a5f;border-radius:0 0 4px 4px;"></div>
+      <div style="width:8px;height:20px;background:#1e3a5f;border-radius:0 0 4px 4px;"></div>
+    </div>
+  </div>
+  <div style="position:relative;width:28px;height:62px;">
+    <div style="width:8px;height:6px;background:#7c3aed;border-radius:3px 3px 0 0;position:absolute;left:50%;transform:translateX(-50%);top:0;"></div>
+    <div style="width:15px;height:15px;background:#f5cba7;border-radius:50%;position:absolute;left:50%;transform:translateX(-50%);top:0;"></div>
+    <div style="width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-top:28px solid #ec4899;position:absolute;left:50%;transform:translateX(-50%);top:13px;"></div>
+    <div style="display:flex;gap:6px;position:absolute;top:40px;left:50%;transform:translateX(-50%);">
+      <div style="width:7px;height:16px;background:#f472b6;border-radius:0 0 3px 3px;"></div>
+      <div style="width:7px;height:16px;background:#f472b6;border-radius:0 0 3px 3px;"></div>
+    </div>
+  </div>`;
+humansEl.appendChild(couple);
+
+// Kid
+const kid = document.createElement('div');
+kid.style.cssText = `position:absolute;bottom:18.5%;left:48%;z-index:9;animation:kidJump 1s ease-in-out infinite;`;
+kid.innerHTML = `
+  <div style="position:relative;width:20px;height:42px;">
+    <div style="width:13px;height:13px;background:#fcd34d;border-radius:50%;position:absolute;left:50%;transform:translateX(-50%);top:0;"></div>
+    <div style="width:15px;height:18px;background:#34d399;border-radius:3px 3px 0 0;position:absolute;left:50%;transform:translateX(-50%);top:11px;"></div>
+    <div style="display:flex;gap:3px;position:absolute;top:28px;left:50%;transform:translateX(-50%);">
+      <div style="width:6px;height:14px;background:#10b981;border-radius:0 0 3px 3px;"></div>
+      <div style="width:6px;height:14px;background:#10b981;border-radius:0 0 3px 3px;"></div>
+    </div>
+  </div>`;
+document.head.insertAdjacentHTML('beforeend','<style>@keyframes kidJump{0%,100%{bottom:18.5%;}50%{bottom:22%;}}</style>');
+humansEl.appendChild(kid);
+
+// ===================== VEHICLES =====================
+const vehiclesEl = document.getElementById('vehicles');
+
+// Red car
+const car = document.createElement('div');
+car.className = 'vehicle car-move';
+car.style.cssText = `bottom:16.5%;animation-duration:14s;animation-delay:2s;`;
+car.innerHTML = `
+  <div style="position:relative;width:100px;height:50px;">
+    <div class="car-body">
+      <div class="car-roof"></div>
+      <div class="car-window" style="width:20px;height:14px;top:-16px;left:20px;"></div>
+      <div class="car-window" style="width:18px;height:14px;top:-16px;left:44px;"></div>
+      <div style="width:14px;height:8px;background:rgba(253,224,71,0.8);border-radius:3px;position:absolute;left:-4px;top:12px;box-shadow:0 0 8px rgba(253,224,71,0.6);"></div>
+      <div style="width:10px;height:6px;background:rgba(239,68,68,0.8);border-radius:2px;position:absolute;right:-2px;top:14px;"></div>
+    </div>
+    <div class="car-wheel" style="left:10px;"></div>
+    <div class="car-wheel" style="right:10px;"></div>
+  </div>`;
+vehiclesEl.appendChild(car);
+
+// Blue car moving other direction
+const car2 = document.createElement('div');
+car2.className = 'vehicle';
+car2.style.cssText = `bottom:17%;animation:carMove2 18s linear infinite;animation-delay:8s;`;
+car2.innerHTML = `
+  <div style="position:relative;width:100px;height:50px;transform:scaleX(-1);">
+    <div class="car-body" style="background:linear-gradient(180deg,#3b82f6,#2563eb);">
+      <div class="car-roof" style="background:linear-gradient(180deg,#60a5fa,#3b82f6);"></div>
+      <div class="car-window" style="width:20px;height:14px;top:-16px;left:20px;"></div>
+      <div class="car-window" style="width:18px;height:14px;top:-16px;left:44px;"></div>
+    </div>
+    <div class="car-wheel" style="left:10px;"></div>
+    <div class="car-wheel" style="right:10px;"></div>
+  </div>`;
+document.head.insertAdjacentHTML('beforeend','<style>@keyframes carMove2{from{left:110%;}to{left:-150px;}}</style>');
+vehiclesEl.appendChild(car2);
+
+// Bicycle
+const bike = document.createElement('div');
+bike.className = 'vehicle';
+bike.style.cssText = `bottom:18%;animation:bikeMove 20s linear infinite;animation-delay:4s;z-index:10;`;
+bike.innerHTML = `
+  <div style="position:relative;width:55px;height:40px;">
+    <div style="width:20px;height:20px;border:3px solid #374151;border-radius:50%;position:absolute;bottom:0;left:0;animation:wheelSpin 0.4s linear infinite;"></div>
+    <div style="width:20px;height:20px;border:3px solid #374151;border-radius:50%;position:absolute;bottom:0;right:0;animation:wheelSpin 0.4s linear infinite;"></div>
+    <div style="position:absolute;bottom:10px;left:10px;width:35px;height:2px;background:#374151;transform:rotate(-25deg);"></div>
+    <div style="position:absolute;bottom:8px;left:15px;width:25px;height:2px;background:#374151;"></div>
+    <div style="position:absolute;bottom:22px;left:24px;width:8px;height:16px;background:#f5cba7;border-radius:4px 4px 0 0;"></div>
+  </div>`;
+document.head.insertAdjacentHTML('beforeend','<style>@keyframes bikeMove{from{left:-80px;}to{left:110%;}}</style>');
+vehiclesEl.appendChild(bike);
+
+// ===================== BIRDS =====================
+const birdsEl = document.getElementById('birds');
+const birdPositions = [
+  {t:'10%',dur:'14s',del:'0s'},{t:'15%',dur:'18s',del:'4s'},
+  {t:'8%',dur:'22s',del:'8s'},{t:'12%',dur:'16s',del:'12s'},
+  {t:'20%',dur:'20s',del:'2s'},{t:'7%',dur:'25s',del:'6s'},
+];
+birdPositions.forEach(bp => {
+  const bird = document.createElement('div');
+  bird.className = 'bird bird-move';
+  bird.style.cssText = `top:${bp.t};animation-duration:${bp.dur};animation-delay:${bp.del};width:24px;height:10px;`;
+  bird.innerHTML = `<div class="bird-wing l"></div><div class="bird-wing r"></div>`;
+  birdsEl.appendChild(bird);
+});
+
+// ===================== BUTTERFLIES =====================
+const butterfliesEl = document.getElementById('butterflies');
+const bfColors = [['#f97316','#7c3aed'],['#ec4899','#fbbf24'],['#06b6d4','#f97316'],['#8b5cf6','#34d399']];
+bfColors.forEach((c, i) => {
+  const bf = document.createElement('div');
+  bf.className = 'butterfly';
+  bf.style.cssText = `left:${10+i*20}%;bottom:${25+Math.random()*20}%;width:26px;height:16px;animation-delay:${i*2}s;`;
+  bf.innerHTML = `
+    <div class="b-wing left" style="background:radial-gradient(ellipse,${c[0]},${c[1]});"></div>
+    <div class="b-wing right" style="background:radial-gradient(ellipse,${c[0]},${c[1]});"></div>
+    <div class="b-body"></div>`;
+  butterfliesEl.appendChild(bf);
+});
+
+// ===================== FIREFLIES =====================
+const firefliesEl = document.getElementById('fireflies');
+for (let i = 0; i < 20; i++) {
+  const ff = document.createElement('div');
+  ff.className = 'firefly';
+  const fx = (Math.random()-0.5)*80, fy = (Math.random()-0.5)*60;
+  ff.style.cssText = `left:${Math.random()*100}%;bottom:${15+Math.random()*40}%;--fd:${3+Math.random()*5}s;--fx:${fx}px;--fy:${fy}px;animation-delay:${Math.random()*6}s;`;
+  firefliesEl.appendChild(ff);
+}
+
+// ===================== FALLING PETALS / LEAVES =====================
+const particlesEl = document.getElementById('particles');
+const petalColors = ['#fca5a5','#fcd34d','#f9a8d4','#a5f3fc','#bbf7d0','#c4b5fd','#fed7aa'];
+function spawnPetal() {
+  const p = document.createElement('div');
+  p.className = 'particle';
+  const size = 6 + Math.random() * 10;
+  const dur = 5 + Math.random() * 8;
+  const col = petalColors[Math.floor(Math.random() * petalColors.length)];
+  p.style.cssText = `width:${size}px;height:${size}px;background:${col};left:${Math.random()*100}%;top:-10px;animation-duration:${dur}s;animation-delay:${Math.random()*3}s;border-radius:${Math.random()>0.5?'50%':'3px'};opacity:0.7;`;
+  particlesEl.appendChild(p);
+  setTimeout(() => p.remove(), (dur + 3) * 1000);
+}
+setInterval(spawnPetal, 400);
+
+// ===================== CLICK EFFECTS =====================
+document.addEventListener('click', e => {
+  for (let i = 0; i < 12; i++) {
+    const spark = document.createElement('div');
+    const angle = (i / 12) * Math.PI * 2;
+    const speed = 3 + Math.random() * 5;
+    const colors = ['#fbbf24','#f97316','#ec4899','#a78bfa','#34d399'];
+    const size = 5 + Math.random() * 8;
+    spark.style.cssText = `position:fixed;width:${size}px;height:${size}px;background:${colors[Math.floor(Math.random()*5)]};border-radius:50%;left:${e.clientX}px;top:${e.clientY}px;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);`;
+    document.body.appendChild(spark);
+    let vx = Math.cos(angle)*speed, vy = Math.sin(angle)*speed, opacity = 1;
+    const go = () => {
+      vy += 0.15; vx *= 0.97;
+      const nx = parseFloat(spark.style.left)+vx, ny = parseFloat(spark.style.top)+vy;
+      opacity -= 0.025;
+      spark.style.left = nx+'px'; spark.style.top = ny+'px'; spark.style.opacity = opacity;
+      if (opacity > 0) requestAnimationFrame(go); else spark.remove();
+    };
+    requestAnimationFrame(go);
+  }
+});
+
+// ===================== DAY/NIGHT CYCLE =====================
+let timeOfDay = 0;
+setInterval(() => {
+  timeOfDay = (timeOfDay + 1) % 360;
+  const t = timeOfDay / 360;
+  // Subtly shift the sky color
+  document.querySelector('.sky').style.filter = `hue-rotate(${Math.sin(t*Math.PI*2)*15}deg) brightness(${0.9+Math.sin(t*Math.PI)*0.2})`;
+}, 200);
+
+console.log('%c✨ Living World Loaded! Click anywhere for magic! ✨', 'color:#fbbf24;font-size:16px;font-weight:bold;');
 </script>
 </body>
 </html>
