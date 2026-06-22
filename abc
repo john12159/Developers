@@ -518,34 +518,83 @@ const suggestions = document.getElementById('suggestions');
 const locateBtn = document.getElementById('locateBtn');
 
 let searchTimeout = null;
+let latestResults = [];
 cityInput.addEventListener('input', ()=>{
   clearTimeout(searchTimeout);
   const q = cityInput.value.trim();
-  if(q.length < 2){ suggestions.style.display='none'; return; }
+  if(q.length < 2){ suggestions.style.display='none'; latestResults = []; return; }
   searchTimeout = setTimeout(()=>geocodeSearch(q), 300);
 });
-document.addEventListener('click', (e)=>{
+
+// Enter key: pick the first matching result immediately, even if the
+// dropdown hasn't rendered yet or the user dismissed it.
+cityInput.addEventListener('keydown', async (e)=>{
+  if(e.key !== 'Enter') return;
+  e.preventDefault();
+  const q = cityInput.value.trim();
+  if(q.length < 2) return;
+  clearTimeout(searchTimeout);
+  suggestions.style.display='none';
+
+  if(latestResults.length){
+    selectResult(latestResults[0]);
+    return;
+  }
+  // no cached results yet (e.g. typed fast then hit Enter) — fetch now
+  main.innerHTML = `<div class="loading">Searching for "${q}"…</div>`;
+  try{
+    const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=en&format=json`);
+    if(!res.ok) throw new Error('Search service unavailable');
+    const data = await res.json();
+    if(data.results && data.results.length){
+      selectResult(data.results[0]);
+    } else {
+      main.innerHTML = `<div class="error-state">No city found for "${q}".<br>Check the spelling, or try a nearby larger city.<br><button onclick="document.getElementById('cityInput').focus()">Try again</button></div>`;
+    }
+  }catch(err){
+    main.innerHTML = `<div class="error-state">Couldn't reach the search service.<br><span style="font-size:0.85rem">${err.message}</span><br><button onclick="document.getElementById('cityInput').focus()">Try again</button></div>`;
+  }
+});
+
+// Use mousedown (fires before blur/click-outside) so taps on a suggestion
+// register reliably, including on mobile keyboards that auto-dismiss focus.
+document.addEventListener('mousedown', (e)=>{
   if(!suggestions.contains(e.target) && e.target !== cityInput) suggestions.style.display='none';
 });
+
+function selectResult(r){
+  const region = [r.admin1, r.country].filter(Boolean).join(', ');
+  cityInput.value = r.name;
+  suggestions.style.display='none';
+  loadWeather(r.latitude, r.longitude, r.name, region);
+}
 
 async function geocodeSearch(q){
   try{
     const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=en&format=json`);
+    if(!res.ok) throw new Error('bad response');
     const data = await res.json();
-    if(!data.results || !data.results.length){ suggestions.style.display='none'; return; }
-    suggestions.innerHTML = data.results.map(r=>{
+    latestResults = data.results || [];
+    if(!latestResults.length){
+      suggestions.innerHTML = `<button disabled style="opacity:0.5; cursor:default;">No matches for "${q}"</button>`;
+      suggestions.style.display='block';
+      return;
+    }
+    suggestions.innerHTML = latestResults.map((r,i)=>{
       const region = [r.admin1, r.country].filter(Boolean).join(', ');
-      return `<button data-lat="${r.latitude}" data-lon="${r.longitude}" data-name="${r.name}" data-region="${region}">${r.name}${region ? ', '+region : ''}</button>`;
+      return `<button type="button" data-idx="${i}">${r.name}${region ? ', '+region : ''}</button>`;
     }).join('');
     suggestions.style.display='block';
-    suggestions.querySelectorAll('button').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        suggestions.style.display='none';
-        cityInput.value = btn.dataset.name;
-        loadWeather(parseFloat(btn.dataset.lat), parseFloat(btn.dataset.lon), btn.dataset.name, btn.dataset.region);
+    suggestions.querySelectorAll('button[data-idx]').forEach(btn=>{
+      btn.addEventListener('mousedown', (e)=>{
+        e.preventDefault(); // stop input losing focus before click fires
+        selectResult(latestResults[parseInt(btn.dataset.idx)]);
       });
     });
-  }catch(e){ suggestions.style.display='none'; }
+  }catch(e){
+    suggestions.innerHTML = `<button disabled style="opacity:0.5; cursor:default;">Search unavailable right now</button>`;
+    suggestions.style.display='block';
+  }
 }
 
 locateBtn.addEventListener('click', ()=>{
