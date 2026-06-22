@@ -3,1084 +3,836 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Living World — A Beautiful Day</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400&display=swap" rel="stylesheet">
+<title>Skylark — Weather, anywhere</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root{
+    /* token system — shifts per weather state via data-sky on <body> */
+    --ink:#1b1f23;
+    --paper:#eef1f4;
+    --card:#ffffffcc;
+    --line: rgba(27,31,35,0.12);
+    --accent:#2f6fed;
+    --accent-soft: rgba(47,111,237,0.14);
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Fraunces', serif;
+    --body: 'Space Grotesk', sans-serif;
 
-  :root {
-    --sky-top: #1a1a4e;
-    --sky-mid: #f97316;
-    --sky-bottom: #fde68a;
-    --ground: #4a7c59;
-    --ground-dark: #2d5a3d;
-  }
-
-  body {
-    font-family: 'Cormorant Garamond', serif;
-    overflow-x: hidden;
-    background: #0d0d1a;
-    cursor: none;
-  }
-
-  /* Custom cursor */
-  .cursor {
-    position: fixed;
-    width: 20px; height: 20px;
-    background: radial-gradient(circle, rgba(255,220,100,0.9), rgba(255,150,50,0.4));
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9999;
-    transform: translate(-50%, -50%);
-    transition: width 0.2s, height 0.2s;
-    box-shadow: 0 0 20px rgba(255,200,50,0.6);
+    --sky-top:#aebfd6;
+    --sky-bot:#eef1f4;
+    --sun:#ffd76a;
   }
 
-  /* ===== SCENE WRAPPER ===== */
-  .scene {
-    width: 100%;
-    min-height: 100vh;
-    position: relative;
-    overflow: hidden;
+  /* ---- weather-driven palettes ---- */
+  body[data-sky="clear-day"]{
+    --sky-top:#4f8ef0; --sky-bot:#bfe1ff; --ink:#102032; --accent:#e8862f; --accent-soft:rgba(232,134,47,.16);
+  }
+  body[data-sky="clear-night"]{
+    --sky-top:#0b1330; --sky-bot:#2a3a6b; --ink:#eef1f8; --paper:#0e1530; --card:rgba(20,28,56,0.72); --line:rgba(255,255,255,0.14); --accent:#8fb4ff; --accent-soft:rgba(143,180,255,.18);
+  }
+  body[data-sky="cloudy"]{
+    --sky-top:#7c8a99; --sky-bot:#d4dbe1; --ink:#1c2228; --accent:#3f6b8f; --accent-soft:rgba(63,107,143,.15);
+  }
+  body[data-sky="rain"]{
+    --sky-top:#37475a; --sky-bot:#7c93a8; --ink:#101820; --paper:#dfe6ea; --accent:#1f5fa8; --accent-soft:rgba(31,95,168,.16);
+  }
+  body[data-sky="storm"]{
+    --sky-top:#222633; --sky-bot:#4a4f63; --ink:#f1f2f6; --paper:#15161e; --card:rgba(28,29,38,0.78); --line:rgba(255,255,255,0.14); --accent:#f0c93a; --accent-soft:rgba(240,201,58,.18);
+  }
+  body[data-sky="snow"]{
+    --sky-top:#aebfd9; --sky-bot:#f3f6fa; --ink:#1a2330; --accent:#3a6fa8; --accent-soft:rgba(58,111,168,.14);
+  }
+  body[data-sky="fog"]{
+    --sky-top:#b9bcc1; --sky-bot:#e7e7e6; --ink:#23262a; --accent:#5b5f66; --accent-soft:rgba(91,95,102,.14);
   }
 
-  /* ===== SKY ===== */
-  .sky {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg,
-      #0a0a2e 0%,
-      #1a1560 10%,
-      #4a2080 20%,
-      #c2410c 45%,
-      #f97316 60%,
-      #fbbf24 75%,
-      #fde68a 85%,
-      #a7f3d0 100%
-    );
-    animation: skyShift 20s ease-in-out infinite alternate;
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{min-height:100%;}
+  body{
+    font-family:var(--body);
+    color:var(--ink);
+    background: linear-gradient(180deg,var(--sky-top) 0%, var(--sky-bot) 62%, var(--paper) 100%);
+    background-attachment:fixed;
+    min-height:100vh;
+    transition: background 900ms ease, color 500ms ease;
+    overflow-x:hidden;
   }
 
-  @keyframes skyShift {
-    0%   { filter: hue-rotate(0deg) brightness(1); }
-    50%  { filter: hue-rotate(15deg) brightness(1.1); }
-    100% { filter: hue-rotate(-10deg) brightness(0.95); }
+  /* ambient sky canvas */
+  #sky-fx{position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden;}
+
+  .wrap{
+    position:relative; z-index:1;
+    max-width:920px; margin:0 auto; padding:40px 24px 80px;
   }
 
-  /* ===== STARS ===== */
-  .stars {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 40%;
-    z-index: 1;
+  /* ---- header / search ---- */
+  header{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:20px;
+    margin-bottom:38px; flex-wrap:wrap;
   }
-  .star {
-    position: absolute;
-    background: white;
-    border-radius: 50%;
-    animation: twinkle var(--dur) ease-in-out infinite alternate;
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand-mark{
+    width:34px;height:34px;border-radius:50%;
+    background: radial-gradient(circle at 32% 30%, var(--sun), transparent 60%), var(--accent);
+    flex-shrink:0;
   }
-  @keyframes twinkle {
-    0%   { opacity: 0.1; transform: scale(0.8); }
-    100% { opacity: 1;   transform: scale(1.2); }
+  .brand-name{
+    font-family:var(--display); font-weight:600; font-size:1.35rem; letter-spacing:-0.01em;
   }
-
-  /* ===== SUN ===== */
-  .sun {
-    position: absolute;
-    top: 18%; right: 12%;
-    width: 90px; height: 90px;
-    background: radial-gradient(circle, #fff7a1 20%, #fde047 50%, #f59e0b 80%, transparent 100%);
-    border-radius: 50%;
-    box-shadow: 0 0 60px 30px rgba(253,224,71,0.5), 0 0 120px 60px rgba(251,191,36,0.2);
-    animation: sunPulse 4s ease-in-out infinite;
-    z-index: 2;
-  }
-  @keyframes sunPulse {
-    0%,100% { box-shadow: 0 0 60px 30px rgba(253,224,71,0.5), 0 0 120px 60px rgba(251,191,36,0.2); transform: scale(1); }
-    50%      { box-shadow: 0 0 80px 40px rgba(253,224,71,0.7), 0 0 160px 80px rgba(251,191,36,0.3); transform: scale(1.05); }
-  }
-  .sun-ray {
-    position: absolute;
-    top: 50%; left: 50%;
-    width: 200px; height: 2px;
-    background: linear-gradient(90deg, rgba(253,224,71,0.6), transparent);
-    transform-origin: 0 50%;
-    animation: rayRotate 8s linear infinite;
-  }
-  @keyframes rayRotate { to { transform: rotate(360deg); } }
-
-  /* ===== CLOUDS ===== */
-  .cloud {
-    position: absolute;
-    z-index: 3;
-    animation: cloudDrift linear infinite;
-  }
-  .cloud-body {
-    background: rgba(255,255,255,0.85);
-    border-radius: 50px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-    backdrop-filter: blur(4px);
-  }
-  @keyframes cloudDrift {
-    from { transform: translateX(-300px); }
-    to   { transform: translateX(110vw); }
+  .brand-sub{
+    font-family:var(--mono); font-size:0.68rem; letter-spacing:0.08em; text-transform:uppercase; opacity:0.55; margin-top:2px;
   }
 
-  /* ===== MOUNTAINS ===== */
-  .mountains {
-    position: absolute;
-    bottom: 32%;
-    width: 100%;
-    z-index: 4;
+  .search-shell{
+    position:relative; width:100%; max-width:380px;
   }
-  .mountain {
-    position: absolute;
-    bottom: 0;
-    border-style: solid;
-    border-left-color: transparent;
-    border-right-color: transparent;
-    border-bottom-color: #5b4f9e;
-    border-top: none;
+  .search-box{
+    display:flex; align-items:center; gap:10px;
+    background:var(--card); backdrop-filter:blur(14px);
+    border:1px solid var(--line); border-radius:999px;
+    padding:12px 18px;
+    transition: border-color 200ms, box-shadow 200ms;
   }
-  .mountain::after {
-    content: '';
-    position: absolute;
-    top: -30px; left: 50%;
-    transform: translateX(-50%);
-    width: 40px; height: 30px;
-    background: white;
-    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  .search-box:focus-within{
+    border-color:var(--accent);
+    box-shadow:0 0 0 4px var(--accent-soft);
   }
-  .mountain-2 { border-bottom-color: #7c6db5; }
-  .mountain-3 { border-bottom-color: #9d8fd4; }
+  .search-box svg{flex-shrink:0; opacity:0.55;}
+  .search-box input{
+    border:none; background:none; outline:none; width:100%;
+    font-family:var(--body); font-size:0.95rem; color:var(--ink);
+  }
+  .search-box input::placeholder{color:var(--ink); opacity:0.42;}
+  .locate-btn{
+    border:none; background:none; cursor:pointer; opacity:0.55; flex-shrink:0;
+    display:flex; align-items:center; padding:2px; border-radius:50%;
+    transition: opacity 150ms, background 150ms;
+  }
+  .locate-btn:hover{opacity:1; background:var(--accent-soft);}
 
-  /* ===== GROUND ===== */
-  .ground-layer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    z-index: 5;
+  .suggest{
+    position:absolute; top:calc(100% + 8px); left:0; right:0;
+    background:var(--card); backdrop-filter:blur(14px);
+    border:1px solid var(--line); border-radius:16px;
+    overflow:hidden; z-index:5;
+    box-shadow:0 12px 32px rgba(0,0,0,0.12);
+    display:none;
   }
-  .ground-back {
-    bottom: 0;
-    height: 38%;
-    background: linear-gradient(180deg, #2d5a3d 0%, #1a3d2b 100%);
-    border-radius: 60% 60% 0 0 / 20px 20px 0 0;
+  .suggest.show{display:block;}
+  .suggest button{
+    display:block; width:100%; text-align:left; border:none; background:none; cursor:pointer;
+    padding:11px 18px; font-family:var(--body); font-size:0.88rem; color:var(--ink);
+    border-bottom:1px solid var(--line);
   }
-  .ground-mid {
-    bottom: 0;
-    height: 30%;
-    background: linear-gradient(180deg, #3d7a52 0%, #2d5a3d 100%);
-    border-radius: 50% 50% 0 0 / 30px 30px 0 0;
-  }
-  .ground-front {
-    bottom: 0;
-    height: 18%;
-    background: linear-gradient(180deg, #4a9060 0%, #3d7a52 100%);
-  }
-  .path {
-    position: absolute;
-    bottom: 0; left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 60px solid transparent;
-    border-right: 60px solid transparent;
-    border-bottom: 200px solid rgba(210,180,140,0.4);
-  }
+  .suggest button:last-child{border-bottom:none;}
+  .suggest button:hover{background:var(--accent-soft);}
+  .suggest .muted{opacity:0.55; font-size:0.78rem; margin-left:6px;}
 
-  /* ===== WATER / RIVER ===== */
-  .river {
-    position: absolute;
-    bottom: 16%;
-    left: 5%; width: 22%;
-    height: 40px;
-    background: linear-gradient(90deg, #60a5fa, #3b82f6, #93c5fd);
-    border-radius: 50%;
-    opacity: 0.7;
-    animation: riverShimmer 3s ease-in-out infinite;
-    z-index: 6;
+  /* ---- hero ---- */
+  .hero{
+    display:grid; grid-template-columns:1.2fr 1fr; gap:32px; align-items:end;
+    margin-bottom:44px; min-height:200px;
   }
-  @keyframes riverShimmer {
-    0%,100% { opacity:0.7; transform: scaleX(1); }
-    50%      { opacity:0.9; transform: scaleX(1.03); }
+  .hero-place{
+    font-family:var(--mono); font-size:0.78rem; letter-spacing:0.06em; text-transform:uppercase; opacity:0.6;
+    margin-bottom:6px; display:flex; align-items:center; gap:8px;
   }
-  .river::after {
-    content: '';
-    position: absolute;
-    top: 10px; left: 10%;
-    width: 80%; height: 8px;
-    background: rgba(255,255,255,0.4);
-    border-radius: 10px;
-    animation: waterFlow 2s linear infinite;
+  .hero-place .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+  .hero-city{
+    font-family:var(--display); font-weight:600; font-size:clamp(2.1rem, 5vw, 3.4rem);
+    letter-spacing:-0.02em; line-height:1.02; margin-bottom:14px;
   }
-  @keyframes waterFlow {
-    from { transform: translateX(-20px); opacity: 0.2; }
-    to   { transform: translateX(20px);  opacity: 0.7; }
+  .hero-desc{font-size:1.05rem; opacity:0.78; max-width:34ch;}
+  .hero-right{text-align:right;}
+  .hero-temp{
+    font-family:var(--display); font-weight:500; font-size:clamp(4rem, 11vw, 6.4rem);
+    line-height:0.9; letter-spacing:-0.03em;
   }
+  .hero-temp sup{font-size:0.4em; font-weight:400; opacity:0.7; top:-0.5em;}
+  .hero-feels{font-family:var(--mono); font-size:0.78rem; opacity:0.6; margin-top:6px;}
+  .hero-icon{width:84px; height:84px; margin-left:auto; margin-bottom:8px;}
 
-  /* ===== TREES ===== */
-  .tree { position: absolute; z-index: 7; }
-  .tree-trunk {
-    position: absolute;
-    bottom: 0; left: 50%;
-    transform: translateX(-50%);
-    background: linear-gradient(180deg, #92400e, #78350f);
-    border-radius: 4px 4px 2px 2px;
+  /* ---- stat strip ---- */
+  .stats{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:18px;
+    overflow:hidden; margin-bottom:36px;
   }
-  .tree-foliage {
-    position: absolute;
-    border-style: solid;
-    border-left-color: transparent;
-    border-right-color: transparent;
-    border-bottom-color: var(--fc, #16a34a);
-    border-top: none;
-    left: 50%; transform: translateX(-50%);
-    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-    animation: treeSway 3s ease-in-out infinite;
+  .stat{
+    background:var(--card); backdrop-filter:blur(14px);
+    padding:18px 16px;
   }
-  @keyframes treeSway {
-    0%,100% { transform: translateX(-50%) rotate(-1deg); }
-    50%      { transform: translateX(-50%) rotate(1deg); }
-  }
+  .stat-label{font-family:var(--mono); font-size:0.66rem; letter-spacing:0.06em; text-transform:uppercase; opacity:0.55; margin-bottom:6px;}
+  .stat-value{font-family:var(--display); font-weight:600; font-size:1.4rem;}
+  .stat-value span{font-size:0.6em; opacity:0.6; font-family:var(--body); font-weight:400;}
 
-  /* Oak tree variant */
-  .oak-leaves {
-    position: absolute;
-    border-radius: 50%;
-    background: radial-gradient(circle, #22c55e, #15803d);
-    box-shadow: inset -10px -10px 20px rgba(0,0,0,0.2);
-    animation: oakSway 4s ease-in-out infinite;
+  /* ---- section heads ---- */
+  .section-head{
+    display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px;
   }
-  @keyframes oakSway {
-    0%,100% { transform: rotate(-2deg) scale(1); }
-    50%      { transform: rotate(2deg) scale(1.02); }
+  .section-title{
+    font-family:var(--display); font-weight:600; font-size:1.15rem;
   }
+  .section-note{font-family:var(--mono); font-size:0.7rem; opacity:0.5; text-transform:uppercase; letter-spacing:0.05em;}
 
-  /* ===== FLOWERS ===== */
-  .flower { position: absolute; z-index: 8; }
-  .flower-stem {
-    position: absolute;
-    bottom: 0; left: 50%;
-    transform: translateX(-50%);
-    width: 3px;
-    background: #22c55e;
-    border-radius: 2px;
-    animation: flowerSway 2.5s ease-in-out infinite;
-    transform-origin: bottom center;
+  /* ---- hourly rail ---- */
+  .hourly-rail{
+    display:flex; gap:10px; overflow-x:auto; padding-bottom:10px; margin-bottom:40px;
+    scrollbar-width:thin;
   }
-  @keyframes flowerSway {
-    0%,100% { transform: translateX(-50%) rotate(-5deg); }
-    50%      { transform: translateX(-50%) rotate(5deg); }
+  .hour-card{
+    flex:0 0 auto; width:78px; text-align:center;
+    background:var(--card); backdrop-filter:blur(14px);
+    border:1px solid var(--line); border-radius:16px; padding:14px 8px;
   }
-  .flower-head {
-    position: absolute;
-    top: 0; left: 50%;
-    transform: translateX(-50%);
-    width: 18px; height: 18px;
+  .hour-card .t{font-family:var(--mono); font-size:0.68rem; opacity:0.55; margin-bottom:8px;}
+  .hour-card svg{width:30px; height:30px; margin:0 auto 8px;}
+  .hour-card .v{font-family:var(--display); font-weight:600; font-size:1.05rem;}
+
+  /* ---- daily list ---- */
+  .daily-list{
+    display:flex; flex-direction:column; gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:18px; overflow:hidden;
+    margin-bottom:40px;
   }
-  .petal {
-    position: absolute;
-    width: 8px; height: 12px;
-    border-radius: 50%;
-    top: 50%; left: 50%;
-    transform-origin: 0 0;
-    animation: petalWave 2s ease-in-out infinite;
+  .day-row{
+    display:grid; grid-template-columns:100px 32px 1fr auto auto; align-items:center; gap:16px;
+    background:var(--card); backdrop-filter:blur(14px);
+    padding:14px 18px;
   }
-  @keyframes petalWave {
-    0%,100% { filter: brightness(1); }
-    50%      { filter: brightness(1.2); }
+  .day-name{font-family:var(--body); font-weight:600; font-size:0.88rem;}
+  .day-name .sub{display:block; font-family:var(--mono); font-weight:400; font-size:0.66rem; opacity:0.5; text-transform:uppercase; margin-top:1px;}
+  .day-row svg{width:26px;height:26px;}
+  .day-bar-track{
+    height:5px; border-radius:4px; background:var(--line); position:relative; overflow:hidden;
   }
-  .flower-center {
-    position: absolute;
-    width: 8px; height: 8px;
-    background: #fef08a;
-    border-radius: 50%;
-    top: 50%; left: 50%;
-    transform: translate(-50%,-50%);
-    box-shadow: 0 0 4px rgba(255,220,0,0.8);
+  .day-bar-fill{
+    position:absolute; height:100%; border-radius:4px;
+    background:linear-gradient(90deg, var(--accent-soft), var(--accent));
+  }
+  .day-lo{font-family:var(--mono); font-size:0.85rem; opacity:0.5; justify-self:end;}
+  .day-hi{font-family:var(--mono); font-size:0.85rem; font-weight:500; justify-self:end;}
+
+  /* ---- footer meta ---- */
+  .meta-strip{
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
+    font-family:var(--mono); font-size:0.68rem; opacity:0.45; letter-spacing:0.03em;
+    border-top:1px solid var(--line); padding-top:18px;
   }
 
-  /* ===== GRASS ===== */
-  .grass-blade {
-    position: absolute;
-    bottom: 0;
-    width: 3px;
-    border-radius: 2px 2px 0 0;
-    background: linear-gradient(180deg, #4ade80, #22c55e);
-    transform-origin: bottom center;
-    animation: grassWave var(--gd, 2s) ease-in-out infinite;
+  /* ---- states ---- */
+  .state-box{
+    text-align:center; padding:60px 20px; opacity:0.7;
   }
-  @keyframes grassWave {
-    0%,100% { transform: rotate(-8deg); }
-    50%      { transform: rotate(8deg); }
+  .state-box .spinner{
+    width:34px;height:34px;border-radius:50%;
+    border:3px solid var(--line); border-top-color:var(--accent);
+    margin:0 auto 16px; animation:spin 0.8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .state-box p{font-family:var(--mono); font-size:0.82rem;}
+  .error-box{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:24px; text-align:center; margin-bottom:30px; display:none;
+  }
+  .error-box.show{display:block;}
+  .error-box p{font-family:var(--body); font-size:0.92rem; opacity:0.8;}
+
+  .content{display:none;}
+  .content.show{display:block; animation:fadeUp 500ms ease both;}
+  @keyframes fadeUp{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);}}
+
+  /* ---- units toggle ---- */
+  .units-toggle{
+    display:flex; gap:0; border:1px solid var(--line); border-radius:999px; overflow:hidden;
+    font-family:var(--mono); font-size:0.72rem; flex-shrink:0;
+  }
+  .units-toggle button{
+    border:none; background:var(--card); backdrop-filter:blur(14px); cursor:pointer;
+    padding:10px 16px; color:var(--ink); opacity:0.55;
+  }
+  .units-toggle button.active{background:var(--accent); color:#fff; opacity:1;}
+
+  .controls-row{display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;}
+
+  @media (max-width:640px){
+    .hero{grid-template-columns:1fr; text-align:left;}
+    .hero-right{text-align:left;}
+    .hero-icon{margin-left:0;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .day-row{grid-template-columns:78px 26px 1fr auto auto; padding:12px 14px; gap:10px;}
   }
 
-  /* ===== HUMANS ===== */
-  .human { position: absolute; z-index: 9; }
-  /* Male */
-  .male-head   { width:18px;height:18px;background:#f5cba7;border-radius:50%;position:absolute;left:50%;transform:translateX(-50%);top:0; }
-  .male-body   { width:22px;height:28px;background:#2563eb;border-radius:4px 4px 0 0;position:absolute;left:50%;transform:translateX(-50%);top:16px; }
-  .male-legs   { position:absolute;top:44px;left:50%;transform:translateX(-50%);display:flex;gap:4px; }
-  .male-leg    { width:9px;height:22px;background:#1e3a5f;border-radius:0 0 4px 4px; }
-  .male-arm    { position:absolute;top:20px;width:10px;height:20px;background:#2563eb;border-radius:5px; }
-  .male-arm.l  { left:-8px; transform:rotate(20deg); }
-  .male-arm.r  { right:-8px;transform:rotate(-20deg); }
-  /* Female */
-  .female-head { width:16px;height:16px;background:#f5cba7;border-radius:50%;position:absolute;left:50%;transform:translateX(-50%);top:0; }
-  .female-hair { width:20px;height:10px;background:#7c3aed;border-radius:10px 10px 0 0;position:absolute;left:50%;transform:translateX(-50%);top:0; }
-  .female-body { width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:30px solid #ec4899;position:absolute;left:50%;transform:translateX(-50%);top:14px; }
-  .female-legs { position:absolute;top:42px;left:50%;transform:translateX(-50%);display:flex;gap:6px; }
-  .female-leg  { width:7px;height:18px;background:#f472b6;border-radius:0 0 3px 3px; }
-
-  .human-walk { animation: humanWalk 0.5s ease-in-out infinite alternate; }
-  @keyframes humanWalk {
-    0%   { transform: translateY(0) rotate(-2deg); }
-    100% { transform: translateY(-4px) rotate(2deg); }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
   }
-  .human-move { animation: humanMove linear infinite; }
-  @keyframes humanMove {
-    from { left: -80px; }
-    to   { left: 110%; }
-  }
-
-  /* ===== VEHICLES ===== */
-  .vehicle { position: absolute; z-index: 10; }
-  /* Car */
-  .car-body {
-    width: 90px; height: 36px;
-    background: linear-gradient(180deg, #ef4444, #dc2626);
-    border-radius: 8px;
-    position: absolute;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  }
-  .car-roof {
-    width: 52px; height: 24px;
-    background: linear-gradient(180deg, #f87171, #ef4444);
-    border-radius: 8px 8px 4px 4px;
-    position: absolute;
-    top: -20px; left: 16px;
-  }
-  .car-window {
-    position: absolute;
-    background: rgba(186,230,253,0.7);
-    border-radius: 4px;
-  }
-  .car-wheel {
-    width: 20px; height: 20px;
-    background: radial-gradient(circle, #9ca3af, #374151);
-    border-radius: 50%;
-    position: absolute;
-    bottom: -8px;
-    animation: wheelSpin 0.3s linear infinite;
-    border: 3px solid #6b7280;
-  }
-  @keyframes wheelSpin { to { transform: rotate(360deg); } }
-  .car-move { animation: carMove 12s linear infinite; }
-  @keyframes carMove {
-    from { right: -150px; }
-    to   { right: 110%; }
-  }
-
-  /* Hot Air Balloon */
-  .balloon {
-    position: absolute;
-    z-index: 5;
-    animation: balloonFloat 6s ease-in-out infinite;
-  }
-  @keyframes balloonFloat {
-    0%,100% { transform: translateY(0) rotate(-2deg); }
-    50%      { transform: translateY(-20px) rotate(2deg); }
-  }
-  .balloon-body {
-    width: 60px; height: 80px;
-    background: linear-gradient(180deg, #f59e0b, #ef4444, #8b5cf6);
-    border-radius: 50% 50% 40% 40%;
-    position: relative;
-    box-shadow: inset -10px -10px 20px rgba(0,0,0,0.2);
-  }
-  .balloon-stripe {
-    position: absolute;
-    width: 8px; height: 100%;
-    background: rgba(255,255,255,0.2);
-    border-radius: 4px;
-  }
-  .balloon-basket {
-    width: 28px; height: 18px;
-    background: #92400e;
-    border-radius: 4px;
-    margin: 4px auto 0;
-    border: 2px solid #78350f;
-  }
-  .balloon-rope {
-    position: absolute;
-    width: 1px;
-    background: #92400e;
-    left: 50%; transform: translateX(-50%);
-  }
-
-  /* ===== ANIMALS ===== */
-  /* Cow */
-  .cow { position: absolute; z-index: 8; }
-  .cow-body { width:60px;height:34px;background:white;border-radius:10px;position:absolute; border:2px solid #d1d5db; }
-  .cow-head { width:22px;height:20px;background:white;border-radius:8px 12px 8px 4px;position:absolute;right:-18px;top:6px;border:2px solid #d1d5db; }
-  .cow-patch { position:absolute;background:#374151;border-radius:50%; }
-  .cow-leg { position:absolute;bottom:-14px;width:9px;height:16px;background:#d1d5db;border-radius:0 0 4px 4px; }
-  .cow-tail { position:absolute;left:-12px;top:8px;width:14px;height:4px;background:#d1d5db;border-radius:2px; animation: tailWag 1s ease-in-out infinite alternate; }
-  @keyframes tailWag { 0% { transform:rotate(-20deg); } 100% { transform:rotate(20deg); } }
-
-  /* Butterfly */
-  .butterfly { position:absolute;z-index:11;animation:butterflyFly 8s ease-in-out infinite; }
-  @keyframes butterflyFly {
-    0%   { transform:translate(0,0) rotate(0deg); }
-    25%  { transform:translate(80px,-40px) rotate(10deg); }
-    50%  { transform:translate(160px,10px) rotate(-5deg); }
-    75%  { transform:translate(80px,40px) rotate(5deg); }
-    100% { transform:translate(0,0) rotate(0deg); }
-  }
-  .b-wing {
-    width:20px;height:16px;
-    background:radial-gradient(ellipse,#f97316,#7c3aed);
-    border-radius:50%;
-    position:absolute;
-    animation:wingFlap 0.2s ease-in-out infinite alternate;
-    opacity:0.85;
-  }
-  @keyframes wingFlap { 0%{transform:scaleX(1);} 100%{transform:scaleX(0.4);} }
-  .b-wing.left  { right:12px; transform-origin:right center; }
-  .b-wing.right { left:12px;  transform-origin:left center; }
-  .b-body { width:5px;height:14px;background:#1e1b4b;border-radius:3px;position:absolute;left:50%;transform:translateX(-50%); }
-
-  /* ===== BIRDS ===== */
-  .bird { position:absolute;z-index:12; }
-  .bird-wing {
-    width:18px;height:8px;
-    border-top: 5px solid #1e293b;
-    border-radius:50%;
-    position:absolute;
-    animation:birdFlap 0.4s ease-in-out infinite alternate;
-  }
-  @keyframes birdFlap {
-    0%   { transform:rotate(-20deg); }
-    100% { transform:rotate(20deg); }
-  }
-  .bird-wing.l { right:0; transform-origin:right bottom; }
-  .bird-wing.r { left:0;  transform-origin:left bottom; }
-  .bird-move { animation:birdFly linear infinite; }
-  @keyframes birdFly {
-    from { transform:translateX(-50px) translateY(0); }
-    to   { transform:translateX(110vw) translateY(-60px); }
-  }
-
-  /* ===== FIREFLIES ===== */
-  .firefly {
-    position:absolute;
-    width:5px;height:5px;
-    background:#fef08a;
-    border-radius:50%;
-    animation:firefly var(--fd) ease-in-out infinite;
-    box-shadow:0 0 8px 4px rgba(254,240,138,0.6);
-    z-index:13;
-  }
-  @keyframes firefly {
-    0%   { transform:translate(0,0); opacity:0; }
-    25%  { opacity:1; }
-    50%  { transform:translate(var(--fx),var(--fy)); opacity:0.5; }
-    75%  { opacity:1; }
-    100% { transform:translate(0,0); opacity:0; }
-  }
-
-  /* ===== RAINBOW ===== */
-  .rainbow {
-    position:absolute;
-    top:35%; left:5%;
-    width:50%; height:200px;
-    z-index:3;
-    opacity:0.35;
-  }
-  .rainbow-arc {
-    position:absolute;
-    bottom:0; left:0;
-    width:100%; height:200%;
-    border-radius:50%;
-    border:12px solid transparent;
-    box-sizing:border-box;
-  }
-
-  /* ===== TITLE CARD ===== */
-  .title-card {
-    position:absolute;
-    top:6%; left:50%;
-    transform:translateX(-50%);
-    z-index:20;
-    text-align:center;
-    animation:titleFloat 4s ease-in-out infinite alternate;
-  }
-  @keyframes titleFloat {
-    0%   { transform:translateX(-50%) translateY(0); }
-    100% { transform:translateX(-50%) translateY(-8px); }
-  }
-  .title-card h1 {
-    font-family:'Playfair Display', serif;
-    font-size:clamp(1.8rem,4vw,3.5rem);
-    color:white;
-    text-shadow:0 2px 20px rgba(0,0,0,0.5), 0 0 40px rgba(255,200,50,0.4);
-    letter-spacing:0.05em;
-    line-height:1.1;
-  }
-  .title-card p {
-    font-size:clamp(0.8rem,1.5vw,1rem);
-    color:rgba(255,255,255,0.8);
-    letter-spacing:0.2em;
-    text-transform:uppercase;
-    margin-top:6px;
-  }
-
-  /* ===== PARTICLES ===== */
-  .particle {
-    position:absolute;
-    border-radius:50%;
-    pointer-events:none;
-    animation:particleFall linear infinite;
-    z-index:15;
-  }
-  @keyframes particleFall {
-    0%   { transform:translateY(-20px) rotate(0deg); opacity:1; }
-    100% { transform:translateY(100vh) rotate(720deg); opacity:0; }
-  }
-
-  /* ===== MOON ===== */
-  .moon {
-    position:absolute;
-    top:8%; left:8%;
-    width:60px;height:60px;
-    background:radial-gradient(circle at 35% 35%, #fef9c3, #fde047);
-    border-radius:50%;
-    box-shadow:0 0 40px 15px rgba(253,224,71,0.3);
-    animation:moonGlow 5s ease-in-out infinite alternate;
-    z-index:2;
-    opacity:0.6;
-  }
-  @keyframes moonGlow {
-    0%   { box-shadow:0 0 40px 15px rgba(253,224,71,0.3); }
-    100% { box-shadow:0 0 60px 25px rgba(253,224,71,0.5); }
-  }
-  .moon::after {
-    content:'';
-    position:absolute;
-    top:10px;right:8px;
-    width:14px;height:14px;
-    background:rgba(253,224,71,0.2);
-    border-radius:50%;
-  }
-
-  /* ===== INFO OVERLAY ===== */
-  .info {
-    position:absolute;
-    bottom:2%;
-    width:100%;
-    text-align:center;
-    z-index:20;
-    color:rgba(255,255,255,0.6);
-    font-size:0.75rem;
-    letter-spacing:0.15em;
-    text-transform:uppercase;
-    animation:infoPulse 3s ease-in-out infinite alternate;
-  }
-  @keyframes infoPulse { 0%{opacity:0.4;} 100%{opacity:0.8;} }
 </style>
 </head>
-<body>
+<body data-sky="clear-day">
 
-<div class="cursor" id="cursor"></div>
+<div id="sky-fx"></div>
 
-<div class="scene" id="scene">
+<div class="wrap">
 
-  <!-- SKY -->
-  <div class="sky"></div>
-
-  <!-- MOON -->
-  <div class="moon"></div>
-
-  <!-- STARS -->
-  <div class="stars" id="stars"></div>
-
-  <!-- RAINBOW -->
-  <div class="rainbow">
-    <div class="rainbow-arc" style="border-color:rgba(239,68,68,0.8);width:100%;height:100%;bottom:0;left:0;border-radius:50% 50% 0 0;border-bottom:none;"></div>
-    <div class="rainbow-arc" style="border-color:rgba(249,115,22,0.8);width:90%;height:90%;bottom:0;left:5%;border-radius:50% 50% 0 0;border-bottom:none;"></div>
-    <div class="rainbow-arc" style="border-color:rgba(234,179,8,0.8);width:80%;height:80%;bottom:0;left:10%;border-radius:50% 50% 0 0;border-bottom:none;"></div>
-    <div class="rainbow-arc" style="border-color:rgba(34,197,94,0.8);width:70%;height:70%;bottom:0;left:15%;border-radius:50% 50% 0 0;border-bottom:none;"></div>
-    <div class="rainbow-arc" style="border-color:rgba(59,130,246,0.8);width:60%;height:60%;bottom:0;left:20%;border-radius:50% 50% 0 0;border-bottom:none;"></div>
-    <div class="rainbow-arc" style="border-color:rgba(139,92,246,0.8);width:50%;height:50%;bottom:0;left:25%;border-radius:50% 50% 0 0;border-bottom:none;"></div>
-  </div>
-
-  <!-- SUN -->
-  <div class="sun">
-    <div class="sun-ray" style="transform-origin:45px 1px;"></div>
-    <div class="sun-ray" style="transform-origin:45px 1px;transform:rotate(45deg);"></div>
-    <div class="sun-ray" style="transform-origin:45px 1px;transform:rotate(90deg);"></div>
-    <div class="sun-ray" style="transform-origin:45px 1px;transform:rotate(135deg);"></div>
-    <div class="sun-ray" style="transform-origin:45px 1px;transform:rotate(180deg);"></div>
-    <div class="sun-ray" style="transform-origin:45px 1px;transform:rotate(225deg);"></div>
-    <div class="sun-ray" style="transform-origin:45px 1px;transform:rotate(270deg);"></div>
-    <div class="sun-ray" style="transform-origin:45px 1px;transform:rotate(315deg);"></div>
-  </div>
-
-  <!-- CLOUDS -->
-  <div id="clouds"></div>
-
-  <!-- MOUNTAINS -->
-  <div class="mountains">
-    <div class="mountain" style="left:0%;border-left-width:180px;border-right-width:180px;border-bottom-width:220px;border-bottom-color:#3b3470;"></div>
-    <div class="mountain" style="left:18%;border-left-width:140px;border-right-width:140px;border-bottom-width:180px;border-bottom-color:#4a4080;"></div>
-    <div class="mountain" style="left:40%;border-left-width:200px;border-right-width:200px;border-bottom-width:260px;border-bottom-color:#322e60;"></div>
-    <div class="mountain" style="left:65%;border-left-width:160px;border-right-width:160px;border-bottom-width:200px;border-bottom-color:#3d3878;"></div>
-    <div class="mountain" style="left:80%;border-left-width:130px;border-right-width:130px;border-bottom-width:170px;border-bottom-color:#4a4590;"></div>
-  </div>
-
-  <!-- GROUND LAYERS -->
-  <div class="ground-layer ground-back" style="position:absolute;"></div>
-  <div class="ground-layer ground-mid" style="position:absolute;"></div>
-
-  <!-- RIVER -->
-  <div class="river"></div>
-
-  <!-- GROUND FRONT -->
-  <div class="ground-layer ground-front" style="position:absolute;"></div>
-  <div class="path"></div>
-
-  <!-- GRASS -->
-  <div id="grass"></div>
-
-  <!-- TREES -->
-  <div id="trees"></div>
-
-  <!-- FLOWERS -->
-  <div id="flowers"></div>
-
-  <!-- ANIMALS -->
-  <div id="animals"></div>
-
-  <!-- HUMANS -->
-  <div id="humans"></div>
-
-  <!-- VEHICLES -->
-  <div id="vehicles"></div>
-
-  <!-- BIRDS -->
-  <div id="birds"></div>
-
-  <!-- BUTTERFLIES -->
-  <div id="butterflies"></div>
-
-  <!-- HOT AIR BALLOON -->
-  <div class="balloon" style="top:15%;left:30%;">
-    <div class="balloon-body">
-      <div class="balloon-stripe" style="left:20%;"></div>
-      <div class="balloon-stripe" style="left:50%;"></div>
-      <div class="balloon-stripe" style="left:70%;"></div>
+  <header>
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div>
+        <div class="brand-name">Skylark</div>
+        <div class="brand-sub">Weather, anywhere</div>
+      </div>
     </div>
-    <div class="balloon-basket"></div>
-    <!-- tiny people in basket -->
-    <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px;">
-      <div style="width:6px;height:10px;background:#f5cba7;border-radius:3px 3px 0 0;"></div>
-      <div style="width:6px;height:10px;background:#ec4899;border-radius:3px 3px 0 0;"></div>
+
+    <div class="controls-row">
+      <div class="search-shell">
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="search-input" type="text" placeholder="Search a city — try London or America" autocomplete="off">
+          <button class="locate-btn" id="locate-btn" title="Use my location" aria-label="Use my current location">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+          </button>
+        </div>
+        <div class="suggest" id="suggest"></div>
+      </div>
+      <div class="units-toggle" id="units-toggle">
+        <button data-unit="c" class="active">°C</button>
+        <button data-unit="f">°F</button>
+      </div>
     </div>
+  </header>
+
+  <div class="error-box" id="error-box">
+    <p id="error-text"></p>
   </div>
 
-  <!-- FIREFLIES -->
-  <div id="fireflies"></div>
-
-  <!-- PARTICLES -->
-  <div id="particles"></div>
-
-  <!-- TITLE -->
-  <div class="title-card">
-    <h1>✨ The Living World ✨</h1>
-    <p>A beautiful animated nature scene</p>
+  <div class="state-box" id="loading-box">
+    <div class="spinner"></div>
+    <p>Reading the sky…</p>
   </div>
 
-  <div class="info">Move your mouse to create magic ✦ Everything is alive</div>
+  <div class="content" id="content">
+
+    <section class="hero">
+      <div>
+        <div class="hero-place"><span class="dot"></span><span id="hero-place-text">—</span></div>
+        <h1 class="hero-city" id="hero-city">—</h1>
+        <p class="hero-desc" id="hero-desc">—</p>
+      </div>
+      <div class="hero-right">
+        <svg id="hero-icon" class="hero-icon" viewBox="0 0 100 100"></svg>
+        <div class="hero-temp" id="hero-temp">—<sup id="hero-unit">°C</sup></div>
+        <div class="hero-feels" id="hero-feels">FEELS LIKE —</div>
+      </div>
+    </section>
+
+    <section class="stats" id="stats-grid"></section>
+
+    <section>
+      <div class="section-head">
+        <div class="section-title">Next 24 hours</div>
+        <div class="section-note" id="hourly-note">LOCAL TIME</div>
+      </div>
+      <div class="hourly-rail" id="hourly-rail"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div class="section-title">7-day outlook</div>
+        <div class="section-note">LOW / HIGH</div>
+      </div>
+      <div class="daily-list" id="daily-list"></div>
+    </section>
+
+    <div class="meta-strip">
+      <span id="meta-coords">—</span>
+      <span id="meta-updated">—</span>
+      <span>Data: Open‑Meteo</span>
+    </div>
+
+  </div>
 
 </div>
 
 <script>
-// ===================== CURSOR =====================
-const cursor = document.getElementById('cursor');
-document.addEventListener('mousemove', e => {
-  cursor.style.left = e.clientX + 'px';
-  cursor.style.top  = e.clientY + 'px';
-  spawnMouseParticle(e.clientX, e.clientY);
-});
+(function(){
 
-function spawnMouseParticle(x, y) {
-  if (Math.random() > 0.3) return;
-  const p = document.createElement('div');
-  const size = 4 + Math.random() * 6;
-  const colors = ['#fbbf24','#f97316','#ec4899','#a78bfa','#34d399','#60a5fa'];
-  p.style.cssText = `position:fixed;width:${size}px;height:${size}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:50%;left:${x}px;top:${y}px;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);`;
-  document.body.appendChild(p);
-  let vy = -2 - Math.random()*3, vx = (Math.random()-0.5)*4, opacity = 1;
-  const animate = () => {
-    vy += 0.1; vx *= 0.98;
-    const cx = parseFloat(p.style.left) + vx;
-    const cy = parseFloat(p.style.top) + vy;
-    opacity -= 0.03;
-    p.style.left = cx+'px'; p.style.top = cy+'px'; p.style.opacity = opacity;
-    if (opacity > 0) requestAnimationFrame(animate); else p.remove();
+  // ---------------------------------------------------------------
+  // Weather-code → description / icon-key / sky-palette mapping
+  // (Open-Meteo WMO codes)
+  // ---------------------------------------------------------------
+  const WMO = {
+    0:  { text:"Clear sky",            icon:"sun",        sky:"clear" },
+    1:  { text:"Mostly clear",         icon:"sun-cloud",  sky:"clear" },
+    2:  { text:"Partly cloudy",        icon:"sun-cloud",  sky:"cloudy" },
+    3:  { text:"Overcast",             icon:"cloud",      sky:"cloudy" },
+    45: { text:"Fog",                  icon:"fog",        sky:"fog" },
+    48: { text:"Icy fog",              icon:"fog",        sky:"fog" },
+    51: { text:"Light drizzle",        icon:"drizzle",    sky:"rain" },
+    53: { text:"Drizzle",              icon:"drizzle",    sky:"rain" },
+    55: { text:"Dense drizzle",        icon:"drizzle",    sky:"rain" },
+    56: { text:"Freezing drizzle",     icon:"drizzle",    sky:"rain" },
+    57: { text:"Freezing drizzle",     icon:"drizzle",    sky:"rain" },
+    61: { text:"Light rain",           icon:"rain",       sky:"rain" },
+    63: { text:"Rain",                 icon:"rain",       sky:"rain" },
+    65: { text:"Heavy rain",           icon:"rain",       sky:"rain" },
+    66: { text:"Freezing rain",        icon:"rain",       sky:"rain" },
+    67: { text:"Freezing rain",        icon:"rain",       sky:"rain" },
+    71: { text:"Light snow",           icon:"snow",       sky:"snow" },
+    73: { text:"Snow",                 icon:"snow",       sky:"snow" },
+    75: { text:"Heavy snow",           icon:"snow",       sky:"snow" },
+    77: { text:"Snow grains",          icon:"snow",       sky:"snow" },
+    80: { text:"Light showers",        icon:"rain",       sky:"rain" },
+    81: { text:"Showers",              icon:"rain",       sky:"rain" },
+    82: { text:"Violent showers",      icon:"rain",       sky:"storm" },
+    85: { text:"Snow showers",         icon:"snow",       sky:"snow" },
+    86: { text:"Heavy snow showers",   icon:"snow",       sky:"snow" },
+    95: { text:"Thunderstorm",         icon:"storm",      sky:"storm" },
+    96: { text:"Thunderstorm + hail",  icon:"storm",      sky:"storm" },
+    99: { text:"Severe thunderstorm",  icon:"storm",      sky:"storm" },
   };
-  requestAnimationFrame(animate);
-}
 
-// ===================== STARS =====================
-const starsEl = document.getElementById('stars');
-for (let i = 0; i < 80; i++) {
-  const s = document.createElement('div');
-  const size = 1 + Math.random() * 3;
-  s.className = 'star';
-  s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${1+Math.random()*3}s;animation-delay:${Math.random()*3}s;`;
-  starsEl.appendChild(s);
-}
+  function wmoInfo(code){ return WMO[code] || { text:"Unknown", icon:"cloud", sky:"cloudy" }; }
 
-// ===================== CLOUDS =====================
-const cloudsEl = document.getElementById('clouds');
-const cloudDefs = [
-  { top:'8%',  dur:'30s', delay:'0s',   w:140, h:50, opacity:0.9 },
-  { top:'12%', dur:'45s', delay:'10s',  w:100, h:36, opacity:0.8 },
-  { top:'6%',  dur:'38s', delay:'20s',  w:180, h:60, opacity:0.85 },
-  { top:'18%', dur:'55s', delay:'5s',   w:120, h:40, opacity:0.7 },
-  { top:'22%', dur:'42s', delay:'15s',  w:90,  h:32, opacity:0.75 },
-];
-cloudDefs.forEach(cd => {
-  const cloud = document.createElement('div');
-  cloud.className = 'cloud';
-  cloud.style.cssText = `top:${cd.top};animation-duration:${cd.dur};animation-delay:${cd.delay};`;
-  cloud.innerHTML = `
-    <div style="position:relative;width:${cd.w}px;height:${cd.h}px;opacity:${cd.opacity};">
-      <div class="cloud-body" style="width:${cd.w}px;height:${cd.h*0.6}px;position:absolute;bottom:0;background:rgba(255,255,255,0.9);"></div>
-      <div class="cloud-body" style="width:${cd.w*0.5}px;height:${cd.h}px;position:absolute;left:${cd.w*0.2}px;bottom:${cd.h*0.3}px;background:rgba(255,255,255,0.95);border-radius:50%;"></div>
-      <div class="cloud-body" style="width:${cd.w*0.35}px;height:${cd.h*0.8}px;position:absolute;left:${cd.w*0.45}px;bottom:${cd.h*0.2}px;background:white;border-radius:50%;"></div>
-    </div>`;
-  cloudsEl.appendChild(cloud);
-});
+  // ---------------------------------------------------------------
+  // Inline SVG icon set (no external assets, theme-colored via currentColor / accent)
+  // ---------------------------------------------------------------
+  const ICONS = {
+    "sun": `<g stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round">
+      <circle cx="50" cy="50" r="18" fill="currentColor" stroke="none"/>
+      <line x1="50" y1="10" x2="50" y2="20"/><line x1="50" y1="80" x2="50" y2="90"/>
+      <line x1="10" y1="50" x2="20" y2="50"/><line x1="80" y1="50" x2="90" y2="50"/>
+      <line x1="22" y1="22" x2="29" y2="29"/><line x1="71" y1="71" x2="78" y2="78"/>
+      <line x1="78" y1="22" x2="71" y2="29"/><line x1="29" y1="71" x2="22" y2="78"/>
+    </g>`,
+    "sun-cloud": `<g stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="38" cy="38" r="14" fill="currentColor" stroke="none"/>
+      <line x1="38" y1="10" x2="38" y2="16"/><line x1="14" y1="38" x2="20" y2="38"/>
+      <line x1="18" y1="18" x2="22" y2="22"/>
+      <path d="M30 68 a16 16 0 1 1 4 -31 a20 20 0 0 1 38 8 a14 14 0 0 1 -4 23 z" fill="currentColor" fill-opacity="0.85" stroke="none"/>
+    </g>`,
+    "cloud": `<path d="M22 68 a16 16 0 1 1 4 -31 a20 20 0 0 1 38 8 a14 14 0 0 1 -4 23 z" fill="currentColor" stroke="none"/>`,
+    "fog": `<g stroke="currentColor" stroke-width="3.2" fill="none" stroke-linecap="round">
+      <line x1="18" y1="38" x2="82" y2="38"/><line x1="12" y1="50" x2="88" y2="50"/>
+      <line x1="20" y1="62" x2="80" y2="62"/>
+    </g>`,
+    "drizzle": `<g>
+      <path d="M22 52 a16 16 0 1 1 4 -31 a20 20 0 0 1 38 8 a14 14 0 0 1 -4 23 z" fill="currentColor" stroke="none"/>
+      <g stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="38" y1="68" x2="35" y2="78"/><line x1="52" y1="68" x2="49" y2="78"/><line x1="65" y1="68" x2="62" y2="78"/></g>
+    </g>`,
+    "rain": `<g>
+      <path d="M22 50 a16 16 0 1 1 4 -31 a20 20 0 0 1 38 8 a14 14 0 0 1 -4 23 z" fill="currentColor" stroke="none"/>
+      <g stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="34" y1="66" x2="30" y2="82"/><line x1="50" y1="66" x2="46" y2="82"/><line x1="66" y1="66" x2="62" y2="82"/></g>
+    </g>`,
+    "snow": `<g>
+      <path d="M22 46 a16 16 0 1 1 4 -31 a20 20 0 0 1 38 8 a14 14 0 0 1 -4 23 z" fill="currentColor" stroke="none"/>
+      <g stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+        <line x1="36" y1="66" x2="36" y2="82"/><line x1="29" y1="74" x2="43" y2="74"/>
+        <line x1="64" y1="66" x2="64" y2="82"/><line x1="57" y1="74" x2="71" y2="74"/>
+      </g>
+    </g>`,
+    "storm": `<g>
+      <path d="M22 46 a16 16 0 1 1 4 -31 a20 20 0 0 1 38 8 a14 14 0 0 1 -4 23 z" fill="currentColor" stroke="none"/>
+      <polygon points="52,62 40,80 50,80 44,94 64,72 53,72" fill="currentColor" stroke="none"/>
+    </g>`,
+  };
 
-// ===================== GRASS =====================
-const grassEl = document.getElementById('grass');
-for (let i = 0; i < 200; i++) {
-  const g = document.createElement('div');
-  const h = 15 + Math.random() * 25;
-  g.className = 'grass-blade';
-  g.style.cssText = `left:${Math.random()*100}%;height:${h}px;bottom:${Math.random()*18}%;--gd:${1.5+Math.random()*2}s;animation-delay:${Math.random()*2}s;z-index:${7+Math.floor(Math.random()*2)};`;
-  grassEl.appendChild(g);
-}
+  function iconSvg(key){ return ICONS[key] || ICONS.cloud; }
+  function setIcon(el, key){ el.innerHTML = iconSvg(key); }
 
-// ===================== TREES =====================
-function makeTree(x, bottom, scale) {
-  const tree = document.createElement('div');
-  tree.className = 'tree';
-  const tw = 80 * scale, th = 130 * scale;
-  const trunkW = 12 * scale, trunkH = 35 * scale;
-  const greenShades = ['#15803d','#16a34a','#166534','#22c55e','#14532d'];
-  const fc = greenShades[Math.floor(Math.random() * greenShades.length)];
-  tree.style.cssText = `left:${x}%;bottom:${bottom}%;width:${tw}px;height:${th}px;`;
-  // Decide tree type
-  const type = Math.random();
-  if (type < 0.4) {
-    // Pine
-    tree.innerHTML = `
-      <div class="tree-trunk" style="width:${trunkW}px;height:${trunkH}px;"></div>
-      <div class="tree-foliage" style="--fc:${fc};border-left-width:${tw*0.35}px;border-right-width:${tw*0.35}px;border-bottom-width:${th*0.45}px;bottom:${trunkH*0.7}px;"></div>
-      <div class="tree-foliage" style="--fc:${fc};border-left-width:${tw*0.28}px;border-right-width:${tw*0.28}px;border-bottom-width:${th*0.38}px;bottom:${trunkH+th*0.18}px;"></div>
-      <div class="tree-foliage" style="--fc:${fc};border-left-width:${tw*0.2}px;border-right-width:${tw*0.2}px;border-bottom-width:${th*0.28}px;bottom:${trunkH+th*0.35}px;animation-delay:0.5s;"></div>`;
-  } else if (type < 0.7) {
-    // Oak
-    const leafSize = tw * 0.95;
-    tree.innerHTML = `
-      <div class="tree-trunk" style="width:${trunkW}px;height:${trunkH*1.3}px;"></div>
-      <div class="oak-leaves" style="width:${leafSize}px;height:${leafSize*0.85}px;bottom:${trunkH*1.0}px;left:${(tw-leafSize)/2}px;background:radial-gradient(circle at 40% 40%,${fc},${fc}cc);"></div>
-      <div class="oak-leaves" style="width:${leafSize*0.65}px;height:${leafSize*0.65}px;bottom:${trunkH*1.2}px;left:${tw*0.4}px;background:radial-gradient(circle,${fc}dd,${fc});animation-delay:0.3s;"></div>
-      <div class="oak-leaves" style="width:${leafSize*0.6}px;height:${leafSize*0.6}px;bottom:${trunkH*1.1}px;left:${-tw*0.05}px;background:radial-gradient(circle,${fc}cc,${fc}aa);animation-delay:0.6s;"></div>`;
-  } else {
-    // Tropical / palm-like
-    tree.innerHTML = `
-      <div class="tree-trunk" style="width:${trunkW*0.8}px;height:${trunkH*1.6}px;background:linear-gradient(180deg,#a16207,#78350f);border-radius:6px;transform:translateX(-50%) rotate(5deg);"></div>
-      <div class="oak-leaves" style="width:${tw*0.9}px;height:${th*0.35}px;bottom:${trunkH*1.4}px;left:0;background:radial-gradient(ellipse,${fc},${fc}99);border-radius:50%;animation-delay:0.2s;"></div>
-      <div class="oak-leaves" style="width:${tw*0.75}px;height:${th*0.28}px;bottom:${trunkH*1.55}px;left:${tw*0.1}px;background:radial-gradient(ellipse,${fc}cc,${fc}88);border-radius:50%;animation-delay:0.5s;"></div>`;
+  // ---------------------------------------------------------------
+  // Sky background fx: lightweight ambient particles per condition
+  // ---------------------------------------------------------------
+  const fx = document.getElementById('sky-fx');
+  let fxRaf = null;
+  function clearFx(){
+    if (fxRaf) cancelAnimationFrame(fxRaf);
+    fx.innerHTML = '';
   }
-  return tree;
-}
-
-const treesEl = document.getElementById('trees');
-const treeData = [
-  {x:2,b:18,s:1.2},{x:8,b:20,s:1},{x:14,b:22,s:1.4},{x:20,b:20,s:0.9},
-  {x:30,b:19,s:1.1},{x:38,b:21,s:1.3},{x:55,b:18,s:1},{x:62,b:20,s:1.2},
-  {x:70,b:22,s:0.95},{x:78,b:19,s:1.15},{x:85,b:21,s:1.05},{x:92,b:18,s:1.3},
-  {x:96,b:20,s:1},{x:45,b:29,s:0.7},{x:52,b:28,s:0.75}
-];
-treeData.forEach(t => treesEl.appendChild(makeTree(t.x, t.b, t.s)));
-
-// ===================== FLOWERS =====================
-const flowerColors = [
-  ['#ef4444','#fca5a5'],['#f97316','#fdba74'],['#f59e0b','#fcd34d'],
-  ['#ec4899','#f9a8d4'],['#8b5cf6','#c4b5fd'],['#06b6d4','#67e8f9'],
-  ['#ffffff','#fde68a']
-];
-const flowersEl = document.getElementById('flowers');
-for (let i = 0; i < 45; i++) {
-  const [pc, pc2] = flowerColors[Math.floor(Math.random()*flowerColors.length)];
-  const stemH = 20 + Math.random() * 30;
-  const flower = document.createElement('div');
-  flower.className = 'flower';
-  flower.style.cssText = `left:${Math.random()*95}%;bottom:${12+Math.random()*14}%;height:${stemH+20}px;width:20px;`;
-  let petals = '';
-  for (let p = 0; p < 6; p++) {
-    const angle = p * 60;
-    petals += `<div class="petal" style="background:${pc};transform:translate(-50%,-50%) rotate(${angle}deg) translateY(-8px);animation-delay:${p*0.1}s;"></div>`;
+  function buildRain(count, snow){
+    clearFx();
+    const drops = [];
+    for(let i=0;i<count;i++){
+      const d = document.createElement('div');
+      const x = Math.random()*100;
+      const delay = Math.random()*4;
+      const dur = snow ? (6+Math.random()*5) : (0.6+Math.random()*0.5);
+      const size = snow ? (2+Math.random()*3) : 1.4;
+      const len = snow ? size : (10+Math.random()*10);
+      d.style.position='absolute';
+      d.style.left = x+'%';
+      d.style.top='-20px';
+      d.style.width = (snow? size : 1.6)+'px';
+      d.style.height = (snow? size : len)+'px';
+      d.style.borderRadius = snow ? '50%' : '2px';
+      d.style.background = snow ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.35)';
+      d.style.opacity = snow ? '0.8' : '0.5';
+      d.style.transform = 'translateY(0)';
+      d.style.animation = `fall ${dur}s linear ${delay}s infinite`;
+      fx.appendChild(d);
+    }
+    if(!document.getElementById('fall-kf')){
+      const style = document.createElement('style');
+      style.id='fall-kf';
+      style.textContent = `@keyframes fall{ from{transform:translateY(-10vh);} to{transform:translateY(110vh);} }`;
+      document.head.appendChild(style);
+    }
   }
-  flower.innerHTML = `
-    <div class="flower-stem" style="height:${stemH}px;"></div>
-    <div class="flower-head" style="bottom:${stemH-6}px;">${petals}<div class="flower-center"></div></div>`;
-  flowersEl.appendChild(flower);
-}
-
-// ===================== COW =====================
-const animalsEl = document.getElementById('animals');
-[{x:'20%',b:'19%'},{x:'65%',b:'21%'}].forEach(pos => {
-  const cow = document.createElement('div');
-  cow.className = 'cow';
-  cow.style.cssText = `left:${pos.x};bottom:${pos.b};width:80px;height:50px;`;
-  cow.innerHTML = `
-    <div class="cow-body" style="top:8px;">
-      <div class="cow-patch" style="width:16px;height:12px;top:5px;left:10px;"></div>
-      <div class="cow-patch" style="width:10px;height:8px;top:14px;left:30px;"></div>
-    </div>
-    <div class="cow-head"><div style="width:8px;height:5px;background:#ef4444;border-radius:2px;position:absolute;top:12px;right:2px;"></div></div>
-    <div class="cow-tail"></div>
-    <div class="cow-leg" style="left:8px;"></div>
-    <div class="cow-leg" style="left:18px;"></div>
-    <div class="cow-leg" style="left:36px;"></div>
-    <div class="cow-leg" style="left:46px;"></div>`;
-  animalsEl.appendChild(cow);
-});
-
-// ===================== HUMANS =====================
-const humansEl = document.getElementById('humans');
-
-// Male walking
-const male = document.createElement('div');
-male.className = 'human human-move';
-male.style.cssText = `bottom:18%;animation-duration:18s;animation-delay:0s;`;
-male.innerHTML = `
-  <div style="position:relative;width:30px;height:70px;">
-    <div class="male-head"></div>
-    <div style="position:absolute;top:14px;left:50%;transform:translateX(-50%);width:6px;height:8px;background:#4b5563;border-radius:2px;"></div>
-    <div class="male-body">
-      <div class="male-arm l"></div>
-      <div class="male-arm r"></div>
-    </div>
-    <div class="male-legs">
-      <div class="male-leg human-walk" style="animation-delay:0s;"></div>
-      <div class="male-leg human-walk" style="animation-delay:0.25s;"></div>
-    </div>
-  </div>`;
-humansEl.appendChild(male);
-
-// Female
-const female = document.createElement('div');
-female.className = 'human human-move';
-female.style.cssText = `bottom:18%;animation-duration:22s;animation-delay:6s;`;
-female.innerHTML = `
-  <div style="position:relative;width:30px;height:65px;">
-    <div class="female-hair"></div>
-    <div class="female-head"></div>
-    <div class="female-body"></div>
-    <div class="female-legs">
-      <div class="female-leg human-walk" style="animation-delay:0.1s;"></div>
-      <div class="female-leg human-walk" style="animation-delay:0.35s;"></div>
-    </div>
-  </div>`;
-humansEl.appendChild(female);
-
-// Static couple holding hands
-const couple = document.createElement('div');
-couple.style.cssText = `position:absolute;bottom:19%;left:45%;display:flex;align-items:flex-end;gap:8px;z-index:9;`;
-couple.innerHTML = `
-  <div style="position:relative;width:28px;height:68px;">
-    <div style="width:17px;height:17px;background:#f5cba7;border-radius:50%;position:absolute;left:50%;transform:translateX(-50%);top:0;"></div>
-    <div style="width:5px;height:7px;background:#1d4ed8;border-radius:1px;position:absolute;top:13px;left:50%;transform:translateX(-50%);"></div>
-    <div style="width:20px;height:26px;background:#1d4ed8;border-radius:4px 4px 0 0;position:absolute;left:50%;transform:translateX(-50%);top:15px;"></div>
-    <div style="display:flex;gap:4px;position:absolute;top:42px;left:50%;transform:translateX(-50%);">
-      <div style="width:8px;height:20px;background:#1e3a5f;border-radius:0 0 4px 4px;"></div>
-      <div style="width:8px;height:20px;background:#1e3a5f;border-radius:0 0 4px 4px;"></div>
-    </div>
-  </div>
-  <div style="position:relative;width:28px;height:62px;">
-    <div style="width:8px;height:6px;background:#7c3aed;border-radius:3px 3px 0 0;position:absolute;left:50%;transform:translateX(-50%);top:0;"></div>
-    <div style="width:15px;height:15px;background:#f5cba7;border-radius:50%;position:absolute;left:50%;transform:translateX(-50%);top:0;"></div>
-    <div style="width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-top:28px solid #ec4899;position:absolute;left:50%;transform:translateX(-50%);top:13px;"></div>
-    <div style="display:flex;gap:6px;position:absolute;top:40px;left:50%;transform:translateX(-50%);">
-      <div style="width:7px;height:16px;background:#f472b6;border-radius:0 0 3px 3px;"></div>
-      <div style="width:7px;height:16px;background:#f472b6;border-radius:0 0 3px 3px;"></div>
-    </div>
-  </div>`;
-humansEl.appendChild(couple);
-
-// Kid
-const kid = document.createElement('div');
-kid.style.cssText = `position:absolute;bottom:18.5%;left:48%;z-index:9;animation:kidJump 1s ease-in-out infinite;`;
-kid.innerHTML = `
-  <div style="position:relative;width:20px;height:42px;">
-    <div style="width:13px;height:13px;background:#fcd34d;border-radius:50%;position:absolute;left:50%;transform:translateX(-50%);top:0;"></div>
-    <div style="width:15px;height:18px;background:#34d399;border-radius:3px 3px 0 0;position:absolute;left:50%;transform:translateX(-50%);top:11px;"></div>
-    <div style="display:flex;gap:3px;position:absolute;top:28px;left:50%;transform:translateX(-50%);">
-      <div style="width:6px;height:14px;background:#10b981;border-radius:0 0 3px 3px;"></div>
-      <div style="width:6px;height:14px;background:#10b981;border-radius:0 0 3px 3px;"></div>
-    </div>
-  </div>`;
-document.head.insertAdjacentHTML('beforeend','<style>@keyframes kidJump{0%,100%{bottom:18.5%;}50%{bottom:22%;}}</style>');
-humansEl.appendChild(kid);
-
-// ===================== VEHICLES =====================
-const vehiclesEl = document.getElementById('vehicles');
-
-// Red car
-const car = document.createElement('div');
-car.className = 'vehicle car-move';
-car.style.cssText = `bottom:16.5%;animation-duration:14s;animation-delay:2s;`;
-car.innerHTML = `
-  <div style="position:relative;width:100px;height:50px;">
-    <div class="car-body">
-      <div class="car-roof"></div>
-      <div class="car-window" style="width:20px;height:14px;top:-16px;left:20px;"></div>
-      <div class="car-window" style="width:18px;height:14px;top:-16px;left:44px;"></div>
-      <div style="width:14px;height:8px;background:rgba(253,224,71,0.8);border-radius:3px;position:absolute;left:-4px;top:12px;box-shadow:0 0 8px rgba(253,224,71,0.6);"></div>
-      <div style="width:10px;height:6px;background:rgba(239,68,68,0.8);border-radius:2px;position:absolute;right:-2px;top:14px;"></div>
-    </div>
-    <div class="car-wheel" style="left:10px;"></div>
-    <div class="car-wheel" style="right:10px;"></div>
-  </div>`;
-vehiclesEl.appendChild(car);
-
-// Blue car moving other direction
-const car2 = document.createElement('div');
-car2.className = 'vehicle';
-car2.style.cssText = `bottom:17%;animation:carMove2 18s linear infinite;animation-delay:8s;`;
-car2.innerHTML = `
-  <div style="position:relative;width:100px;height:50px;transform:scaleX(-1);">
-    <div class="car-body" style="background:linear-gradient(180deg,#3b82f6,#2563eb);">
-      <div class="car-roof" style="background:linear-gradient(180deg,#60a5fa,#3b82f6);"></div>
-      <div class="car-window" style="width:20px;height:14px;top:-16px;left:20px;"></div>
-      <div class="car-window" style="width:18px;height:14px;top:-16px;left:44px;"></div>
-    </div>
-    <div class="car-wheel" style="left:10px;"></div>
-    <div class="car-wheel" style="right:10px;"></div>
-  </div>`;
-document.head.insertAdjacentHTML('beforeend','<style>@keyframes carMove2{from{left:110%;}to{left:-150px;}}</style>');
-vehiclesEl.appendChild(car2);
-
-// Bicycle
-const bike = document.createElement('div');
-bike.className = 'vehicle';
-bike.style.cssText = `bottom:18%;animation:bikeMove 20s linear infinite;animation-delay:4s;z-index:10;`;
-bike.innerHTML = `
-  <div style="position:relative;width:55px;height:40px;">
-    <div style="width:20px;height:20px;border:3px solid #374151;border-radius:50%;position:absolute;bottom:0;left:0;animation:wheelSpin 0.4s linear infinite;"></div>
-    <div style="width:20px;height:20px;border:3px solid #374151;border-radius:50%;position:absolute;bottom:0;right:0;animation:wheelSpin 0.4s linear infinite;"></div>
-    <div style="position:absolute;bottom:10px;left:10px;width:35px;height:2px;background:#374151;transform:rotate(-25deg);"></div>
-    <div style="position:absolute;bottom:8px;left:15px;width:25px;height:2px;background:#374151;"></div>
-    <div style="position:absolute;bottom:22px;left:24px;width:8px;height:16px;background:#f5cba7;border-radius:4px 4px 0 0;"></div>
-  </div>`;
-document.head.insertAdjacentHTML('beforeend','<style>@keyframes bikeMove{from{left:-80px;}to{left:110%;}}</style>');
-vehiclesEl.appendChild(bike);
-
-// ===================== BIRDS =====================
-const birdsEl = document.getElementById('birds');
-const birdPositions = [
-  {t:'10%',dur:'14s',del:'0s'},{t:'15%',dur:'18s',del:'4s'},
-  {t:'8%',dur:'22s',del:'8s'},{t:'12%',dur:'16s',del:'12s'},
-  {t:'20%',dur:'20s',del:'2s'},{t:'7%',dur:'25s',del:'6s'},
-];
-birdPositions.forEach(bp => {
-  const bird = document.createElement('div');
-  bird.className = 'bird bird-move';
-  bird.style.cssText = `top:${bp.t};animation-duration:${bp.dur};animation-delay:${bp.del};width:24px;height:10px;`;
-  bird.innerHTML = `<div class="bird-wing l"></div><div class="bird-wing r"></div>`;
-  birdsEl.appendChild(bird);
-});
-
-// ===================== BUTTERFLIES =====================
-const butterfliesEl = document.getElementById('butterflies');
-const bfColors = [['#f97316','#7c3aed'],['#ec4899','#fbbf24'],['#06b6d4','#f97316'],['#8b5cf6','#34d399']];
-bfColors.forEach((c, i) => {
-  const bf = document.createElement('div');
-  bf.className = 'butterfly';
-  bf.style.cssText = `left:${10+i*20}%;bottom:${25+Math.random()*20}%;width:26px;height:16px;animation-delay:${i*2}s;`;
-  bf.innerHTML = `
-    <div class="b-wing left" style="background:radial-gradient(ellipse,${c[0]},${c[1]});"></div>
-    <div class="b-wing right" style="background:radial-gradient(ellipse,${c[0]},${c[1]});"></div>
-    <div class="b-body"></div>`;
-  butterfliesEl.appendChild(bf);
-});
-
-// ===================== FIREFLIES =====================
-const firefliesEl = document.getElementById('fireflies');
-for (let i = 0; i < 20; i++) {
-  const ff = document.createElement('div');
-  ff.className = 'firefly';
-  const fx = (Math.random()-0.5)*80, fy = (Math.random()-0.5)*60;
-  ff.style.cssText = `left:${Math.random()*100}%;bottom:${15+Math.random()*40}%;--fd:${3+Math.random()*5}s;--fx:${fx}px;--fy:${fy}px;animation-delay:${Math.random()*6}s;`;
-  firefliesEl.appendChild(ff);
-}
-
-// ===================== FALLING PETALS / LEAVES =====================
-const particlesEl = document.getElementById('particles');
-const petalColors = ['#fca5a5','#fcd34d','#f9a8d4','#a5f3fc','#bbf7d0','#c4b5fd','#fed7aa'];
-function spawnPetal() {
-  const p = document.createElement('div');
-  p.className = 'particle';
-  const size = 6 + Math.random() * 10;
-  const dur = 5 + Math.random() * 8;
-  const col = petalColors[Math.floor(Math.random() * petalColors.length)];
-  p.style.cssText = `width:${size}px;height:${size}px;background:${col};left:${Math.random()*100}%;top:-10px;animation-duration:${dur}s;animation-delay:${Math.random()*3}s;border-radius:${Math.random()>0.5?'50%':'3px'};opacity:0.7;`;
-  particlesEl.appendChild(p);
-  setTimeout(() => p.remove(), (dur + 3) * 1000);
-}
-setInterval(spawnPetal, 400);
-
-// ===================== CLICK EFFECTS =====================
-document.addEventListener('click', e => {
-  for (let i = 0; i < 12; i++) {
-    const spark = document.createElement('div');
-    const angle = (i / 12) * Math.PI * 2;
-    const speed = 3 + Math.random() * 5;
-    const colors = ['#fbbf24','#f97316','#ec4899','#a78bfa','#34d399'];
-    const size = 5 + Math.random() * 8;
-    spark.style.cssText = `position:fixed;width:${size}px;height:${size}px;background:${colors[Math.floor(Math.random()*5)]};border-radius:50%;left:${e.clientX}px;top:${e.clientY}px;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);`;
-    document.body.appendChild(spark);
-    let vx = Math.cos(angle)*speed, vy = Math.sin(angle)*speed, opacity = 1;
-    const go = () => {
-      vy += 0.15; vx *= 0.97;
-      const nx = parseFloat(spark.style.left)+vx, ny = parseFloat(spark.style.top)+vy;
-      opacity -= 0.025;
-      spark.style.left = nx+'px'; spark.style.top = ny+'px'; spark.style.opacity = opacity;
-      if (opacity > 0) requestAnimationFrame(go); else spark.remove();
-    };
-    requestAnimationFrame(go);
+  function buildFog(){
+    clearFx();
+    for(let i=0;i<3;i++){
+      const band = document.createElement('div');
+      band.style.position='absolute';
+      band.style.left='-20%'; band.style.width='140%';
+      band.style.top = (20+i*25)+'%';
+      band.style.height='120px';
+      band.style.background = 'linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent)';
+      band.style.filter='blur(8px)';
+      band.style.animation = `drift ${20+i*6}s linear infinite`;
+      fx.appendChild(band);
+    }
+    if(!document.getElementById('drift-kf')){
+      const style = document.createElement('style');
+      style.id='drift-kf';
+      style.textContent = `@keyframes drift{ from{transform:translateX(0);} to{transform:translateX(30%);} }`;
+      document.head.appendChild(style);
+    }
   }
-});
+  function setSkyFx(sky){
+    if(sky==='rain' || sky==='storm') buildRain(46,false);
+    else if(sky==='snow') buildRain(60,true);
+    else if(sky==='fog') buildFog();
+    else clearFx();
+  }
 
-// ===================== DAY/NIGHT CYCLE =====================
-let timeOfDay = 0;
-setInterval(() => {
-  timeOfDay = (timeOfDay + 1) % 360;
-  const t = timeOfDay / 360;
-  // Subtly shift the sky color
-  document.querySelector('.sky').style.filter = `hue-rotate(${Math.sin(t*Math.PI*2)*15}deg) brightness(${0.9+Math.sin(t*Math.PI)*0.2})`;
-}, 200);
+  // ---------------------------------------------------------------
+  // State
+  // ---------------------------------------------------------------
+  let unit = 'c'; // c | f
+  let lastData = null; // cached full payload for unit re-render
 
-console.log('%c✨ Living World Loaded! Click anywhere for magic! ✨', 'color:#fbbf24;font-size:16px;font-weight:bold;');
+  const el = (id)=>document.getElementById(id);
+  const loadingBox = el('loading-box');
+  const content = el('content');
+  const errorBox = el('error-box');
+  const errorText = el('error-text');
+
+  function showLoading(){
+    loadingBox.style.display='block';
+    content.classList.remove('show');
+    errorBox.classList.remove('show');
+  }
+  function showError(msg){
+    loadingBox.style.display='none';
+    content.classList.remove('show');
+    errorBox.classList.add('show');
+    errorText.textContent = msg;
+  }
+  function showContent(){
+    loadingBox.style.display='none';
+    errorBox.classList.remove('show');
+    content.classList.add('show');
+  }
+
+  function cToF(c){ return c*9/5+32; }
+  function fmtTemp(c){
+    const v = unit==='c' ? c : cToF(c);
+    return Math.round(v);
+  }
+  function unitLabel(){ return unit==='c' ? '°C' : '°F'; }
+
+  function dayPart(hour){ return hour>=6 && hour<19; }
+
+  function skyFromCode(code, hour){
+    const info = wmoInfo(code);
+    if(info.sky==='clear') return dayPart(hour) ? 'clear-day' : 'clear-night';
+    return info.sky;
+  }
+
+  // ---------------------------------------------------------------
+  // Geocoding (Open-Meteo geocoding API — handles "London", "America"→
+  // best-guess "United States" style queries, etc.)
+  // ---------------------------------------------------------------
+  async function geocode(query){
+    const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=8&language=en&format=json`;
+    const res = await fetch(url);
+    if(!res.ok) throw new Error('Geocoding service unavailable');
+    const data = await res.json();
+    return data.results || [];
+  }
+
+  async function reverseGeocode(lat, lon){
+    // Open-Meteo's geocoding API doesn't do reverse lookup, so we ask the
+    // weather endpoint for the place via a light Nominatim-free fallback:
+    // we just label it with coordinates if no name service is available.
+    try{
+      const url = `https://geocoding-api.open-meteo.com/v1/search?name=${lat},${lon}`;
+      const res = await fetch(url);
+      if(res.ok){
+        const d = await res.json();
+        if(d.results && d.results.length) return d.results[0];
+      }
+    }catch(e){}
+    return null;
+  }
+
+  // ---------------------------------------------------------------
+  // Weather fetch
+  // ---------------------------------------------------------------
+  async function fetchWeather(lat, lon, tz){
+    const params = new URLSearchParams({
+      latitude: lat,
+      longitude: lon,
+      current: 'temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,wind_direction_10m,pressure_msl,uv_index,is_day',
+      hourly: 'temperature_2m,weather_code,precipitation_probability',
+      daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset',
+      timezone: tz || 'auto',
+      forecast_days: '7',
+    });
+    const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params.toString()}`);
+    if(!res.ok) throw new Error('Forecast service unavailable');
+    return res.json();
+  }
+
+  // ---------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------
+  function renderAll(place, weather){
+    lastData = { place, weather };
+
+    const cur = weather.current;
+    const code = cur.weather_code;
+    const info = wmoInfo(code);
+    const hourNow = new Date(cur.time).getHours();
+    const sky = skyFromCode(code, hourNow);
+
+    document.body.setAttribute('data-sky', sky);
+    setSkyFx(sky);
+
+    // header / hero
+    const placeLabel = [place.name, place.admin1, place.country].filter(Boolean);
+    // avoid duplicate when admin1 === name
+    const uniqueParts = [];
+    placeLabel.forEach(p=>{ if(!uniqueParts.includes(p)) uniqueParts.push(p); });
+    el('hero-place-text').textContent = uniqueParts.slice(1).join(', ') || (place.country || '—');
+    el('hero-city').textContent = place.name;
+    el('hero-desc').textContent = `${info.text}. ${describeWind(cur.wind_speed_10m)} ${describeHumidity(cur.relative_humidity_2m)}`;
+    setIcon(el('hero-icon'), info.icon);
+    el('hero-temp').childNodes[0].nodeValue = fmtTemp(cur.temperature_2m);
+    el('hero-unit').textContent = unitLabel();
+    el('hero-feels').textContent = `FEELS LIKE ${fmtTemp(cur.apparent_temperature)}${unitLabel()}`;
+
+    // stats grid
+    const statsGrid = el('stats-grid');
+    statsGrid.innerHTML = '';
+    const stats = [
+      { label:'Humidity', value: `${Math.round(cur.relative_humidity_2m)}<span>%</span>` },
+      { label:'Wind', value: `${Math.round(cur.wind_speed_10m)}<span>km/h</span>` },
+      { label:'Pressure', value: `${Math.round(cur.pressure_msl)}<span>hPa</span>` },
+      { label:'UV index', value: `${cur.uv_index!=null ? Math.round(cur.uv_index) : '—'}` },
+    ];
+    stats.forEach(s=>{
+      const div = document.createElement('div');
+      div.className='stat';
+      div.innerHTML = `<div class="stat-label">${s.label}</div><div class="stat-value">${s.value}</div>`;
+      statsGrid.appendChild(div);
+    });
+
+    // hourly rail — next 24 hrs starting from current hour
+    const rail = el('hourly-rail');
+    rail.innerHTML = '';
+    const nowISO = cur.time;
+    let startIdx = weather.hourly.time.findIndex(t => t >= nowISO);
+    if(startIdx < 0) startIdx = 0;
+    for(let i=startIdx; i<startIdx+24 && i<weather.hourly.time.length; i++){
+      const t = new Date(weather.hourly.time[i]);
+      const hc = weather.hourly.weather_code[i];
+      const hinfo = wmoInfo(hc);
+      const card = document.createElement('div');
+      card.className='hour-card';
+      const label = i===startIdx ? 'Now' : t.toLocaleTimeString([], {hour:'numeric'});
+      card.innerHTML = `<div class="t">${label}</div><svg viewBox="0 0 100 100">${iconSvg(hinfo.icon)}</svg><div class="v">${fmtTemp(weather.hourly.temperature_2m[i])}°</div>`;
+      rail.appendChild(card);
+    }
+
+    // daily list
+    const dailyList = el('daily-list');
+    dailyList.innerHTML = '';
+    const days = weather.daily.time;
+    const highs = weather.daily.temperature_2m_max;
+    const lows = weather.daily.temperature_2m_min;
+    const codes = weather.daily.weather_code;
+    const globalMax = Math.max(...highs);
+    const globalMin = Math.min(...lows);
+    const span = (globalMax - globalMin) || 1;
+
+    days.forEach((d, i)=>{
+      const date = new Date(d + 'T00:00:00');
+      const dayName = i===0 ? 'Today' : date.toLocaleDateString([], { weekday:'short' });
+      const dateSub = date.toLocaleDateString([], { month:'short', day:'numeric' });
+      const dinfo = wmoInfo(codes[i]);
+      const hi = fmtTemp(highs[i]);
+      const lo = fmtTemp(lows[i]);
+      const leftPct = ((lows[i]-globalMin)/span)*100;
+      const widthPct = ((highs[i]-lows[i])/span)*100;
+
+      const row = document.createElement('div');
+      row.className='day-row';
+      row.innerHTML = `
+        <div class="day-name">${dayName}<span class="sub">${dateSub}</span></div>
+        <svg viewBox="0 0 100 100">${iconSvg(dinfo.icon)}</svg>
+        <div class="day-bar-track"><div class="day-bar-fill" style="left:${leftPct}%;width:${Math.max(widthPct,6)}%"></div></div>
+        <div class="day-lo">${lo}°</div>
+        <div class="day-hi">${hi}°</div>
+      `;
+      dailyList.appendChild(row);
+    });
+
+    // meta
+    el('meta-coords').textContent = `${place.latitude.toFixed(2)}°, ${place.longitude.toFixed(2)}°`;
+    el('meta-updated').textContent = `Updated ${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
+
+    showContent();
+  }
+
+  function describeWind(speed){
+    if(speed < 5) return 'Air is calm.';
+    if(speed < 20) return 'A light breeze is moving through.';
+    if(speed < 40) return 'Winds are noticeably brisk.';
+    return 'Strong winds right now.';
+  }
+  function describeHumidity(h){
+    if(h>80) return 'Humidity is high.';
+    if(h<30) return 'Air is dry.';
+    return '';
+  }
+
+  function rerenderUnitOnly(){
+    if(lastData) renderAll(lastData.place, lastData.weather);
+  }
+
+  // ---------------------------------------------------------------
+  // Search flow
+  // ---------------------------------------------------------------
+  async function loadForPlace(place){
+    showLoading();
+    try{
+      const weather = await fetchWeather(place.latitude, place.longitude, place.timezone);
+      renderAll(place, weather);
+    }catch(err){
+      showError(`Couldn't load weather for ${place.name}. ${err.message || ''}`);
+    }
+  }
+
+  async function searchAndLoad(query){
+    showLoading();
+    try{
+      const results = await geocode(query);
+      if(!results.length){
+        showError(`No place found matching "${query}". Try a city name, like "London" or "New York".`);
+        return;
+      }
+      // Prefer exact-ish country/city matches; otherwise take top hit.
+      const best = results[0];
+      await loadForPlace(best);
+    }catch(err){
+      showError(err.message || 'Something went wrong fetching that location.');
+    }
+  }
+
+  // typeahead suggestions
+  const searchInput = el('search-input');
+  const suggestBox = el('suggest');
+  let debounceTimer = null;
+
+  searchInput.addEventListener('input', ()=>{
+    const q = searchInput.value.trim();
+    clearTimeout(debounceTimer);
+    if(q.length < 2){ suggestBox.classList.remove('show'); suggestBox.innerHTML=''; return; }
+    debounceTimer = setTimeout(async ()=>{
+      try{
+        const results = await geocode(q);
+        if(!results.length){ suggestBox.classList.remove('show'); suggestBox.innerHTML=''; return; }
+        suggestBox.innerHTML = '';
+        results.slice(0,6).forEach(r=>{
+          const btn = document.createElement('button');
+          const parts = [r.name, r.admin1, r.country].filter(Boolean);
+          const unique = []; parts.forEach(p=>{ if(!unique.includes(p)) unique.push(p); });
+          btn.innerHTML = `${unique[0]}<span class="muted">${unique.slice(1).join(', ')}</span>`;
+          btn.addEventListener('click', ()=>{
+            searchInput.value = unique[0];
+            suggestBox.classList.remove('show');
+            loadForPlace(r);
+          });
+          suggestBox.appendChild(btn);
+        });
+        suggestBox.classList.add('show');
+      }catch(e){ /* silent for typeahead */ }
+    }, 320);
+  });
+
+  searchInput.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter'){
+      const q = searchInput.value.trim();
+      if(q){ suggestBox.classList.remove('show'); searchAndLoad(q); }
+    }
+  });
+
+  document.addEventListener('click', (e)=>{
+    if(!suggestBox.contains(e.target) && e.target!==searchInput){
+      suggestBox.classList.remove('show');
+    }
+  });
+
+  // geolocation
+  el('locate-btn').addEventListener('click', ()=>{
+    if(!navigator.geolocation){
+      showError('Geolocation is not supported by this browser.');
+      return;
+    }
+    showLoading();
+    navigator.geolocation.getCurrentPosition(async (pos)=>{
+      const { latitude, longitude } = pos.coords;
+      const place = await reverseGeocode(latitude, longitude);
+      const finalPlace = place || { name:'Your location', latitude, longitude, country:'', admin1:'' };
+      finalPlace.latitude = latitude; finalPlace.longitude = longitude;
+      loadForPlace(finalPlace);
+    }, (err)=>{
+      showError('Could not get your location. Please allow location access or search for a city instead.');
+    }, { timeout:10000 });
+  });
+
+  // units toggle
+  document.getElementById('units-toggle').addEventListener('click', (e)=>{
+    const btn = e.target.closest('button[data-unit]');
+    if(!btn) return;
+    unit = btn.getAttribute('data-unit');
+    document.querySelectorAll('#units-toggle button').forEach(b=>b.classList.toggle('active', b===btn));
+    rerenderUnitOnly();
+  });
+
+  // ---------------------------------------------------------------
+  // Initial load: try geolocation silently, else default to London
+  // ---------------------------------------------------------------
+  function init(){
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(async (pos)=>{
+        const { latitude, longitude } = pos.coords;
+        const place = await reverseGeocode(latitude, longitude);
+        const finalPlace = place || { name:'Your location', latitude, longitude, country:'', admin1:'' };
+        finalPlace.latitude = latitude; finalPlace.longitude = longitude;
+        loadForPlace(finalPlace);
+      }, ()=>{
+        searchAndLoad('London');
+      }, { timeout:6000 });
+    } else {
+      searchAndLoad('London');
+    }
+  }
+
+  init();
+})();
 </script>
 </body>
 </html>
