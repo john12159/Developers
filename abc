@@ -78,7 +78,7 @@
 
   /* ---------- Search ---------- */
   .search-wrap{
-    position:relative; z-index:5;
+    position:relative; z-index:20;
     display:flex; justify-content:center;
     padding: 4px clamp(18px,5vw,56px) 0;
   }
