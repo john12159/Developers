@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevStack - Niche Directory & Job Board</title>
-    
-    <link rel="stylesheet" href="https://cloudflare.com">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <style>
     :root {
@@ -67,6 +67,7 @@ body {
 .btn-outline-sm { background: transparent; border-color: var(--border-color); color: var(--text-muted); padding: 0.35rem 0.75rem; font-size: 0.8rem; }
 .btn-outline-sm:hover { color: #fff; border-color: #64748b; }
 .btn-block { width: 100%; display: block; margin-top: 1rem; }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* Hero Branding Layout */
 .hero { background: radial-gradient(circle at top right, #1e1b4b, var(--bg-primary)); padding: 4rem 1.5rem; text-align: center; border-bottom: 1px solid var(--border-color); }
@@ -105,6 +106,7 @@ body {
 .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: auto; }
 .card-link { color: var(--primary-color); text-decoration: none; font-size: 0.875rem; font-weight: 500; }
 .card-link:hover { text-decoration: underline; }
+.card-link.disabled { color: var(--text-muted); cursor: default; pointer-events: none; }
 
 /* Badges and Specialties tracking */
 .badge-ui { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; padding: 0.2rem 0.5rem; border-radius: 0.25rem; }
@@ -120,15 +122,22 @@ body {
 .job-row { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s ease; }
 .job-row:hover { background-color: var(--bg-surface-hover); border-color: #334155; }
 .job-left { display: flex; align-items: center; gap: 1rem; }
-.company-avatar { width: 44px; height: 44px; background: #1e293b; border-radius: 0.375rem; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; border: 1px solid var(--border-color); }
+.company-avatar { width: 44px; height: 44px; background: #1e293b; border-radius: 0.375rem; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; border: 1px solid var(--border-color); overflow: hidden; }
+.company-avatar img { width: 100%; height: 100%; object-fit: contain; }
 .company-info p { color: var(--text-muted); font-size: 0.85rem; }
 .job-right { display: flex; align-items: center; gap: 1.5rem; }
 .meta-detail { font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.25rem; }
 
+/* Status / error banners */
+.status-banner { display: flex; align-items: center; gap: 0.6rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 0.85rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; color: var(--text-muted); }
+.status-banner.error { border-color: rgba(244, 63, 94, 0.4); color: #fda4af; }
+.status-banner i { color: var(--primary-color); }
+.status-banner.error i { color: #f43f5e; }
+
 /* Modals Core Overlay Framework */
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
 .modal-overlay.active { display: flex; }
-.modal-box { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 0.75rem; width: 100%; max-width: 480px; padding: 1.5rem; position: relative; animation: modalSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+.modal-box { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 0.75rem; width: 100%; max-width: 480px; padding: 1.5rem; position: relative; animation: modalSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1); max-height: 90vh; overflow-y: auto; }
 @keyframes modalSlide { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
 .close-btn { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
@@ -139,6 +148,9 @@ body {
 .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem; font-weight: 500; }
 .form-group input, .form-group textarea, .form-group select { width: 100%; background: var(--bg-primary); border: 1px solid var(--border-color); padding: 0.625rem; border-radius: 0.375rem; color: white; outline: none; font-size: 0.9rem; }
 .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--primary-color); }
+.form-group .field-error { color: #f43f5e; font-size: 0.75rem; margin-top: 0.3rem; display: none; }
+.form-group.invalid input, .form-group.invalid textarea { border-color: #f43f5e; }
+.form-group.invalid .field-error { display: block; }
 .form-row { display: flex; gap: 1rem; }
 .form-row .form-group { flex: 1; }
 
@@ -148,13 +160,12 @@ body {
     .search-filter-wrapper { flex-direction: column; }
     .select-box { border-left: none; border-top: 1px solid var(--border-color); padding-top: 0.5rem; }
     .job-row { flex-direction: column; align-items: flex-start; gap: 1rem; }
-    .job-right { width: 100%; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 0.75rem; }
+    .job-right { width: 100%; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 0.75rem; flex-wrap: wrap; }
 }
 /* =========================================================================
    LIVE SITE FEED - UNIQUE INDICATOR STYLES
    ========================================================================= */
 
-/* The entire row gets a subtle tech-forward left border accent and unique tint */
 .job-row.live-feed-row {
     border-left: 3px solid #6366f1;
     background: linear-gradient(90deg, #161e2e 0%, var(--bg-surface) 100%);
@@ -162,14 +173,12 @@ body {
     overflow: hidden;
 }
 
-/* Hover glow effect specifically for live aggregated positions */
 .job-row.live-feed-row:hover {
     border-left-color: #818cf8;
     box-shadow: 0 0 20px -5px rgba(99, 102, 241, 0.15);
     background-color: #1a2333;
 }
 
-/* Decorative background pulse token representing an active scraping engine connection */
 .live-feed-row::after {
     content: '';
     position: absolute;
@@ -189,7 +198,6 @@ body {
     100% { transform: scale(0.9); opacity: 0.6; box-shadow: 0 0 4px #10b981; }
 }
 
-/* Distinctive styling for the live feed metadata badge */
 .live-badge {
     background-color: rgba(99, 102, 241, 0.15) !important;
     color: #a5b4fc !important;
@@ -206,7 +214,6 @@ body {
     margin-left: 6px;
 }
 
-/* Premium gradient look for the Apply redirect button on external API links */
 .btn-live-apply {
     background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%) !important;
     border: 1px solid rgba(99, 102, 241, 0.4) !important;
@@ -218,7 +225,6 @@ body {
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
-
 
 </style>
 <body>
@@ -237,10 +243,10 @@ body {
     <!-- Hero Header -->
     <header class="hero">
         <div class="hero-container">
-            <span class="announcement">✨ Automatically compiled & updated hourly</span>
+            <span class="announcement">✨ Live jobs sourced from Remotive's public API</span>
             <h1>The Developer Tools Directory</h1>
             <p>Uncover specialized web tooling ecosystems alongside matching hyper-targeted engineering roles.</p>
-            
+
             <div class="search-filter-wrapper">
                 <div class="search-box">
                     <i class="fa-solid fa-magnifying-glass"></i>
@@ -255,12 +261,13 @@ body {
                     </select>
                 </div>
             </div>
+            </div>
         </div>
     </header>
 
     <!-- Main Workspace -->
     <main class="main-container">
-        
+
         <!-- Tab Switcher System -->
         <div class="view-switcher">
             <button class="tab-btn active" id="tab-directory" onclick="switchView('directory')">
@@ -279,6 +286,7 @@ body {
         </section>
 
         <section id="jobs-view" class="content-view">
+            <div id="jobs-status-area"></div>
             <div class="list-layout" id="jobs-container">
                 <!-- JavaScript automatically populates here -->
             </div>
@@ -296,6 +304,11 @@ body {
                 <div class="form-group">
                     <label>Tool Name</label>
                     <input type="text" id="toolName" required placeholder="e.g. Tailwind Generator">
+                </div>
+                <div class="form-group">
+                    <label>Tool URL</label>
+                    <input type="url" id="toolUrl" required placeholder="https://example.com">
+                    <span class="field-error">Enter a valid URL starting with http:// or https://</span>
                 </div>
                 <div class="form-group">
                     <label>Description</label>
@@ -339,6 +352,11 @@ body {
                     <label>Company Name</label>
                     <input type="text" id="jobCompany" required placeholder="e.g. Vercel Inc.">
                 </div>
+                <div class="form-group">
+                    <label>Application URL</label>
+                    <input type="url" id="jobUrl" required placeholder="https://yourcompany.com/careers/role">
+                    <span class="field-error">Enter a valid URL starting with http:// or https://</span>
+                </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Category Tag</label>
@@ -363,25 +381,26 @@ body {
     </div>
 
     <footer class="site-footer">
-        <p>&copy; 2026 DevStack SaaS. State synchronized to LocalStorage Engine.</p>
+        <p>&copy; 2026 DevStack SaaS. Local listings saved in this browser only · Live jobs powered by Remotive.</p>
     </footer>
 
     <script>
-     // =========================================================================
+// =========================================================================
 // PART 1: CORE STATE & REAL-WORLD LIVE API FETCH PIPELINE
 // =========================================================================
 
-// Directory state storage with built-in default seed products
-let directoryData = JSON.parse(localStorage.getItem('micro_saas_directory')) || [
-    { id: 1, name: "Supabase Vector", desc: "Open-source toolkit for managing embeddings and similarity searches directly within PostgreSQL infrastructure.", cat: "backend", pricing: "free" },
-    { id: 2, name: "Tailwind Component Engine", desc: "Automated CSS utility class tree-shaker and component variant boilerplates optimized for rapid prototyping.", cat: "frontend", pricing: "free" },
-    { id: 3, name: "Pulumi K8s Controller", desc: "Automated configuration state synchronization bot tracking cluster component deployment lifecycles.", cat: "devops", pricing: "premium" }
-];
+// Directory state storage with built-in default seed products.
+// Real, working destination URLs (no more fake google.com search links).
+let directoryData = loadFromStorage('micro_saas_directory', [
+    { id: 1, name: "Supabase Vector", desc: "Open-source toolkit for managing embeddings and similarity searches directly within PostgreSQL infrastructure.", cat: "backend", pricing: "free", url: "https://supabase.com/docs/guides/ai" },
+    { id: 2, name: "Tailwind Component Engine", desc: "Automated CSS utility class tree-shaker and component variant boilerplates optimized for rapid prototyping.", cat: "frontend", pricing: "free", url: "https://tailwindcss.com" },
+    { id: 3, name: "Pulumi K8s Controller", desc: "Automated configuration state synchronization bot tracking cluster component deployment lifecycles.", cat: "devops", pricing: "premium", url: "https://www.pulumi.com/docs/iac/clouds/kubernetes/" }
+]);
 
 // Local jobs posted directly onto your micro-SaaS workspace
-let localJobsData = JSON.parse(localStorage.getItem('micro_saas_jobs')) || [
-    { id: 101, title: "Senior React Engineer", company: "Local SaaS Stack", cat: "frontend", salary: "$130k - $160k", loc: "Remote (Global)", url: "https://google.com", isRemotePlatform: false }
-];
+let localJobsData = loadFromStorage('micro_saas_jobs', [
+    { id: 101, title: "Senior React Engineer", company: "Local SaaS Stack", cat: "frontend", salary: "$130k - $160k", loc: "Remote (Global)", url: "https://reactjs.org/community/jobs.html", isRemotePlatform: false }
+]);
 
 // Live array storage reserved specifically for incoming real-world API data feeds
 let remoteJobsData = [];
@@ -390,119 +409,133 @@ let remoteJobsData = [];
 let jobsData = [...localJobsData];
 
 /**
- * Live Fetch Engine: Aggregates real operational jobs directly from a production API
- * Pulls from the Arbejdsformidlingen index which natively supports CORS-safe browser requests
+ * Safe localStorage reader. Falls back to defaults if storage is unavailable
+ * (e.g. private browsing) or contains corrupted JSON.
+ */
+function loadFromStorage(key, fallback) {
+    try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+    } catch (e) {
+        console.warn(`Could not read ${key} from storage, using defaults.`, e);
+        return fallback;
+    }
+}
+
+function saveToStorage(key, value) {
+    try {
+        localStorage.setItem(key, JSON.stringify(value));
+    } catch (e) {
+        console.warn(`Could not persist ${key} to storage.`, e);
+    }
+}
+
+/**
+ * Live Fetch Engine: Aggregates real, currently-open remote dev jobs from
+ * Remotive's public API (https://remotive.com/api/remote-jobs).
+ * No API key required. Per Remotive's terms, listings link back to the
+ * original Remotive job page and are credited as sourced from Remotive.
  */
 async function fetchLiveExternalJobs() {
-    const jobsCountBadge = document.getElementById('jobs-count');
-    if (jobsCountBadge) {
-        jobsCountBadge.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-    }
+    renderStatusBanner('loading', 'Pulling live roles from Remotive...');
 
     try {
-        // Real-world public Open API endpoint query targeting development roles
-        const apiUrl = 'https://jobnet.dk';
+        const apiUrl = 'https://remotive.com/api/remote-jobs?category=software-dev&limit=24';
         const response = await fetch(apiUrl);
-        
-        if (!response.ok) throw new Error('Live network stream degradation detected');
+
+        if (!response.ok) throw new Error(`Remotive API responded with ${response.status}`);
         const data = await response.json();
-        
-        // Confirm API data array integrity and extract live data blocks
-        const externalItems = data.JobPositionPostings || [];
-        
-        // Transform the external API schema properties directly into our UI layout engine
-        remoteJobsData = externalItems.slice(0, 15).map((job, index) => {
-            // Programmatically split listings into categories based on title matches
-            const titleStr = (job.Title || '').toLowerCase();
-            let assignedCategory = 'backend'; // Default structural fallback
-            
-            if (titleStr.includes('front') || titleStr.includes('react') || titleStr.includes('design')) {
-                assignedCategory = 'frontend';
-            } else if (titleStr.includes('ops') || titleStr.includes('cloud') || titleStr.includes('infra')) {
+
+        const externalItems = data.jobs || [];
+        if (externalItems.length === 0) throw new Error('Remotive returned no jobs for this query');
+
+        remoteJobsData = externalItems.map((job) => {
+            const titleStr = (job.title || '').toLowerCase();
+            const categoryStr = (job.category || '').toLowerCase();
+            let assignedCategory = 'backend'; // structural fallback
+
+            if (categoryStr.includes('devops') || categoryStr.includes('sysadmin') || titleStr.includes('devops') || titleStr.includes('infra') || titleStr.includes('cloud') || titleStr.includes('site reliability') || titleStr.includes('platform')) {
                 assignedCategory = 'devops';
+            } else if (categoryStr.includes('dev') && (titleStr.includes('front') || titleStr.includes('react') || titleStr.includes('ui') || titleStr.includes('design'))) {
+                assignedCategory = 'frontend';
+            } else if (titleStr.includes('front') || titleStr.includes('react') || titleStr.includes('vue') || titleStr.includes('angular') || titleStr.includes('ui/ux')) {
+                assignedCategory = 'frontend';
             }
 
             return {
-                id: `live-api-${job.ID || index}`,
-                title: job.Title || 'Software Engineering Architect',
-                company: job.CompanyName || 'Global Enterprise Network',
+                id: `live-${job.id}`,
+                title: job.title || 'Software Engineering Role',
+                company: job.company_name || 'Verified Remote Company',
+                companyLogo: job.company_logo_url || job.company_logo || null,
                 cat: assignedCategory,
-                salary: "Market Standard Rate",
-                loc: job.WorkPlaceNotSpecified ? "Remote" : (job.WorkplaceAddress?.Municipality || "Remote Friendly"),
-                // Real external site mapping to route applicant directly to original platform link
-                url: job.Url || `https://jobnet.dk{job.ID}`,
+                salary: (job.salary && job.salary.trim()) ? job.salary : 'Not disclosed',
+                loc: (job.candidate_required_location && job.candidate_required_location.trim()) ? job.candidate_required_location : 'Remote',
+                // Real destination: the actual Remotive job listing page
+                url: job.url,
                 isRemotePlatform: true
             };
         });
 
+        renderStatusBanner('success', `Loaded ${remoteJobsData.length} live roles from Remotive`);
         compileMasterJobState();
 
     } catch (error) {
-        console.error('API Fetch Blocked or Failed. Bootstrapping alternative fallback feed:', error);
-        fallbackToBackupFeed();
-    }
-}
-
-/**
- * Backup Pipeline: Seamlessly falls back to a public raw GitHub JSON feed if the primary API fails
- */
-async function fallbackToBackupFeed() {
-    try {
-        const fallbackResponse = await fetch('https://githubusercontent.com');
-        if (!fallbackResponse.ok) throw new Error('Network offline');
-        const data = await fallbackResponse.json();
-        
-        remoteJobsData = data.slice(0, 10).map((item, index) => ({
-            id: `backup-live-${index}`,
-            title: "Core Infrastructure Dev",
-            company: item.name || "Ecosystem Contributor",
-            cat: "backend",
-            salary: "$120k - $150k",
-            loc: "Remote (Global)",
-            url: item.url || "https://google.com",
-            isRemotePlatform: true
-        }));
-        compileMasterJobState();
-    } catch(e) {
-        console.error("All data connections exhausted:", e);
+        console.error('Remotive live fetch failed:', error);
+        remoteJobsData = [];
+        renderStatusBanner('error', "Couldn't reach the live job feed right now (network or CORS issue in this preview environment). Showing your local listings only — try again shortly.");
         compileMasterJobState();
     }
 }
 
+function renderStatusBanner(state, message) {
+    const area = document.getElementById('jobs-status-area');
+    if (!area) return;
+
+    if (state === 'success') {
+        area.innerHTML = '';
+        return;
+    }
+
+    const icon = state === 'loading' ? 'fa-circle-notch fa-spin' : 'fa-triangle-exclamation';
+    const cls = state === 'error' ? 'status-banner error' : 'status-banner';
+    area.innerHTML = `<div class="${cls}"><i class="fa-solid ${icon}"></i><span>${message}</span></div>`;
+}
+
 /**
- * Integrates internal local listings with raw dynamic API data array records
+ * Integrates internal local listings with live Remotive data records
  */
 function compileMasterJobState() {
     jobsData = [...localJobsData, ...remoteJobsData];
     updateCounterBadges();
+    rebuildCategoryDropdown();
     executeLiveSearchFiltering();
 }
 // =========================================================================
 // PART 2: UI SWITCHERS & DYNAMIC HTML DOM INJECTION ENGINES
 // =========================================================================
 
-/**
- * Tab Controller: Switches interface panel visibility between states
- */
 function switchView(viewName) {
     document.querySelectorAll('.content-view').forEach(view => view.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    
+
     const viewTarget = document.getElementById(`${viewName}-view`);
     const tabTarget = document.getElementById(`tab-${viewName}`);
-    
+
     if (viewTarget) viewTarget.classList.add('active');
     if (tabTarget) tabTarget.classList.add('active');
 }
 
-/**
- * Modal Toggle Engine: Manages overlay layouts for submission forms
- */
 function toggleModal(modalId) {
     const elementModal = document.getElementById(modalId);
     if (elementModal) {
         elementModal.classList.toggle('active');
     }
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML;
 }
 
 /**
@@ -511,9 +544,9 @@ function toggleModal(modalId) {
 function renderToolDirectoryGrid(arrayData) {
     const container = document.getElementById('directory-container');
     if (!container) return;
-    
+
     container.innerHTML = '';
-    
+
     if (arrayData.length === 0) {
         container.innerHTML = `<div class="card" style="grid-column: 1/-1; text-align:center; padding:3rem; color:var(--text-muted)">No software tools match your active filter definitions.</div>`;
         return;
@@ -522,15 +555,19 @@ function renderToolDirectoryGrid(arrayData) {
     arrayData.forEach(tool => {
         const itemCard = document.createElement('div');
         itemCard.className = 'card';
+        const safeUrl = escapeHtml(tool.url || '');
+        const linkHtml = tool.url
+            ? `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="card-link">Launch App <i class="fa-solid fa-arrow-up-right-from-square"></i></a>`
+            : `<span class="card-link disabled">No link provided</span>`;
         itemCard.innerHTML = `
             <div class="card-header-meta">
-                <span class="tag-lbl tag-${tool.cat}">${tool.cat.toUpperCase()}</span>
-                <span class="badge-ui ${tool.pricing}">${tool.pricing}</span>
+                <span class="tag-lbl tag-${tool.cat}">${escapeHtml(tool.cat.toUpperCase())}</span>
+                <span class="badge-ui ${tool.pricing}">${escapeHtml(tool.pricing)}</span>
             </div>
-            <h3>${tool.name}</h3>
-            <p>${tool.desc}</p>
+            <h3>${escapeHtml(tool.name)}</h3>
+            <p>${escapeHtml(tool.desc)}</p>
             <div class="card-footer">
-                <a href="https://google.com{encodeURIComponent(tool.name)}" target="_blank" class="card-link">Launch App <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+                ${linkHtml}
                 <button class="btn btn-outline-sm" onclick="removeResourceElement(${tool.id}, 'directory')"><i class="fa-solid fa-trash"></i></button>
             </div>
         `;
@@ -539,16 +576,13 @@ function renderToolDirectoryGrid(arrayData) {
 }
 
 /**
- * UI Builder: Renders the combined job feed, routing applicants straight to original platform listings
- */
-/**
- * UI Builder: Renders the combined job feed, applying unique visual indicators
- * to records pulled live via external site APIs.
+ * UI Builder: Renders the combined job feed (local + live Remotive),
+ * applying a distinct visual treatment to live-sourced records.
  */
 function renderLiveJobFeedList(arrayData) {
     const container = document.getElementById('jobs-container');
     if (!container) return;
-    
+
     container.innerHTML = '';
 
     if (arrayData.length === 0) {
@@ -558,33 +592,36 @@ function renderLiveJobFeedList(arrayData) {
 
     arrayData.forEach(job => {
         const rowNode = document.createElement('div');
-        
-        // Dynamically inject the unique CSS hook class if it's an API resource item
         rowNode.className = job.isRemotePlatform ? 'job-row live-feed-row' : 'job-row';
-        
+
+        const avatarInner = (job.isRemotePlatform && job.companyLogo)
+            ? `<img src="${escapeHtml(job.companyLogo)}" alt="${escapeHtml(job.company)} logo" onerror="this.parentElement.innerHTML='<i class=\\'fa-solid fa-cloud-bolt\\'></i>'">`
+            : job.isRemotePlatform
+                ? '<i class="fa-solid fa-cloud-bolt"></i>'
+                : escapeHtml(job.company.charAt(0));
+
         rowNode.innerHTML = `
             <div class="job-left">
                 <div class="company-avatar" style="${job.isRemotePlatform ? 'background: linear-gradient(135deg, #3730a3, #1e1b4b); color: #c7d2fe;' : ''}">
-                    ${job.isRemotePlatform ? '<i class="fa-solid fa-cloud-bolt"></i>' : job.company.charAt(0)}
+                    ${avatarInner}
                 </div>
                 <div class="company-info">
-                    <h3>${job.title}</h3>
-                    <p>${job.company} • 
-                        <span class="tag-lbl tag-${job.cat}" style="font-size:0.65rem; padding:0.1rem 0.3rem">${job.cat}</span>
-                        ${job.isRemotePlatform ? `<span class="live-badge"><i class="fa-solid fa-satellite-dish"></i> Live Site Feed</span>` : ''}
+                    <h3>${escapeHtml(job.title)}</h3>
+                    <p>${escapeHtml(job.company)} •
+                        <span class="tag-lbl tag-${job.cat}" style="font-size:0.65rem; padding:0.1rem 0.3rem">${escapeHtml(job.cat)}</span>
+                        ${job.isRemotePlatform ? `<span class="live-badge"><i class="fa-solid fa-satellite-dish"></i> via Remotive</span>` : ''}
                     </p>
                 </div>
             </div>
             <div class="job-right">
-                <span class="meta-detail"><i class="fa-solid fa-location-dot"></i> ${job.loc}</span>
-                <span class="meta-detail"><i class="fa-solid fa-money-bill-wave"></i> ${job.salary}</span>
-                
-                <!-- DYNAMIC APPLICATION ROUTING LINK ELEMENT -->
-                <a href="${job.url}" target="_blank" rel="noopener noreferrer" 
+                <span class="meta-detail"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(job.loc)}</span>
+                <span class="meta-detail"><i class="fa-solid fa-money-bill-wave"></i> ${escapeHtml(job.salary)}</span>
+
+                <a href="${escapeHtml(job.url)}" target="_blank" rel="noopener noreferrer"
                    class="btn btn-sm ${job.isRemotePlatform ? 'btn-live-apply' : 'btn-primary'}" style="text-decoration:none">
                     Apply <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.7rem; margin-left:4px"></i>
                 </a>
-                
+
                 ${!job.isRemotePlatform ? `<button class="btn btn-outline-sm" onclick="removeResourceElement(${job.id}, 'jobs')"><i class="fa-solid fa-trash"></i></button>` : ''}
             </div>
         `;
@@ -596,13 +633,10 @@ function renderLiveJobFeedList(arrayData) {
 // PART 3: REACTIVE COMPUTATIONS, INTERCEPTORS & INITIALIZATION
 // =========================================================================
 
-/**
- * Intersection Search Controller: Processes data array sorting patterns on input updates
- */
 function executeLiveSearchFiltering() {
     const rawSearchBox = document.getElementById('search-input');
     const rawFilterDropdown = document.getElementById('category-filter');
-    
+
     const searchString = rawSearchBox ? rawSearchBox.value.toLowerCase() : '';
     const selectedCategory = rawFilterDropdown ? rawFilterDropdown.value : 'all';
 
@@ -622,46 +656,86 @@ function executeLiveSearchFiltering() {
     renderLiveJobFeedList(jobsResult);
 }
 
-/**
- * Calculates current runtime array counts and writes totals to UI elements
- */
 function updateCounterBadges() {
     const dBadge = document.getElementById('directory-count');
     const jBadge = document.getElementById('jobs-count');
-    
+
     if (dBadge) dBadge.textContent = directoryData.length;
     if (jBadge) jBadge.textContent = jobsData.length;
 }
 
 /**
- * Mutation Engine: Removes entries cleanly from local browser standard storage loops
+ * Rebuilds the "All Specs" category dropdown so its option labels reflect
+ * live counts across BOTH tools and jobs combined (directory + local +
+ * Remotive live feed) — e.g. "Frontend (12)" — instead of static text with
+ * no relationship to what's actually loaded.
  */
+const CATEGORY_LABELS = { frontend: 'Frontend', backend: 'Backend', devops: 'DevOps & AI' };
+
+function rebuildCategoryDropdown() {
+    const dropCategory = document.getElementById('category-filter');
+    if (!dropCategory) return;
+
+    const previousSelection = dropCategory.value || 'all';
+
+    const counts = { frontend: 0, backend: 0, devops: 0 };
+    directoryData.forEach(item => { if (counts.hasOwnProperty(item.cat)) counts[item.cat]++; });
+    jobsData.forEach(job => { if (counts.hasOwnProperty(job.cat)) counts[job.cat]++; });
+
+    const totalCount = directoryData.length + jobsData.length;
+
+    const optionsHtml = [
+        `<option value="all">All Specs (${totalCount})</option>`,
+        ...Object.keys(CATEGORY_LABELS).map(catKey =>
+            `<option value="${catKey}">${CATEGORY_LABELS[catKey]} (${counts[catKey]})</option>`
+        )
+    ].join('');
+
+    dropCategory.innerHTML = optionsHtml;
+    dropCategory.value = previousSelection;
+}
+
 function removeResourceElement(id, systemLayer) {
     if (systemLayer === 'directory') {
         directoryData = directoryData.filter(item => item.id !== id);
-        localStorage.setItem('micro_saas_directory', JSON.stringify(directoryData));
+        saveToStorage('micro_saas_directory', directoryData);
     } else {
         localJobsData = localJobsData.filter(item => item.id !== id);
-        localStorage.setItem('micro_saas_jobs', JSON.stringify(localJobsData));
+        saveToStorage('micro_saas_jobs', localJobsData);
     }
     compileMasterJobState();
+    executeLiveSearchFiltering();
 }
 
 /**
- * Lifecycle Initialization: Configures global stream listeners upon complete DOM load
+ * Basic client-side URL validation so submitted tools/jobs always get a
+ * working destination link instead of a placeholder search URL.
  */
+function isValidUrl(value) {
+    try {
+        const parsed = new URL(value);
+        return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    } catch (e) {
+        return false;
+    }
+}
+
+function setFieldValidity(inputId, isValid) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const group = input.closest('.form-group');
+    if (group) group.classList.toggle('invalid', !isValid);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Initial display generation sequences
     renderToolDirectoryGrid(directoryData);
     compileMasterJobState();
-    
-    // Dispatch system call to request live external site feeds instantly
+
     fetchLiveExternalJobs();
 
-    // Bind state changes on filtering management inputs
     const inputSearch = document.getElementById('search-input');
     const dropCategory = document.getElementById('category-filter');
-    
+
     if (inputSearch) inputSearch.addEventListener('input', executeLiveSearchFiltering);
     if (dropCategory) dropCategory.addEventListener('change', executeLiveSearchFiltering);
 
@@ -670,15 +744,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (toolForm) {
         toolForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            const urlValue = document.getElementById('toolUrl').value.trim();
+            const urlOk = isValidUrl(urlValue);
+            setFieldValidity('toolUrl', urlOk);
+            if (!urlOk) return;
+
             const toolObject = {
                 id: Date.now(),
                 name: document.getElementById('toolName').value,
                 desc: document.getElementById('toolDesc').value,
                 cat: document.getElementById('toolCat').value,
-                pricing: document.getElementById('toolPrice').value
+                pricing: document.getElementById('toolPrice').value,
+                url: urlValue
             };
             directoryData.unshift(toolObject);
-            localStorage.setItem('micro_saas_directory', JSON.stringify(directoryData));
+            saveToStorage('micro_saas_directory', directoryData);
             e.target.reset();
             toggleModal('directoryModal');
             executeLiveSearchFiltering();
@@ -691,6 +771,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (jobForm) {
         jobForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            const urlValue = document.getElementById('jobUrl').value.trim();
+            const urlOk = isValidUrl(urlValue);
+            setFieldValidity('jobUrl', urlOk);
+            if (!urlOk) return;
+
             const jobObject = {
                 id: Date.now(),
                 title: document.getElementById('jobTitle').value,
@@ -698,19 +783,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 cat: document.getElementById('jobCat').value,
                 salary: document.getElementById('jobSalary').value,
                 loc: document.getElementById('jobLoc').value,
-                url: "https://google.com" + encodeURIComponent(document.getElementById('jobTitle').value),
+                url: urlValue,
                 isRemotePlatform: false
             };
             localJobsData.unshift(jobObject);
-            localStorage.setItem('micro_saas_jobs', JSON.stringify(localJobsData));
+            saveToStorage('micro_saas_jobs', localJobsData);
             e.target.reset();
             toggleModal('jobModal');
             compileMasterJobState();
         });
     }
 });
-
-
     </script>
 </body>
 </html>
