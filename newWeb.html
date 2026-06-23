@@ -20,6 +20,12 @@
     --frontend-theme: #38bdf8;
     --backend-theme: #34d399;
     --devops-theme: #a78bfa;
+    --mobile-theme: #fb923c;
+    --data-theme: #f472b6;
+    --design-theme: #fbbf24;
+    --qa-theme: #2dd4bf;
+    --other-theme: #94a3b8;
+    --india-theme: #fb923c;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -116,6 +122,27 @@ body {
 .tag-frontend { background-color: rgba(56, 189, 248, 0.2); color: var(--frontend-theme); }
 .tag-backend { background-color: rgba(52, 211, 153, 0.2); color: var(--backend-theme); }
 .tag-devops { background-color: rgba(167, 139, 250, 0.2); color: var(--devops-theme); }
+.tag-mobile { background-color: rgba(251, 146, 60, 0.2); color: var(--mobile-theme); }
+.tag-data { background-color: rgba(244, 114, 182, 0.2); color: var(--data-theme); }
+.tag-design { background-color: rgba(251, 191, 36, 0.2); color: var(--design-theme); }
+.tag-qa { background-color: rgba(45, 212, 191, 0.2); color: var(--qa-theme); }
+.tag-other { background-color: rgba(148, 163, 184, 0.2); color: var(--other-theme); }
+
+.india-badge {
+    background-color: rgba(251, 146, 60, 0.15) !important;
+    color: #fdba74 !important;
+    border: 1px solid rgba(251, 146, 60, 0.3);
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.15rem 0.4rem;
+    border-radius: 0.25rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: 6px;
+}
 
 /* Unified Jobs System Row layout */
 .list-layout { display: flex; flex-direction: column; gap: 1rem; }
@@ -257,10 +284,14 @@ body {
                         <option value="all">All Specs</option>
                         <option value="frontend">Frontend</option>
                         <option value="backend">Backend</option>
-                        <option value="devops">DevOps & AI</option>
+                        <option value="devops">DevOps & Cloud</option>
+                        <option value="mobile">Mobile</option>
+                        <option value="data">Data & AI</option>
+                        <option value="design">Design</option>
+                        <option value="qa">QA & Testing</option>
+                        <option value="other">Other</option>
                     </select>
                 </div>
-            </div>
             </div>
         </div>
     </header>
@@ -320,7 +351,12 @@ body {
                         <select id="toolCat">
                             <option value="frontend">Frontend</option>
                             <option value="backend">Backend</option>
-                            <option value="devops">DevOps</option>
+                            <option value="devops">DevOps & Cloud</option>
+                            <option value="mobile">Mobile</option>
+                            <option value="data">Data & AI</option>
+                            <option value="design">Design</option>
+                            <option value="qa">QA & Testing</option>
+                            <option value="other">Other</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -363,7 +399,12 @@ body {
                         <select id="jobCat">
                             <option value="frontend">Frontend</option>
                             <option value="backend">Backend</option>
-                            <option value="devops">DevOps</option>
+                            <option value="devops">DevOps & Cloud</option>
+                            <option value="mobile">Mobile</option>
+                            <option value="data">Data & AI</option>
+                            <option value="design">Design</option>
+                            <option value="qa">QA & Testing</option>
+                            <option value="other">Other</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -431,60 +472,100 @@ function saveToStorage(key, value) {
 }
 
 /**
+ * Maps a raw Remotive job into our internal shape, classifying it into the
+ * expanded category taxonomy (frontend / backend / devops / mobile / data /
+ * design / qa / other) using both Remotive's own category field and title
+ * keywords as a fallback.
+ */
+function normalizeRemotiveJob(job, isIndia) {
+    const titleStr = (job.title || '').toLowerCase();
+    const categoryStr = (job.category || '').toLowerCase();
+    let assignedCategory = 'other';
+
+    if (titleStr.includes('ios') || titleStr.includes('android') || titleStr.includes('flutter') || titleStr.includes('react native') || titleStr.includes('mobile')) {
+        assignedCategory = 'mobile';
+    } else if (categoryStr.includes('data') || categoryStr.includes('ai') || titleStr.includes('data scientist') || titleStr.includes('machine learning') || titleStr.includes(' ml ') || titleStr.includes('analytics') || titleStr.includes('artificial intelligence')) {
+        assignedCategory = 'data';
+    } else if (categoryStr.includes('design') || titleStr.includes('ux') || titleStr.includes('ui designer') || titleStr.includes('product designer')) {
+        assignedCategory = 'design';
+    } else if (titleStr.includes('qa') || titleStr.includes('quality assurance') || titleStr.includes('test engineer') || titleStr.includes('sdet')) {
+        assignedCategory = 'qa';
+    } else if (categoryStr.includes('devops') || categoryStr.includes('sysadmin') || titleStr.includes('devops') || titleStr.includes('infra') || titleStr.includes('cloud') || titleStr.includes('site reliability') || titleStr.includes('platform engineer')) {
+        assignedCategory = 'devops';
+    } else if (titleStr.includes('front') || titleStr.includes('react') || titleStr.includes('vue') || titleStr.includes('angular') || titleStr.includes('ui/ux')) {
+        assignedCategory = 'frontend';
+    } else if (categoryStr.includes('software development') || categoryStr.includes('dev') || titleStr.includes('backend') || titleStr.includes('back-end') || titleStr.includes('engineer') || titleStr.includes('developer')) {
+        assignedCategory = 'backend';
+    }
+
+    return {
+        id: `live-${job.id}`,
+        title: job.title || 'Software Engineering Role',
+        company: job.company_name || 'Verified Remote Company',
+        companyLogo: job.company_logo_url || job.company_logo || null,
+        cat: assignedCategory,
+        salary: (job.salary && job.salary.trim()) ? job.salary : 'Not disclosed',
+        loc: (job.candidate_required_location && job.candidate_required_location.trim()) ? job.candidate_required_location : 'Remote',
+        url: job.url,
+        isRemotePlatform: true,
+        isIndia: !!isIndia
+    };
+}
+
+/**
  * Live Fetch Engine: Aggregates real, currently-open remote dev jobs from
  * Remotive's public API (https://remotive.com/api/remote-jobs).
  * No API key required. Per Remotive's terms, listings link back to the
  * original Remotive job page and are credited as sourced from Remotive.
+ *
+ * Pulls two batches in parallel:
+ *  1. Global software-dev roles
+ *  2. Roles whose candidate_required_location mentions India
+ * Both are merged and de-duplicated by Remotive job id.
  */
 async function fetchLiveExternalJobs() {
-    renderStatusBanner('loading', 'Pulling live roles from Remotive...');
+    renderStatusBanner('loading', 'Pulling live roles from Remotive (global + India)...');
 
-    try {
-        const apiUrl = 'https://remotive.com/api/remote-jobs?category=software-dev&limit=24';
-        const response = await fetch(apiUrl);
+    const globalUrl = 'https://remotive.com/api/remote-jobs?category=software-dev&limit=24';
+    const indiaUrl = 'https://remotive.com/api/remote-jobs?search=India&limit=24';
 
-        if (!response.ok) throw new Error(`Remotive API responded with ${response.status}`);
-        const data = await response.json();
+    const results = await Promise.allSettled([
+        fetch(globalUrl).then(r => { if (!r.ok) throw new Error(`Remotive API responded with ${r.status}`); return r.json(); }),
+        fetch(indiaUrl).then(r => { if (!r.ok) throw new Error(`Remotive API responded with ${r.status}`); return r.json(); })
+    ]);
 
-        const externalItems = data.jobs || [];
-        if (externalItems.length === 0) throw new Error('Remotive returned no jobs for this query');
+    const [globalResult, indiaResult] = results;
+    const mergedById = new Map();
 
-        remoteJobsData = externalItems.map((job) => {
-            const titleStr = (job.title || '').toLowerCase();
-            const categoryStr = (job.category || '').toLowerCase();
-            let assignedCategory = 'backend'; // structural fallback
-
-            if (categoryStr.includes('devops') || categoryStr.includes('sysadmin') || titleStr.includes('devops') || titleStr.includes('infra') || titleStr.includes('cloud') || titleStr.includes('site reliability') || titleStr.includes('platform')) {
-                assignedCategory = 'devops';
-            } else if (categoryStr.includes('dev') && (titleStr.includes('front') || titleStr.includes('react') || titleStr.includes('ui') || titleStr.includes('design'))) {
-                assignedCategory = 'frontend';
-            } else if (titleStr.includes('front') || titleStr.includes('react') || titleStr.includes('vue') || titleStr.includes('angular') || titleStr.includes('ui/ux')) {
-                assignedCategory = 'frontend';
-            }
-
-            return {
-                id: `live-${job.id}`,
-                title: job.title || 'Software Engineering Role',
-                company: job.company_name || 'Verified Remote Company',
-                companyLogo: job.company_logo_url || job.company_logo || null,
-                cat: assignedCategory,
-                salary: (job.salary && job.salary.trim()) ? job.salary : 'Not disclosed',
-                loc: (job.candidate_required_location && job.candidate_required_location.trim()) ? job.candidate_required_location : 'Remote',
-                // Real destination: the actual Remotive job listing page
-                url: job.url,
-                isRemotePlatform: true
-            };
+    if (globalResult.status === 'fulfilled') {
+        (globalResult.value.jobs || []).forEach(job => {
+            mergedById.set(job.id, normalizeRemotiveJob(job, false));
         });
-
-        renderStatusBanner('success', `Loaded ${remoteJobsData.length} live roles from Remotive`);
-        compileMasterJobState();
-
-    } catch (error) {
-        console.error('Remotive live fetch failed:', error);
-        remoteJobsData = [];
-        renderStatusBanner('error', "Couldn't reach the live job feed right now (network or CORS issue in this preview environment). Showing your local listings only — try again shortly.");
-        compileMasterJobState();
     }
+
+    if (indiaResult.status === 'fulfilled') {
+        (indiaResult.value.jobs || [])
+            // Confirm the location actually mentions India — `search` matches
+            // title/description too, so this keeps the India tag accurate.
+            .filter(job => (job.candidate_required_location || '').toLowerCase().includes('india'))
+            .forEach(job => {
+                const normalized = normalizeRemotiveJob(job, true);
+                const existing = mergedById.get(job.id);
+                // If already present from the global batch, just add the India tag.
+                mergedById.set(job.id, existing ? { ...existing, isIndia: true } : normalized);
+            });
+    }
+
+    remoteJobsData = Array.from(mergedById.values());
+
+    if (remoteJobsData.length === 0) {
+        renderStatusBanner('error', "Couldn't reach the live job feed right now (network or CORS issue in this preview environment). Showing your local listings only — try again shortly.");
+    } else {
+        const indiaCount = remoteJobsData.filter(j => j.isIndia).length;
+        renderStatusBanner('success', `Loaded ${remoteJobsData.length} live roles from Remotive (${indiaCount} in India)`);
+    }
+
+    compileMasterJobState();
 }
 
 function renderStatusBanner(state, message) {
@@ -561,7 +642,7 @@ function renderToolDirectoryGrid(arrayData) {
             : `<span class="card-link disabled">No link provided</span>`;
         itemCard.innerHTML = `
             <div class="card-header-meta">
-                <span class="tag-lbl tag-${tool.cat}">${escapeHtml(tool.cat.toUpperCase())}</span>
+                <span class="tag-lbl tag-${tool.cat}">${escapeHtml((CATEGORY_LABELS[tool.cat] || tool.cat).toUpperCase())}</span>
                 <span class="badge-ui ${tool.pricing}">${escapeHtml(tool.pricing)}</span>
             </div>
             <h3>${escapeHtml(tool.name)}</h3>
@@ -608,8 +689,9 @@ function renderLiveJobFeedList(arrayData) {
                 <div class="company-info">
                     <h3>${escapeHtml(job.title)}</h3>
                     <p>${escapeHtml(job.company)} •
-                        <span class="tag-lbl tag-${job.cat}" style="font-size:0.65rem; padding:0.1rem 0.3rem">${escapeHtml(job.cat)}</span>
+                        <span class="tag-lbl tag-${job.cat}" style="font-size:0.65rem; padding:0.1rem 0.3rem">${escapeHtml(CATEGORY_LABELS[job.cat] || job.cat)}</span>
                         ${job.isRemotePlatform ? `<span class="live-badge"><i class="fa-solid fa-satellite-dish"></i> via Remotive</span>` : ''}
+                        ${job.isIndia ? `<span class="india-badge"><i class="fa-solid fa-flag"></i> India</span>` : ''}
                     </p>
                 </div>
             </div>
@@ -670,7 +752,16 @@ function updateCounterBadges() {
  * Remotive live feed) — e.g. "Frontend (12)" — instead of static text with
  * no relationship to what's actually loaded.
  */
-const CATEGORY_LABELS = { frontend: 'Frontend', backend: 'Backend', devops: 'DevOps & AI' };
+const CATEGORY_LABELS = {
+    frontend: 'Frontend',
+    backend: 'Backend',
+    devops: 'DevOps & Cloud',
+    mobile: 'Mobile',
+    data: 'Data & AI',
+    design: 'Design',
+    qa: 'QA & Testing',
+    other: 'Other'
+};
 
 function rebuildCategoryDropdown() {
     const dropCategory = document.getElementById('category-filter');
@@ -678,7 +769,8 @@ function rebuildCategoryDropdown() {
 
     const previousSelection = dropCategory.value || 'all';
 
-    const counts = { frontend: 0, backend: 0, devops: 0 };
+    const counts = {};
+    Object.keys(CATEGORY_LABELS).forEach(key => { counts[key] = 0; });
     directoryData.forEach(item => { if (counts.hasOwnProperty(item.cat)) counts[item.cat]++; });
     jobsData.forEach(job => { if (counts.hasOwnProperty(job.cat)) counts[job.cat]++; });
 
