@@ -1,424 +1,387 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BazaarHub - India Shopping Directory & Deals Board</title>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sakeenah — Prayer Times & Companion</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <style>
-    :root {
-    --bg-primary: #0b0f19;
-    --bg-surface: #131a26;
-    --bg-surface-hover: #1c2536;
-    --text-main: #f1f5f9;
-    --text-muted: #94a3b8;
-    --primary-color: #f97316;
-    --primary-hover: #ea580c;
-    --border-color: #1e293b;
-    --fashion-theme: #38bdf8;
-    --electronics-theme: #34d399;
-    --home-theme: #a78bfa;
-    --beauty-theme: #f472b6;
-    --grocery-theme: #4ade80;
-    --kids-theme: #fbbf24;
-    --other-theme: #94a3b8;
+:root {
+    --bg-primary: #0a1612;
+    --bg-surface: #0f2119;
+    --bg-surface-hover: #15301f;
+    --bg-elevated: #122a1e;
+    --text-main: #f0f7f2;
+    --text-muted: #8fa89a;
+    --text-dim: #5f7d6c;
+    --gold: #d4af37;
+    --gold-soft: #e8c863;
+    --emerald: #1f8a5f;
+    --emerald-bright: #2bb074;
+    --border-color: #1b3326;
+    --danger: #e07856;
 }
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-    font-family: ui-sans-serif, system-ui, sans-serif;
-    background-color: var(--bg-primary);
+    font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+    background: radial-gradient(ellipse at top, #0d1f16, var(--bg-primary) 60%);
     color: var(--text-main);
     line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: 5.5rem;
 }
+.arabic { font-family: 'Amiri', serif; }
 
-/* Navigation layout */
-.navbar {
-    background-color: var(--bg-surface);
+/* Top bar */
+.topbar {
+    background: rgba(15, 33, 25, 0.85);
+    backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border-color);
     position: sticky;
     top: 0;
     z-index: 50;
-}
-.nav-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem 1.5rem;
+    padding: 0.9rem 1.25rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-.logo { font-size: 1.25rem; font-weight: 700; color: #fff; text-decoration: none; }
-.logo i { color: var(--primary-color); }
-.nav-actions { display: flex; gap: 0.75rem; }
+.brand { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 1.05rem; color: #fff; }
+.brand i { color: var(--gold); }
+.location-chip {
+    display: flex; align-items: center; gap: 0.4rem;
+    background: var(--bg-elevated); border: 1px solid var(--border-color);
+    padding: 0.4rem 0.75rem; border-radius: 9999px; font-size: 0.78rem; color: var(--text-muted);
+    cursor: pointer; transition: border-color 0.15s;
+}
+.location-chip:hover { border-color: var(--emerald); color: var(--text-main); }
+.location-chip i { color: var(--emerald-bright); }
+.settings-btn {
+    background: var(--bg-elevated); border: 1px solid var(--border-color); color: var(--text-muted);
+    width: 36px; height: 36px; border-radius: 9999px; cursor: pointer; font-size: 0.95rem;
+    display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+}
+.settings-btn:hover { color: #fff; border-color: var(--emerald); }
 
-/* Buttons global definition */
+/* Main container */
+.app-container { max-width: 720px; margin: 0 auto; padding: 1.25rem; }
+
+/* Status banners */
+.status-banner {
+    display: flex; align-items: center; gap: 0.6rem; background: var(--bg-elevated);
+    border: 1px solid var(--border-color); border-radius: 0.6rem; padding: 0.8rem 1rem;
+    margin-bottom: 1rem; font-size: 0.82rem; color: var(--text-muted);
+}
+.status-banner.error { border-color: rgba(224, 120, 86, 0.4); color: #f3b59b; }
+.status-banner i { color: var(--gold); flex-shrink: 0; }
+.status-banner.error i { color: var(--danger); }
+.status-banner button.btn-inline {
+    background: var(--emerald); color: #fff; border: none; padding: 0.4rem 0.8rem;
+    border-radius: 0.4rem; font-size: 0.78rem; cursor: pointer; font-weight: 600; flex-shrink: 0; margin-left: auto;
+}
+
+/* Hero next-prayer card */
+.next-prayer-card {
+    background: linear-gradient(135deg, var(--bg-elevated), var(--bg-surface));
+    border: 1px solid var(--border-color);
+    border-radius: 1.1rem;
+    padding: 1.75rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+.next-prayer-card::before {
+    content: '';
+    position: absolute; top: -50%; right: -20%; width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(212,175,55,0.08), transparent 70%);
+    pointer-events: none;
+}
+.np-label { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; }
+.np-name { font-size: 2rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem; }
+.np-time { font-size: 1.1rem; color: var(--gold-soft); font-weight: 600; margin-bottom: 0.75rem; }
+.np-countdown { font-size: 0.95rem; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.np-countdown strong { color: var(--emerald-bright); font-weight: 700; }
+.hijri-date-line { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.9rem; padding-top: 0.9rem; border-top: 1px solid var(--border-color); }
+
+/* Today's timings grid */
+.timings-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(95px, 1fr)); gap: 0.6rem;
+    margin-bottom: 1.5rem;
+}
+.timing-cell {
+    background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 0.7rem;
+    padding: 0.85rem 0.5rem; text-align: center; transition: all 0.15s;
+}
+.timing-cell.is-next { border-color: var(--emerald); background: var(--bg-surface-hover); }
+.timing-cell .t-name { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.35rem; }
+.timing-cell .t-time { font-size: 1.05rem; font-weight: 700; color: var(--text-main); font-variant-numeric: tabular-nums; }
+.timing-cell.is-next .t-time { color: var(--gold-soft); }
+
+/* Suhoor/Iftar card */
+.fast-card {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+    background: var(--border-color); border-radius: 0.9rem; overflow: hidden;
+    margin-bottom: 1.5rem; border: 1px solid var(--border-color);
+}
+.fast-cell { background: var(--bg-surface); padding: 1.1rem; text-align: center; }
+.fast-cell .f-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.3rem; }
+.fast-cell .f-time { font-size: 1.3rem; font-weight: 700; color: var(--text-main); }
+.fast-cell .f-sub { font-size: 0.72rem; color: var(--text-dim); margin-top: 0.2rem; }
+.fast-cell.suhoor .f-time { color: #93c5fd; }
+.fast-cell.iftar .f-time { color: var(--gold-soft); }
+
+/* Section nav (bottom tabs) */
+.bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+    background: rgba(15, 33, 25, 0.92); backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border-color);
+    display: flex; justify-content: space-around; padding: 0.5rem 0.25rem;
+}
+.nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
+    background: none; border: none; color: var(--text-dim); font-size: 0.65rem; cursor: pointer;
+    padding: 0.3rem 0.5rem; border-radius: 0.5rem; flex: 1; max-width: 80px; font-weight: 500;
+}
+.nav-item i { font-size: 1.15rem; }
+.nav-item.active { color: var(--gold-soft); }
+
+/* Section views */
+.section-view { display: none; }
+.section-view.active { display: block; }
+.section-title { font-size: 1.3rem; font-weight: 700; color: #fff; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+.section-title i { color: var(--gold); }
+
+/* Generic cards / buttons */
+.panel { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 0.9rem; padding: 1.25rem; margin-bottom: 1rem; }
 .btn {
-    padding: 0.625rem 1.25rem;
-    border-radius: 0.375rem;
-    font-weight: 500;
-    cursor: pointer;
-    font-size: 0.875rem;
-    border: 1px solid transparent;
-    transition: all 0.15s ease;
+    padding: 0.65rem 1.25rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer;
+    font-size: 0.875rem; border: 1px solid transparent; transition: all 0.15s ease;
 }
-.btn-primary { background-color: var(--primary-color); color: #fff; }
-.btn-primary:hover { background-color: var(--primary-hover); }
-.btn-secondary { background-color: #1e293b; color: var(--text-main); border-color: var(--border-color); }
-.btn-secondary:hover { background-color: #334155; }
-.btn-outline-sm { background: transparent; border-color: var(--border-color); color: var(--text-muted); padding: 0.35rem 0.75rem; font-size: 0.8rem; }
-.btn-outline-sm:hover { color: #fff; border-color: #64748b; }
-.btn-block { width: 100%; display: block; margin-top: 1rem; }
-.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-primary { background: var(--emerald); color: #fff; }
+.btn-primary:hover { background: var(--emerald-bright); }
+.btn-secondary { background: var(--bg-elevated); color: var(--text-main); border-color: var(--border-color); }
+.btn-secondary:hover { background: var(--bg-surface-hover); }
+.btn-block { width: 100%; display: block; }
+.btn-outline-sm { background: transparent; border-color: var(--border-color); color: var(--text-muted); padding: 0.35rem 0.7rem; font-size: 0.78rem; border-radius: 0.4rem; cursor: pointer; }
+.btn-outline-sm:hover { color: #fff; border-color: var(--emerald); }
 
-/* Hero Branding Layout */
-.hero { background: radial-gradient(circle at top right, #431407, var(--bg-primary)); padding: 4rem 1.5rem; text-align: center; border-bottom: 1px solid var(--border-color); }
-.hero-container { max-width: 700px; margin: 0 auto; }
-.announcement { display: inline-block; background: #1e293b; color: #cbd5e1; font-size: 0.75rem; font-weight: 500; padding: 0.25rem 0.75rem; border-radius: 9999px; margin-bottom: 1rem; border: 1px solid var(--border-color); }
-.hero h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.05em; margin-bottom: 1rem; }
-.hero p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2.5rem; }
-
-/* Filter Console */
-.search-filter-wrapper { display: flex; background: var(--bg-surface); padding: 0.5rem; border-radius: 0.5rem; gap: 0.5rem; border: 1px solid var(--border-color); }
-.search-box { display: flex; align-items: center; flex: 3; padding-left: 0.75rem; color: var(--text-muted); }
-.search-box input { width: 100%; background: transparent; border: none; padding: 0.5rem; font-size: 1rem; outline: none; color: white; }
-.select-box { flex: 1; border-left: 1px solid var(--border-color); }
-.select-box select { width: 100%; background: transparent; border: none; padding: 0.5rem; color: var(--text-main); outline: none; cursor: pointer; }
-.select-box select option { background-color: var(--bg-surface); color: white; }
-
-/* Content Grid / Tab switcher layout */
-.main-container { max-width: 1200px; margin: 2rem auto; padding: 0 1.5rem; min-height: 50vh; }
-.view-switcher { display: flex; gap: 1.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 2rem; }
-.tab-btn { background: none; border: none; padding: 1rem 0.25rem; font-size: 1rem; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 0.5rem; position: relative; font-weight: 500; }
-.tab-btn.active { color: white; font-weight: 600; }
-.tab-btn.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background-color: var(--primary-color); }
-.counter { background-color: #1e293b; color: var(--text-main); font-size: 0.75rem; padding: 0.1rem 0.5rem; border-radius: 0.25rem; margin-left: 0.25rem; }
-
-/* Elements Execution Views */
-.content-view { display: none; }
-.content-view.active { display: block; }
-.grid-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-
-/* Application Component Cards Architecture */
-.card { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s ease; position: relative; }
-.card:hover { transform: translateY(-2px); background-color: var(--bg-surface-hover); border-color: #334155; }
-.card h3 { margin: 0.75rem 0 0.5rem 0; font-size: 1.15rem; }
-.card p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; flex-grow: 1; }
-.card-header-meta { display: flex; justify-content: space-between; align-items: center; }
-.card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: auto; }
-.card-link { color: var(--primary-color); text-decoration: none; font-size: 0.875rem; font-weight: 500; }
-.card-link:hover { text-decoration: underline; }
-.card-link.disabled { color: var(--text-muted); cursor: default; pointer-events: none; }
-
-/* Badges and Specialties tracking */
-.badge-ui { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; padding: 0.2rem 0.5rem; border-radius: 0.25rem; }
-.badge-ui.verified { background-color: rgba(52, 211, 153, 0.1); color: var(--electronics-theme); }
-.badge-ui.new { background-color: rgba(244, 63, 94, 0.1); color: #f43f5e; }
-.tag-lbl { font-size: 0.75rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 0.25rem; color: #fff; }
-.tag-fashion { background-color: rgba(56, 189, 248, 0.2); color: var(--fashion-theme); }
-.tag-electronics { background-color: rgba(52, 211, 153, 0.2); color: var(--electronics-theme); }
-.tag-home { background-color: rgba(167, 139, 250, 0.2); color: var(--home-theme); }
-.tag-beauty { background-color: rgba(244, 114, 182, 0.2); color: var(--beauty-theme); }
-.tag-grocery { background-color: rgba(74, 222, 128, 0.2); color: var(--grocery-theme); }
-.tag-kids { background-color: rgba(251, 191, 36, 0.2); color: var(--kids-theme); }
-.tag-other { background-color: rgba(148, 163, 184, 0.2); color: var(--other-theme); }
-
-/* Unified Deals/Listings System Row layout */
-.list-layout { display: flex; flex-direction: column; gap: 1rem; }
-.job-row { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s ease; }
-.job-row:hover { background-color: var(--bg-surface-hover); border-color: #334155; }
-.job-left { display: flex; align-items: center; gap: 1rem; }
-.company-avatar { width: 44px; height: 44px; background: #1e293b; border-radius: 0.375rem; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; border: 1px solid var(--border-color); overflow: hidden; }
-.company-avatar img { width: 100%; height: 100%; object-fit: contain; }
-.company-info p { color: var(--text-muted); font-size: 0.85rem; }
-.job-right { display: flex; align-items: center; gap: 1.5rem; }
-.meta-detail { font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.25rem; }
-.price-now { color: #4ade80; font-weight: 700; }
-.price-was { color: var(--text-muted); text-decoration: line-through; font-size: 0.8rem; margin-left: 4px; }
-
-/* Status / info banners */
-.status-banner { display: flex; align-items: center; gap: 0.6rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 0.85rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; color: var(--text-muted); }
-.status-banner i { color: var(--primary-color); }
-
-/* Modals Core Overlay Framework */
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+/* Modals */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(5,12,9,0.8);
+    backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center;
+    z-index: 1000; padding: 1rem;
+}
 .modal-overlay.active { display: flex; }
-.modal-box { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 0.75rem; width: 100%; max-width: 480px; padding: 1.5rem; position: relative; animation: modalSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1); max-height: 90vh; overflow-y: auto; }
-@keyframes modalSlide { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-.close-btn { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
-.close-btn:hover { color: white; }
-
-/* Programmatic Forms Integration */
-.form-group { margin-bottom: 1.2rem; }
-.form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem; font-weight: 500; }
-.form-group input, .form-group textarea, .form-group select { width: 100%; background: var(--bg-primary); border: 1px solid var(--border-color); padding: 0.625rem; border-radius: 0.375rem; color: white; outline: none; font-size: 0.9rem; }
-.form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--primary-color); }
-.form-group .field-error { color: #f43f5e; font-size: 0.75rem; margin-top: 0.3rem; display: none; }
-.form-group.invalid input, .form-group.invalid textarea { border-color: #f43f5e; }
-.form-group.invalid .field-error { display: block; }
-.form-row { display: flex; gap: 1rem; }
-.form-row .form-group { flex: 1; }
-
-.site-footer { text-align: center; padding: 4rem 1rem; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border-color); margin-top: 5rem; }
-
-@media(max-width: 768px) {
-    .search-filter-wrapper { flex-direction: column; }
-    .select-box { border-left: none; border-top: 1px solid var(--border-color); padding-top: 0.5rem; }
-    .job-row { flex-direction: column; align-items: flex-start; gap: 1rem; }
-    .job-right { width: 100%; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 0.75rem; flex-wrap: wrap; }
+.modal-box {
+    background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 1rem;
+    width: 100%; max-width: 460px; padding: 1.5rem; max-height: 88vh; overflow-y: auto;
+    animation: modalSlide 0.2s cubic-bezier(0.16,1,0.3,1);
 }
+@keyframes modalSlide { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; }
+.modal-header h3 { font-size: 1.1rem; font-weight: 700; }
+.close-btn { background: none; border: none; color: var(--text-muted); font-size: 1.4rem; cursor: pointer; line-height: 1; }
+.close-btn:hover { color: #fff; }
 
+.form-group { margin-bottom: 1.1rem; }
+.form-group label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.35rem; font-weight: 500; }
+.form-group input, .form-group select {
+    width: 100%; background: var(--bg-primary); border: 1px solid var(--border-color);
+    padding: 0.6rem 0.7rem; border-radius: 0.45rem; color: white; outline: none; font-size: 0.9rem;
+}
+.form-group input:focus, .form-group select:focus { border-color: var(--emerald); }
+.form-group select option { background: var(--bg-surface); }
+.radio-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.radio-pill {
+    background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 9999px;
+    padding: 0.4rem 0.9rem; font-size: 0.8rem; cursor: pointer; color: var(--text-muted);
+}
+.radio-pill input { display: none; }
+.radio-pill.checked { background: var(--emerald); color: #fff; border-color: var(--emerald); }
+
+@media(max-width: 480px) {
+    .np-name { font-size: 1.6rem; }
+    .timings-grid { grid-template-columns: repeat(3, 1fr); }
+}
 </style>
 <body>
 
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="#" class="logo"><i class="fa-solid fa-bag-shopping"></i> BazaarHub India</a>
-            <div class="nav-actions">
-                <button class="btn btn-secondary" onclick="toggleModal('sellerModal')"><i class="fa-solid fa-plus"></i> List Your Shop</button>
-                <button class="btn btn-primary" onclick="toggleModal('dealModal')"><i class="fa-solid fa-tag"></i> Post a Deal</button>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Hero Header -->
-    <header class="hero">
-        <div class="hero-container">
-            <span class="announcement">🇮🇳 Curated by sellers, for shoppers across India</span>
-            <h1>The India Shopping Directory</h1>
-            <p>Discover trusted independent sellers and the deals they're running right now — every link goes straight to the seller.</p>
-
-            <div class="search-filter-wrapper">
-                <div class="search-box">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="search-input" placeholder="Search shops, deals, cities...">
-                </div>
-                <div class="select-box">
-                    <select id="category-filter">
-                        <option value="all">All Categories</option>
-                        <option value="fashion">Fashion</option>
-                        <option value="electronics">Electronics</option>
-                        <option value="home">Home & Living</option>
-                        <option value="beauty">Beauty & Personal Care</option>
-                        <option value="grocery">Grocery</option>
-                        <option value="kids">Kids & Baby</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Workspace -->
-    <main class="main-container">
-
-        <!-- Tab Switcher System -->
-        <div class="view-switcher">
-            <button class="tab-btn active" id="tab-directory" onclick="switchView('directory')">
-                <i class="fa-solid fa-store"></i> Seller Directory <span class="counter" id="directory-count">0</span>
-            </button>
-            <button class="tab-btn" id="tab-jobs" onclick="switchView('jobs')">
-                <i class="fa-solid fa-tags"></i> Active Deals <span class="counter" id="jobs-count">0</span>
-            </button>
-        </div>
-
-        <!-- Dynamic View Sections -->
-        <section id="directory-view" class="content-view active">
-            <div class="grid-layout" id="directory-container">
-                <!-- JavaScript automatically populates here -->
-            </div>
-        </section>
-
-        <section id="jobs-view" class="content-view">
-            <div id="jobs-status-area"></div>
-            <div class="list-layout" id="jobs-container">
-                <!-- JavaScript automatically populates here -->
-            </div>
-        </section>
-    </main>
-
-    <!-- MODAL 1: List Your Shop -->
-    <div class="modal-overlay" id="sellerModal">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3>List Your Shop</h3>
-                <button class="close-btn" onclick="toggleModal('sellerModal')">&times;</button>
-            </div>
-            <form id="sellerForm">
-                <div class="form-group">
-                    <label>Shop Name</label>
-                    <input type="text" id="shopName" required placeholder="e.g. Jaipur Handloom Co.">
-                </div>
-                <div class="form-group">
-                    <label>Store URL</label>
-                    <input type="url" id="shopUrl" required placeholder="https://yourshop.com or Instagram/WhatsApp catalog link">
-                    <span class="field-error">Enter a valid URL starting with http:// or https://</span>
-                </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="shopDesc" rows="3" required placeholder="What do you sell? What makes your shop worth visiting?"></textarea>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Category</label>
-                        <select id="shopCat">
-                            <option value="fashion">Fashion</option>
-                            <option value="electronics">Electronics</option>
-                            <option value="home">Home & Living</option>
-                            <option value="beauty">Beauty & Personal Care</option>
-                            <option value="grocery">Grocery</option>
-                            <option value="kids">Kids & Baby</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Base City</label>
-                        <input type="text" id="shopCity" required placeholder="e.g. Jaipur, Rajasthan">
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">Add My Shop</button>
-            </form>
-        </div>
+<!-- Top Bar -->
+<header class="topbar">
+    <div class="brand"><i class="fa-solid fa-moon"></i> Sakeenah</div>
+    <div style="display:flex; align-items:center; gap:0.6rem;">
+        <button class="location-chip" id="locationChip" onclick="toggleModal('locationModal')">
+            <i class="fa-solid fa-location-dot"></i> <span id="locationLabel">Locating…</span>
+        </button>
+        <button class="settings-btn" onclick="toggleModal('settingsModal')"><i class="fa-solid fa-gear"></i></button>
     </div>
+</header>
 
-    <!-- MODAL 2: Post a Deal -->
-    <div class="modal-overlay" id="dealModal">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3>Post an Active Deal</h3>
-                <button class="close-btn" onclick="toggleModal('dealModal')">&times;</button>
-            </div>
-            <form id="dealForm">
-                <div class="form-group">
-                    <label>Deal Title</label>
-                    <input type="text" id="dealTitle" required placeholder="e.g. Flat 40% off festive kurtas">
-                </div>
-                <div class="form-group">
-                    <label>Shop / Seller Name</label>
-                    <input type="text" id="dealShop" required placeholder="e.g. Jaipur Handloom Co.">
-                </div>
-                <div class="form-group">
-                    <label>Product / Deal URL</label>
-                    <input type="url" id="dealUrl" required placeholder="https://yourshop.com/product/kurta-set">
-                    <span class="field-error">Enter a valid URL starting with http:// or https://</span>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Category</label>
-                        <select id="dealCat">
-                            <option value="fashion">Fashion</option>
-                            <option value="electronics">Electronics</option>
-                            <option value="home">Home & Living</option>
-                            <option value="beauty">Beauty & Personal Care</option>
-                            <option value="grocery">Grocery</option>
-                            <option value="kids">Kids & Baby</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Price Now (₹)</label>
-                        <input type="text" id="dealPriceNow" required placeholder="e.g. ₹899">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Original Price (₹) — optional</label>
-                        <input type="text" id="dealPriceWas" placeholder="e.g. ₹1,499">
-                    </div>
-                    <div class="form-group">
-                        <label>Ships To</label>
-                        <input type="text" id="dealLoc" required placeholder="e.g. Pan-India">
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">Publish Deal</button>
-            </form>
+<div class="app-container">
+    <div id="globalStatusArea"></div>
+
+    <!-- HOME / PRAYER TIMES -->
+    <section id="view-home" class="section-view active">
+
+        <div class="next-prayer-card">
+            <div class="np-label">Next Prayer</div>
+            <div class="np-name" id="nextPrayerName">—</div>
+            <div class="np-time" id="nextPrayerTime">—:—</div>
+            <div class="np-countdown">in <strong id="nextPrayerCountdown">—</strong></div>
+            <div class="hijri-date-line" id="hijriDateLine">Loading Hijri date…</div>
         </div>
+
+        <div class="timings-grid" id="timingsGrid">
+            <!-- populated by JS -->
+        </div>
+
+        <div class="fast-card">
+            <div class="fast-cell suhoor">
+                <div class="f-label"><i class="fa-solid fa-cloud-moon"></i> Suhoor ends</div>
+                <div class="f-time" id="suhoorTime">—:—</div>
+                <div class="f-sub">at Fajr (Imsak)</div>
+            </div>
+            <div class="fast-cell iftar">
+                <div class="f-label"><i class="fa-solid fa-sun"></i> Iftar begins</div>
+                <div class="f-time" id="iftarTime">—:—</div>
+                <div class="f-sub">at Maghrib</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TASBIH -->
+    <section id="view-tasbih" class="section-view">
+        <div class="section-title"><i class="fa-solid fa-circle-dot"></i> Tasbih Counter</div>
+        <div id="tasbihRoot"></div>
+    </section>
+
+    <!-- HIJRI CALENDAR -->
+    <section id="view-calendar" class="section-view">
+        <div class="section-title"><i class="fa-solid fa-calendar-days"></i> Hijri Calendar</div>
+        <div id="calendarRoot"></div>
+    </section>
+
+    <!-- QURAN -->
+    <section id="view-quran" class="section-view">
+        <div class="section-title"><i class="fa-solid fa-book-quran"></i> Quran</div>
+        <div id="quranRoot"></div>
+    </section>
+
+    <!-- ZAKAT -->
+    <section id="view-zakat" class="section-view">
+        <div class="section-title"><i class="fa-solid fa-hand-holding-dollar"></i> Zakat Calculator</div>
+        <div id="zakatRoot"></div>
+    </section>
+</div>
+
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+    <button class="nav-item active" data-view="home" onclick="switchSection('home')"><i class="fa-solid fa-mosque"></i>Times</button>
+    <button class="nav-item" data-view="tasbih" onclick="switchSection('tasbih')"><i class="fa-solid fa-circle-dot"></i>Tasbih</button>
+    <button class="nav-item" data-view="calendar" onclick="switchSection('calendar')"><i class="fa-solid fa-calendar-days"></i>Hijri</button>
+    <button class="nav-item" data-view="quran" onclick="switchSection('quran')"><i class="fa-solid fa-book-quran"></i>Quran</button>
+    <button class="nav-item" data-view="zakat" onclick="switchSection('zakat')"><i class="fa-solid fa-hand-holding-dollar"></i>Zakat</button>
+</nav>
+
+<!-- LOCATION MODAL -->
+<div class="modal-overlay" id="locationModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Set Location</h3>
+            <button class="close-btn" onclick="toggleModal('locationModal')">&times;</button>
+        </div>
+        <button class="btn btn-primary btn-block" onclick="requestGeolocation()" style="margin-bottom:1rem;">
+            <i class="fa-solid fa-location-crosshairs"></i> Use My Current Location
+        </button>
+        <div style="text-align:center; color:var(--text-dim); font-size:0.8rem; margin-bottom:1rem;">or search manually</div>
+        <div class="form-group">
+            <label>City name</label>
+            <input type="text" id="manualCityInput" placeholder="e.g. Karachi, Pakistan">
+        </div>
+        <button class="btn btn-secondary btn-block" onclick="searchManualCity()">Search</button>
+        <div id="locationModalStatus" style="margin-top:0.75rem; font-size:0.8rem; color:var(--text-muted);"></div>
     </div>
+</div>
 
-    <footer class="site-footer">
-        <p>&copy; 2026 BazaarHub India. Every listing is added manually by sellers — no scraped or simulated data. Saved locally in this browser.</p>
-    </footer>
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settingsModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Settings</h3>
+            <button class="close-btn" onclick="toggleModal('settingsModal')">&times;</button>
+        </div>
+        <div class="form-group">
+            <label>Calculation Method</label>
+            <select id="methodSelect">
+                <option value="3">Muslim World League</option>
+                <option value="2">ISNA (North America)</option>
+                <option value="4">Umm Al-Qura, Makkah</option>
+                <option value="5">Egyptian General Authority</option>
+                <option value="1">University of Islamic Sciences, Karachi</option>
+                <option value="8">Gulf Region</option>
+                <option value="9">Kuwait</option>
+                <option value="10">Qatar</option>
+                <option value="11">Singapore</option>
+                <option value="17">JAKIM, Malaysia</option>
+                <option value="20">Kemenag, Indonesia</option>
+                <option value="7">Tehran</option>
+                <option value="0">Jafari (Shia Ithna-Ashari)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Asr Calculation (Madhab)</label>
+            <div class="radio-row">
+                <label class="radio-pill" data-school="0"><input type="radio" name="school" value="0"> Shafi/Maliki/Hanbali</label>
+                <label class="radio-pill" data-school="1"><input type="radio" name="school" value="1"> Hanafi</label>
+            </div>
+        </div>
+        <button class="btn btn-primary btn-block" onclick="saveSettingsAndRefresh()">Save & Refresh Timings</button>
+    </div>
+</div>
 
-    <script>
-// =========================================================================
-// PART 1: CORE STATE
-// =========================================================================
-// This is a fully manual directory: sellers list their own shop, and post
-// their own deals. There is no live third-party API here — we intentionally
-// avoid faking a "live feed" with placeholder data, since no free, real,
-// India-specific deals API exists without a paid affiliate key. If you have
-// one (Amazon/Flipkart affiliate, EarnKaro, etc.), this is the function to
-// extend: fetchLiveExternalDeals().
-
-let directoryData = loadFromStorage('bazaar_directory', [
-    { id: 1, name: "Jaipur Handloom Co.", desc: "Hand-block-printed cotton kurtas and home textiles, woven by artisan collectives in Rajasthan.", cat: "fashion", city: "Jaipur, Rajasthan", url: "https://www.jaipurhandloom.com" },
-    { id: 2, name: "TechBazaar Bengaluru", desc: "Refurbished laptops and accessories with 6-month warranty, tested and certified in-house.", cat: "electronics", city: "Bengaluru, Karnataka", url: "https://www.flipkart.com" },
-    { id: 3, name: "Kerala Spice Trail", desc: "Single-origin spices, coffee, and tea sourced directly from Wayanad and Idukki estates.", cat: "grocery", city: "Kochi, Kerala", url: "https://www.bigbasket.com" }
-]);
-
-let localDealsData = loadFromStorage('bazaar_deals', [
-    { id: 101, title: "Flat 30% off monsoon kurta sets", shop: "Jaipur Handloom Co.", cat: "fashion", priceNow: "₹1,049", priceWas: "₹1,499", loc: "Pan-India", url: "https://www.jaipurhandloom.com/collections/sale" }
-]);
-
-let jobsData = [...localDealsData];
-
-function loadFromStorage(key, fallback) {
-    try {
-        const raw = localStorage.getItem(key);
-        return raw ? JSON.parse(raw) : fallback;
-    } catch (e) {
-        console.warn(`Could not read ${key} from storage, using defaults.`, e);
-        return fallback;
-    }
-}
-
-function saveToStorage(key, value) {
-    try {
-        localStorage.setItem(key, JSON.stringify(value));
-    } catch (e) {
-        console.warn(`Could not persist ${key} to storage.`, e);
-    }
-}
-
-function compileMasterState() {
-    jobsData = [...localDealsData];
-    updateCounterBadges();
-    rebuildCategoryDropdown();
-    executeLiveSearchFiltering();
-}
-
-function renderStatusBanner(message) {
-    const area = document.getElementById('jobs-status-area');
-    if (!area) return;
-    area.innerHTML = message
-        ? `<div class="status-banner"><i class="fa-solid fa-circle-info"></i><span>${message}</span></div>`
-        : '';
-}
-
-// =========================================================================
-// PART 2: UI SWITCHERS & DYNAMIC HTML DOM INJECTION ENGINES
-// =========================================================================
-
-function switchView(viewName) {
-    document.querySelectorAll('.content-view').forEach(view => view.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-
-    const viewTarget = document.getElementById(`${viewName}-view`);
-    const tabTarget = document.getElementById(`tab-${viewName}`);
-
-    if (viewTarget) viewTarget.classList.add('active');
-    if (tabTarget) tabTarget.classList.add('active');
-}
+<script>
+window.appState = {
+    latitude: null,
+    longitude: null,
+    locationLabel: 'Locating…',
+    method: 3,
+    school: 0,
+    todayTimings: null,
+    hijriToday: null,
+    nextPrayerKey: null,
+    nextPrayerTimestamp: null
+};
 
 function toggleModal(modalId) {
-    const elementModal = document.getElementById(modalId);
-    if (elementModal) {
-        elementModal.classList.toggle('active');
-    }
+    const m = document.getElementById(modalId);
+    if (m) m.classList.toggle('active');
+}
+
+function switchSection(viewName) {
+    document.querySelectorAll('.section-view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById(`view-${viewName}`).classList.add('active');
+    document.querySelector(`.nav-item[data-view="${viewName}"]`).classList.add('active');
+
+    // Lazy-init each section the first time it's opened
+    if (viewName === 'tasbih' && window.initTasbih) window.initTasbih();
+    if (viewName === 'calendar' && window.initCalendar) window.initCalendar();
+    if (viewName === 'quran' && window.initQuran) window.initQuran();
+    if (viewName === 'zakat' && window.initZakat) window.initZakat();
+}
+
+function renderGlobalStatus(message, isError) {
+    const area = document.getElementById('globalStatusArea');
+    if (!area) return;
+    if (!message) { area.innerHTML = ''; return; }
+    area.innerHTML = `<div class="status-banner ${isError ? 'error' : ''}">
+        <i class="fa-solid ${isError ? 'fa-triangle-exclamation' : 'fa-circle-info'}"></i>
+        <span>${message}</span>
+        ${isError ? `<button class="btn-inline" onclick="toggleModal('locationModal')">Set Location</button>` : ''}
+    </div>`;
 }
 
 function escapeHtml(str) {
@@ -427,258 +390,830 @@ function escapeHtml(str) {
     return div.innerHTML;
 }
 
-const CATEGORY_LABELS = {
-    fashion: 'Fashion',
-    electronics: 'Electronics',
-    home: 'Home & Living',
-    beauty: 'Beauty & Personal Care',
-    grocery: 'Grocery',
-    kids: 'Kids & Baby',
-    other: 'Other'
+// =========================================================================
+// PRAYER TIMES ENGINE — powered by the free AlAdhan API (api.aladhan.com)
+// No API key required. Method IDs match AlAdhan's official /v1/methods list.
+// =========================================================================
+
+const PRAYER_ORDER = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+const PRAYER_LABELS = { Fajr: 'Fajr', Sunrise: 'Sunrise', Dhuhr: 'Dhuhr', Asr: 'Asr', Maghrib: 'Maghrib', Isha: 'Isha' };
+// Prayers used for the "next prayer" countdown (Sunrise isn't a prayer, so excluded there)
+const COUNTDOWN_PRAYERS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+
+function loadFromStorage(key, fallback) {
+    try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+    } catch (e) {
+        console.warn(`Could not read ${key}`, e);
+        return fallback;
+    }
+}
+function saveToStorage(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); }
+    catch (e) { console.warn(`Could not persist ${key}`, e); }
+}
+
+function initSettingsFromStorage() {
+    const saved = loadFromStorage('sakeenah_settings', null);
+    if (saved) {
+        window.appState.method = saved.method;
+        window.appState.school = saved.school;
+    }
+    document.getElementById('methodSelect').value = String(window.appState.method);
+    document.querySelectorAll('.radio-pill').forEach(pill => {
+        const isChecked = Number(pill.dataset.school) === window.appState.school;
+        pill.classList.toggle('checked', isChecked);
+        pill.querySelector('input').checked = isChecked;
+    });
+    document.querySelectorAll('.radio-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+            document.querySelectorAll('.radio-pill').forEach(p => p.classList.remove('checked'));
+            pill.classList.add('checked');
+            pill.querySelector('input').checked = true;
+        });
+    });
+}
+
+function saveSettingsAndRefresh() {
+    const method = Number(document.getElementById('methodSelect').value);
+    const checkedPill = document.querySelector('.radio-pill.checked');
+    const school = checkedPill ? Number(checkedPill.dataset.school) : 0;
+    window.appState.method = method;
+    window.appState.school = school;
+    saveToStorage('sakeenah_settings', { method, school });
+    toggleModal('settingsModal');
+    if (window.appState.latitude != null) {
+        fetchPrayerTimings();
+    }
+}
+
+function requestGeolocation(isAutoRequest) {
+    const statusEl = document.getElementById('locationModalStatus');
+
+    if (!navigator.geolocation) {
+        if (statusEl) statusEl.textContent = 'Geolocation is not supported in this browser. Please search your city manually.';
+        if (isAutoRequest) toggleModal('locationModal');
+        return;
+    }
+    if (statusEl) statusEl.textContent = 'Requesting location permission…';
+
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            window.appState.latitude = pos.coords.latitude;
+            window.appState.longitude = pos.coords.longitude;
+            window.appState.locationLabel = `${pos.coords.latitude.toFixed(2)}°, ${pos.coords.longitude.toFixed(2)}°`;
+            document.getElementById('locationLabel').textContent = window.appState.locationLabel;
+            saveToStorage('sakeenah_location', { latitude: pos.coords.latitude, longitude: pos.coords.longitude, label: window.appState.locationLabel });
+            // Only close the modal if it was opened (manual trigger) — on
+            // auto-request at first load, the modal was never opened.
+            if (!isAutoRequest) toggleModal('locationModal');
+            fetchPrayerTimings();
+            reverseGeocodeLabel(pos.coords.latitude, pos.coords.longitude);
+        },
+        (err) => {
+            console.warn('Geolocation error:', err);
+            const message = 'Location permission denied or unavailable. Please search your city manually below.';
+            if (statusEl) statusEl.textContent = message;
+            document.getElementById('locationLabel').textContent = 'Set location';
+            renderGlobalStatus('We couldn\'t access your location automatically. Please set it manually to see accurate prayer times.', true);
+            if (isAutoRequest) toggleModal('locationModal');
+        },
+        { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 }
+    );
+}
+
+/**
+ * Resolves coordinates to a human-readable place name using AlAdhan's
+ * geocoding-backed address endpoint, purely for display in the location
+ * chip. Failure here doesn't affect prayer time accuracy — it's cosmetic.
+ */
+async function reverseGeocodeLabel(lat, lon) {
+    try {
+        const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=${window.appState.method}`);
+        const data = await res.json();
+        if (data?.data?.meta?.timezone) {
+            const tz = data.data.meta.timezone.split('/').pop().replace(/_/g, ' ');
+            window.appState.locationLabel = tz;
+            document.getElementById('locationLabel').textContent = tz;
+        }
+    } catch (e) {
+        // Non-critical — keep showing coordinates
+    }
+}
+
+/**
+ * Manual city search using AlAdhan's timingsByAddress endpoint, which
+ * geocodes the address server-side. We immediately request today's timings
+ * for that address, then extract the resolved lat/long from the response
+ * meta so subsequent days can be fetched directly by coordinates.
+ */
+async function searchManualCity() {
+    const cityValue = document.getElementById('manualCityInput').value.trim();
+    if (!cityValue) return;
+
+    const statusEl = document.getElementById('locationModalStatus');
+    statusEl.textContent = 'Searching…';
+
+    try {
+        const url = `https://api.aladhan.com/v1/timingsByAddress?address=${encodeURIComponent(cityValue)}&method=${window.appState.method}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (data.code !== 200) throw new Error(data.status || 'Lookup failed');
+
+        const meta = data.data.meta;
+        window.appState.latitude = meta.latitude;
+        window.appState.longitude = meta.longitude;
+        window.appState.locationLabel = cityValue;
+        document.getElementById('locationLabel').textContent = cityValue;
+        saveToStorage('sakeenah_location', { latitude: meta.latitude, longitude: meta.longitude, label: cityValue });
+
+        applyTimingsResponse(data.data);
+        toggleModal('locationModal');
+        renderGlobalStatus('', false);
+    } catch (e) {
+        console.error('Manual city search failed:', e);
+        statusEl.textContent = "Couldn't find that location. Try a more specific name, e.g. 'Lahore, Pakistan'.";
+    }
+}
+
+/**
+ * Core fetch: gets today's timings for the current stored coordinates.
+ */
+async function fetchPrayerTimings() {
+    if (window.appState.latitude == null || window.appState.longitude == null) return;
+
+    renderGlobalStatus('Fetching today\'s prayer timings…', false);
+
+    try {
+        const timestamp = Math.floor(Date.now() / 1000);
+        const url = `https://api.aladhan.com/v1/timings/${timestamp}?latitude=${window.appState.latitude}&longitude=${window.appState.longitude}&method=${window.appState.method}&school=${window.appState.school}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (data.code !== 200) throw new Error(data.status || 'API error');
+
+        applyTimingsResponse(data.data);
+        renderGlobalStatus('', false);
+    } catch (e) {
+        console.error('Prayer timings fetch failed:', e);
+        renderGlobalStatus("Couldn't reach the prayer times service right now (network issue). Showing last known timings if available.", true);
+    }
+}
+
+function applyTimingsResponse(data) {
+    window.appState.todayTimings = data.timings;
+    window.appState.hijriToday = data.date.hijri;
+    saveToStorage('sakeenah_last_timings', { timings: data.timings, hijri: data.date.hijri, gregorian: data.date.gregorian, fetchedAt: Date.now() });
+    renderTimingsGrid();
+    renderHijriLine();
+    renderFastCard();
+    updateNextPrayer();
+}
+
+function renderTimingsGrid() {
+    const grid = document.getElementById('timingsGrid');
+    const t = window.appState.todayTimings;
+    if (!grid || !t) return;
+
+    grid.innerHTML = PRAYER_ORDER.map(key => {
+        const isNext = key === window.appState.nextPrayerKey;
+        const timeClean = (t[key] || '--:--').split(' ')[0];
+        return `<div class="timing-cell ${isNext ? 'is-next' : ''}">
+            <div class="t-name">${PRAYER_LABELS[key]}</div>
+            <div class="t-time">${escapeHtml(timeClean)}</div>
+        </div>`;
+    }).join('');
+}
+
+function renderHijriLine() {
+    const el = document.getElementById('hijriDateLine');
+    const h = window.appState.hijriToday;
+    if (!el || !h) return;
+    el.textContent = `${h.day} ${h.month.en} ${h.year} AH`;
+}
+
+function renderFastCard() {
+    const t = window.appState.todayTimings;
+    if (!t) return;
+    document.getElementById('suhoorTime').textContent = (t.Imsak || t.Fajr || '--:--').split(' ')[0];
+    document.getElementById('iftarTime').textContent = (t.Maghrib || '--:--').split(' ')[0];
+}
+
+/**
+ * Parses a "HH:MM" (24h) time string against today's date in the browser's
+ * local time. AlAdhan returns times already adjusted for the location's
+ * timezone, so we treat them as wall-clock times for "now".
+ */
+function timeStringToTodayDate(timeStr) {
+    const clean = (timeStr || '').split(' ')[0];
+    const [h, m] = clean.split(':').map(Number);
+    if (Number.isNaN(h) || Number.isNaN(m)) return null;
+    const d = new Date();
+    d.setHours(h, m, 0, 0);
+    return d;
+}
+
+function updateNextPrayer() {
+    const t = window.appState.todayTimings;
+    if (!t) return;
+
+    const now = new Date();
+    let nextKey = null;
+    let nextDate = null;
+
+    for (const key of COUNTDOWN_PRAYERS) {
+        const candidate = timeStringToTodayDate(t[key]);
+        if (candidate && candidate > now) {
+            nextKey = key;
+            nextDate = candidate;
+            break;
+        }
+    }
+
+    // All of today's prayers have passed — next is tomorrow's Fajr.
+    // We show today's Fajr time as a placeholder estimate and re-fetch at midnight.
+    if (!nextKey) {
+        nextKey = 'Fajr';
+        const tomorrowFajr = timeStringToTodayDate(t.Fajr);
+        if (tomorrowFajr) tomorrowFajr.setDate(tomorrowFajr.getDate() + 1);
+        nextDate = tomorrowFajr;
+    }
+
+    window.appState.nextPrayerKey = nextKey;
+    window.appState.nextPrayerTimestamp = nextDate ? nextDate.getTime() : null;
+
+    document.getElementById('nextPrayerName').textContent = PRAYER_LABELS[nextKey];
+    document.getElementById('nextPrayerTime').textContent = (t[nextKey] || '--:--').split(' ')[0];
+    renderTimingsGrid();
+    tickCountdown();
+}
+
+function tickCountdown() {
+    const target = window.appState.nextPrayerTimestamp;
+    const el = document.getElementById('nextPrayerCountdown');
+    if (!target || !el) return;
+
+    const diffMs = target - Date.now();
+    if (diffMs <= 0) {
+        // Time to refresh — the prayer has arrived.
+        fetchPrayerTimings();
+        return;
+    }
+    const totalMinutes = Math.floor(diffMs / 60000);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    el.innerHTML = hours > 0
+        ? `${hours}h ${minutes}m`
+        : `${minutes}m`;
+}
+
+setInterval(tickCountdown, 30000);
+
+// =========================================================================
+// TASBIH COUNTER — fully client-side, persists per-dhikr counts locally.
+// =========================================================================
+
+const TASBIH_PRESETS = [
+    { id: 'subhanallah', arabic: 'سُبْحَانَ اللَّهِ', translit: 'SubhanAllah', target: 33 },
+    { id: 'alhamdulillah', arabic: 'الْحَمْدُ لِلَّهِ', translit: 'Alhamdulillah', target: 33 },
+    { id: 'allahuakbar', arabic: 'اللَّهُ أَكْبَرُ', translit: 'Allahu Akbar', target: 34 },
+    { id: 'astaghfirullah', arabic: 'أَسْتَغْفِرُ اللَّهَ', translit: 'Astaghfirullah', target: 100 },
+    { id: 'custom', arabic: '', translit: 'Custom Count', target: 0 }
+];
+
+window.initTasbih = function initTasbih() {
+    const root = document.getElementById('tasbihRoot');
+    if (root.dataset.initialized) return;
+    root.dataset.initialized = 'true';
+
+    const state = loadFromStorage('sakeenah_tasbih', { activeId: 'subhanallah', counts: {} });
+
+    function render() {
+        const active = TASBIH_PRESETS.find(p => p.id === state.activeId) || TASBIH_PRESETS[0];
+        const count = state.counts[active.id] || 0;
+        const target = active.target;
+        const pct = target > 0 ? Math.min(100, Math.round((count / target) * 100)) : 0;
+
+        root.innerHTML = `
+            <div class="panel" style="text-align:center;">
+                <div class="arabic" style="font-size:1.8rem; color:var(--gold-soft); margin-bottom:0.3rem;">${escapeHtml(active.arabic)}</div>
+                <div style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.25rem;">${escapeHtml(active.translit)}</div>
+
+                <button id="tasbihTapBtn" style="
+                    width:160px; height:160px; border-radius:50%; border:3px solid var(--emerald);
+                    background:var(--bg-elevated); color:var(--text-main); font-size:2.6rem; font-weight:800;
+                    font-variant-numeric:tabular-nums; cursor:pointer; margin:0 auto 1rem; display:block;
+                    transition: transform 0.08s;
+                ">${count}</button>
+
+                ${target > 0 ? `
+                    <div style="font-size:0.78rem; color:var(--text-dim); margin-bottom:0.5rem;">${count} / ${target}</div>
+                    <div style="background:var(--bg-elevated); border-radius:9999px; height:6px; overflow:hidden; margin-bottom:1.25rem;">
+                        <div style="background:var(--emerald-bright); height:100%; width:${pct}%; transition: width 0.2s;"></div>
+                    </div>
+                ` : `<div style="margin-bottom:1.25rem;"></div>`}
+
+                <div style="display:flex; gap:0.5rem; justify-content:center;">
+                    <button class="btn btn-secondary" id="tasbihResetBtn"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.75rem; font-weight:600;">Choose Dhikr</div>
+                <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                    ${TASBIH_PRESETS.map(p => `
+                        <button class="tasbih-preset-btn" data-id="${p.id}" style="
+                            display:flex; justify-content:space-between; align-items:center;
+                            background:${p.id === state.activeId ? 'var(--bg-surface-hover)' : 'var(--bg-elevated)'};
+                            border:1px solid ${p.id === state.activeId ? 'var(--emerald)' : 'var(--border-color)'};
+                            border-radius:0.5rem; padding:0.6rem 0.9rem; cursor:pointer; color:var(--text-main); text-align:left;
+                        ">
+                            <span>${escapeHtml(p.translit)}</span>
+                            <span style="color:var(--text-dim); font-size:0.8rem;">${state.counts[p.id] || 0}${p.target ? ' / ' + p.target : ''}</span>
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+
+        document.getElementById('tasbihTapBtn').addEventListener('click', () => {
+            state.counts[active.id] = (state.counts[active.id] || 0) + 1;
+            saveToStorage('sakeenah_tasbih', state);
+            // Subtle haptic feedback on supported devices
+            if (navigator.vibrate) navigator.vibrate(10);
+            render();
+        });
+        document.getElementById('tasbihResetBtn').addEventListener('click', () => {
+            state.counts[active.id] = 0;
+            saveToStorage('sakeenah_tasbih', state);
+            render();
+        });
+        root.querySelectorAll('.tasbih-preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                state.activeId = btn.dataset.id;
+                saveToStorage('sakeenah_tasbih', state);
+                render();
+            });
+        });
+    }
+
+    render();
 };
 
-/**
- * UI Builder: Populates the Seller Directory Grid
- */
-function renderToolDirectoryGrid(arrayData) {
-    const container = document.getElementById('directory-container');
-    if (!container) return;
-
-    container.innerHTML = '';
-
-    if (arrayData.length === 0) {
-        container.innerHTML = `<div class="card" style="grid-column: 1/-1; text-align:center; padding:3rem; color:var(--text-muted)">No sellers match your active filter.</div>`;
-        return;
-    }
-
-    arrayData.forEach(shop => {
-        const itemCard = document.createElement('div');
-        itemCard.className = 'card';
-        const safeUrl = escapeHtml(shop.url || '');
-        const linkHtml = shop.url
-            ? `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="card-link">Visit Store <i class="fa-solid fa-arrow-up-right-from-square"></i></a>`
-            : `<span class="card-link disabled">No link provided</span>`;
-        itemCard.innerHTML = `
-            <div class="card-header-meta">
-                <span class="tag-lbl tag-${shop.cat}">${escapeHtml((CATEGORY_LABELS[shop.cat] || shop.cat).toUpperCase())}</span>
-                <span class="badge-ui verified"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(shop.city)}</span>
-            </div>
-            <h3>${escapeHtml(shop.name)}</h3>
-            <p>${escapeHtml(shop.desc)}</p>
-            <div class="card-footer">
-                ${linkHtml}
-                <button class="btn btn-outline-sm" onclick="removeResourceElement(${shop.id}, 'directory')"><i class="fa-solid fa-trash"></i></button>
-            </div>
-        `;
-        container.appendChild(itemCard);
-    });
-}
-
-/**
- * UI Builder: Renders the Active Deals list — every entry posted manually
- * by a seller, every link a real destination to that seller's page.
- */
-function renderLiveJobFeedList(arrayData) {
-    const container = document.getElementById('jobs-container');
-    if (!container) return;
-
-    container.innerHTML = '';
-
-    if (arrayData.length === 0) {
-        container.innerHTML = `<div class="job-row" style="justify-content:center; padding:3rem; color:var(--text-muted)">No active deals match this search yet.</div>`;
-        return;
-    }
-
-    arrayData.forEach(deal => {
-        const rowNode = document.createElement('div');
-        rowNode.className = 'job-row';
-
-        rowNode.innerHTML = `
-            <div class="job-left">
-                <div class="company-avatar">
-                    ${escapeHtml(deal.shop.charAt(0))}
-                </div>
-                <div class="company-info">
-                    <h3>${escapeHtml(deal.title)}</h3>
-                    <p>${escapeHtml(deal.shop)} •
-                        <span class="tag-lbl tag-${deal.cat}" style="font-size:0.65rem; padding:0.1rem 0.3rem">${escapeHtml(CATEGORY_LABELS[deal.cat] || deal.cat)}</span>
-                    </p>
-                </div>
-            </div>
-            <div class="job-right">
-                <span class="meta-detail"><i class="fa-solid fa-truck"></i> ${escapeHtml(deal.loc)}</span>
-                <span class="meta-detail">
-                    <span class="price-now">${escapeHtml(deal.priceNow)}</span>
-                    ${deal.priceWas ? `<span class="price-was">${escapeHtml(deal.priceWas)}</span>` : ''}
-                </span>
-
-                <a href="${escapeHtml(deal.url)}" target="_blank" rel="noopener noreferrer"
-                   class="btn btn-sm btn-primary" style="text-decoration:none">
-                    Grab Deal <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.7rem; margin-left:4px"></i>
-                </a>
-
-                <button class="btn btn-outline-sm" onclick="removeResourceElement(${deal.id}, 'jobs')"><i class="fa-solid fa-trash"></i></button>
-            </div>
-        `;
-        container.appendChild(rowNode);
-    });
-}
-
-// =========================================================================
-// PART 3: REACTIVE COMPUTATIONS, INTERCEPTORS & INITIALIZATION
-// =========================================================================
-
-function executeLiveSearchFiltering() {
-    const rawSearchBox = document.getElementById('search-input');
-    const rawFilterDropdown = document.getElementById('category-filter');
-
-    const searchString = rawSearchBox ? rawSearchBox.value.toLowerCase() : '';
-    const selectedCategory = rawFilterDropdown ? rawFilterDropdown.value : 'all';
-
-    const directoryResult = directoryData.filter(item => {
-        const matchesQuery = item.name.toLowerCase().includes(searchString) || item.desc.toLowerCase().includes(searchString) || item.city.toLowerCase().includes(searchString);
-        const matchesCategory = selectedCategory === 'all' || item.cat === selectedCategory;
-        return matchesQuery && matchesCategory;
-    });
-
-    const dealsResult = jobsData.filter(deal => {
-        const matchesQuery = deal.title.toLowerCase().includes(searchString) || deal.shop.toLowerCase().includes(searchString) || deal.loc.toLowerCase().includes(searchString);
-        const matchesCategory = selectedCategory === 'all' || deal.cat === selectedCategory;
-        return matchesQuery && matchesCategory;
-    });
-
-    renderToolDirectoryGrid(directoryResult);
-    renderLiveJobFeedList(dealsResult);
-}
-
-function updateCounterBadges() {
-    const dBadge = document.getElementById('directory-count');
-    const jBadge = document.getElementById('jobs-count');
-
-    if (dBadge) dBadge.textContent = directoryData.length;
-    if (jBadge) jBadge.textContent = jobsData.length;
-}
-
-/**
- * Rebuilds the category dropdown so option labels reflect live counts
- * across both Seller Directory and Active Deals combined.
- */
-function rebuildCategoryDropdown() {
-    const dropCategory = document.getElementById('category-filter');
-    if (!dropCategory) return;
-
-    const previousSelection = dropCategory.value || 'all';
-
-    const counts = {};
-    Object.keys(CATEGORY_LABELS).forEach(key => { counts[key] = 0; });
-    directoryData.forEach(item => { if (counts.hasOwnProperty(item.cat)) counts[item.cat]++; });
-    jobsData.forEach(deal => { if (counts.hasOwnProperty(deal.cat)) counts[deal.cat]++; });
-
-    const totalCount = directoryData.length + jobsData.length;
-
-    const optionsHtml = [
-        `<option value="all">All Categories (${totalCount})</option>`,
-        ...Object.keys(CATEGORY_LABELS).map(catKey =>
-            `<option value="${catKey}">${CATEGORY_LABELS[catKey]} (${counts[catKey]})</option>`
-        )
-    ].join('');
-
-    dropCategory.innerHTML = optionsHtml;
-    dropCategory.value = previousSelection;
-}
-
-function removeResourceElement(id, systemLayer) {
-    if (systemLayer === 'directory') {
-        directoryData = directoryData.filter(item => item.id !== id);
-        saveToStorage('bazaar_directory', directoryData);
-    } else {
-        localDealsData = localDealsData.filter(item => item.id !== id);
-        saveToStorage('bazaar_deals', localDealsData);
-    }
-    compileMasterState();
-}
-
-function isValidUrl(value) {
-    try {
-        const parsed = new URL(value);
-        return parsed.protocol === 'http:' || parsed.protocol === 'https:';
-    } catch (e) {
-        return false;
-    }
-}
-
-function setFieldValidity(inputId, isValid) {
-    const input = document.getElementById(inputId);
-    if (!input) return;
-    const group = input.closest('.form-group');
-    if (group) group.classList.toggle('invalid', !isValid);
-}
 
 document.addEventListener('DOMContentLoaded', () => {
-    renderToolDirectoryGrid(directoryData);
-    compileMasterState();
-    renderStatusBanner('All listings here are added manually by real sellers — nothing is auto-scraped or simulated.');
+    initSettingsFromStorage();
 
-    const inputSearch = document.getElementById('search-input');
-    const dropCategory = document.getElementById('category-filter');
+    const savedLocation = loadFromStorage('sakeenah_location', null);
+    const cachedTimings = loadFromStorage('sakeenah_last_timings', null);
 
-    if (inputSearch) inputSearch.addEventListener('input', executeLiveSearchFiltering);
-    if (dropCategory) dropCategory.addEventListener('change', executeLiveSearchFiltering);
-
-    // Form Interceptor: New Seller Listings
-    const sellerForm = document.getElementById('sellerForm');
-    if (sellerForm) {
-        sellerForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const urlValue = document.getElementById('shopUrl').value.trim();
-            const urlOk = isValidUrl(urlValue);
-            setFieldValidity('shopUrl', urlOk);
-            if (!urlOk) return;
-
-            const shopObject = {
-                id: Date.now(),
-                name: document.getElementById('shopName').value,
-                desc: document.getElementById('shopDesc').value,
-                cat: document.getElementById('shopCat').value,
-                city: document.getElementById('shopCity').value,
-                url: urlValue
-            };
-            directoryData.unshift(shopObject);
-            saveToStorage('bazaar_directory', directoryData);
-            e.target.reset();
-            toggleModal('sellerModal');
-            compileMasterState();
-        });
+    if (cachedTimings) {
+        window.appState.todayTimings = cachedTimings.timings;
+        window.appState.hijriToday = cachedTimings.hijri;
+        renderTimingsGrid();
+        renderHijriLine();
+        renderFastCard();
+        updateNextPrayer();
     }
 
-    // Form Interceptor: New Deal Posts
-    const dealForm = document.getElementById('dealForm');
-    if (dealForm) {
-        dealForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const urlValue = document.getElementById('dealUrl').value.trim();
-            const urlOk = isValidUrl(urlValue);
-            setFieldValidity('dealUrl', urlOk);
-            if (!urlOk) return;
-
-            const dealObject = {
-                id: Date.now(),
-                title: document.getElementById('dealTitle').value,
-                shop: document.getElementById('dealShop').value,
-                cat: document.getElementById('dealCat').value,
-                priceNow: document.getElementById('dealPriceNow').value,
-                priceWas: document.getElementById('dealPriceWas').value,
-                loc: document.getElementById('dealLoc').value,
-                url: urlValue
-            };
-            localDealsData.unshift(dealObject);
-            saveToStorage('bazaar_deals', localDealsData);
-            e.target.reset();
-            toggleModal('dealModal');
-            compileMasterState();
-        });
+    if (savedLocation) {
+        window.appState.latitude = savedLocation.latitude;
+        window.appState.longitude = savedLocation.longitude;
+        window.appState.locationLabel = savedLocation.label;
+        document.getElementById('locationLabel').textContent = savedLocation.label;
+        fetchPrayerTimings();
+    } else {
+        // First visit — ask for geolocation automatically.
+        requestGeolocation(true);
     }
 });
-    </script>
+
+// =========================================================================
+// HIJRI CALENDAR — powered by AlAdhan's gToHCalendar endpoint, which maps
+// a Gregorian month onto its corresponding Hijri dates. No API key needed.
+// Note: this is a date-mapping calendar, not location-dependent the way
+// prayer timings are, since the Hijri calendar follows lunar months.
+// =========================================================================
+
+window.calendarState = { viewMonth: new Date().getMonth() + 1, viewYear: new Date().getFullYear(), data: null };
+
+window.initCalendar = function initCalendar() {
+    const root = document.getElementById('calendarRoot');
+    if (root.dataset.initialized) return;
+    root.dataset.initialized = 'true';
+    fetchHijriCalendarMonth();
+};
+
+async function fetchHijriCalendarMonth() {
+    const root = document.getElementById('calendarRoot');
+    root.innerHTML = `<div class="status-banner"><i class="fa-solid fa-circle-notch fa-spin"></i><span>Loading Hijri calendar…</span></div>`;
+
+    const { viewMonth, viewYear } = window.calendarState;
+    try {
+        const url = `https://api.aladhan.com/v1/gToHCalendar/${viewMonth}/${viewYear}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (data.code !== 200) throw new Error(data.status || 'API error');
+
+        window.calendarState.data = data.data;
+        renderHijriCalendar();
+    } catch (e) {
+        console.error('Hijri calendar fetch failed:', e);
+        root.innerHTML = `<div class="status-banner error"><i class="fa-solid fa-triangle-exclamation"></i><span>Couldn't load the calendar right now (network issue). <button class="btn-inline" onclick="fetchHijriCalendarMonth()">Retry</button></span></div>`;
+    }
+}
+
+function renderHijriCalendar() {
+    const root = document.getElementById('calendarRoot');
+    const days = window.calendarState.data;
+    if (!days || days.length === 0) return;
+
+    const firstDay = days[0];
+    const lastDay = days[days.length - 1];
+    const monthLabel = firstDay.gregorian.month.en + ' ' + firstDay.gregorian.year;
+    const hijriSpan = firstDay.hijri.month.en === lastDay.hijri.month.en
+        ? `${firstDay.hijri.month.en} ${firstDay.hijri.year} AH`
+        : `${firstDay.hijri.month.en} – ${lastDay.hijri.month.en} ${lastDay.hijri.year} AH`;
+
+    const todayStr = new Date().toDateString();
+
+    root.innerHTML = `
+        <div class="panel" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+            <button class="btn-outline-sm" onclick="changeCalendarMonth(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+            <div style="text-align:center;">
+                <div style="font-weight:700; color:#fff;">${escapeHtml(monthLabel)}</div>
+                <div style="font-size:0.78rem; color:var(--gold-soft);">${escapeHtml(hijriSpan)}</div>
+            </div>
+            <button class="btn-outline-sm" onclick="changeCalendarMonth(1)"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <div class="panel" style="padding:0.75rem;">
+            <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:0.3rem; font-size:0.7rem; color:var(--text-dim); text-align:center; margin-bottom:0.4rem;">
+                ${['S','M','T','W','T','F','S'].map(d => `<div>${d}</div>`).join('')}
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:0.3rem;">
+                ${renderCalendarCells(days)}
+            </div>
+        </div>
+    `;
+
+    function isToday(dayObj) {
+        const d = new Date(`${dayObj.gregorian.year}-${dayObj.gregorian.month.number}-${dayObj.gregorian.day}`);
+        return d.toDateString() === todayStr;
+    }
+
+    function renderCalendarCells(daysArr) {
+        const firstWeekday = new Date(`${daysArr[0].gregorian.year}-${daysArr[0].gregorian.month.number}-${daysArr[0].gregorian.day}`).getDay();
+        const blanks = Array(firstWeekday).fill('<div></div>').join('');
+        const cells = daysArr.map(d => {
+            const today = isToday(d);
+            return `<div style="
+                text-align:center; padding:0.4rem 0.1rem; border-radius:0.4rem;
+                background:${today ? 'var(--emerald)' : 'transparent'};
+            ">
+                <div style="font-size:0.85rem; font-weight:${today ? '700' : '500'}; color:${today ? '#fff' : 'var(--text-main)'};">${d.gregorian.day}</div>
+                <div style="font-size:0.62rem; color:${today ? 'rgba(255,255,255,0.85)' : 'var(--text-dim)'};">${d.hijri.day}</div>
+            </div>`;
+        }).join('');
+        return blanks + cells;
+    }
+}
+
+window.changeCalendarMonth = function changeCalendarMonth(delta) {
+    let { viewMonth, viewYear } = window.calendarState;
+    viewMonth += delta;
+    if (viewMonth > 12) { viewMonth = 1; viewYear++; }
+    if (viewMonth < 1) { viewMonth = 12; viewYear--; }
+    window.calendarState.viewMonth = viewMonth;
+    window.calendarState.viewYear = viewYear;
+    fetchHijriCalendarMonth();
+};
+
+// =========================================================================
+// QURAN — powered by the free AlQuran Cloud API (api.alquran.cloud).
+// No API key, no signup, CORS-enabled. We fetch Arabic (quran-uthmani)
+// and an English translation (en.sahih, Sahih International) together via
+// the multi-edition endpoint, and cache surah list once since it's static.
+// =========================================================================
+
+window.quranState = { surahList: null, currentSurah: null, surahCache: {} };
+
+window.initQuran = function initQuran() {
+    const root = document.getElementById('quranRoot');
+    if (root.dataset.initialized) return;
+    root.dataset.initialized = 'true';
+    fetchSurahList();
+};
+
+async function fetchSurahList() {
+    const root = document.getElementById('quranRoot');
+    root.innerHTML = `<div class="status-banner"><i class="fa-solid fa-circle-notch fa-spin"></i><span>Loading the list of surahs…</span></div>`;
+
+    try {
+        const res = await fetch('https://api.alquran.cloud/v1/surah');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (data.code !== 200) throw new Error(data.status || 'API error');
+
+        window.quranState.surahList = data.data;
+        renderSurahList();
+    } catch (e) {
+        console.error('Surah list fetch failed:', e);
+        root.innerHTML = `<div class="status-banner error"><i class="fa-solid fa-triangle-exclamation"></i><span>Couldn't load the Quran index right now (network issue). <button class="btn-inline" onclick="fetchSurahList()">Retry</button></span></div>`;
+    }
+}
+
+function renderSurahList() {
+    const root = document.getElementById('quranRoot');
+    const list = window.quranState.surahList;
+
+    root.innerHTML = `
+        <div class="form-group" style="margin-bottom:1rem;">
+            <input type="text" id="surahSearchInput" placeholder="Search surahs by name or number…">
+        </div>
+        <div class="panel" style="padding:0.5rem;">
+            <div id="surahListContainer" style="display:flex; flex-direction:column; gap:0.3rem; max-height:60vh; overflow-y:auto;"></div>
+        </div>
+    `;
+
+    function renderFiltered(query) {
+        const q = (query || '').toLowerCase();
+        const filtered = list.filter(s =>
+            s.englishName.toLowerCase().includes(q) ||
+            s.englishNameTranslation.toLowerCase().includes(q) ||
+            String(s.number).includes(q)
+        );
+        const container = document.getElementById('surahListContainer');
+        container.innerHTML = filtered.map(s => `
+            <button class="surah-row-btn" data-surah="${s.number}" style="
+                display:flex; justify-content:space-between; align-items:center; width:100%;
+                background:var(--bg-elevated); border:1px solid var(--border-color); border-radius:0.5rem;
+                padding:0.65rem 0.9rem; cursor:pointer; text-align:left; color:var(--text-main);
+            ">
+                <span style="display:flex; align-items:center; gap:0.6rem;">
+                    <span style="
+                        width:28px; height:28px; border-radius:50%; border:1px solid var(--emerald);
+                        display:flex; align-items:center; justify-content:center; font-size:0.7rem; color:var(--emerald-bright); flex-shrink:0;
+                    ">${s.number}</span>
+                    <span>
+                        <div style="font-size:0.9rem;">${escapeHtml(s.englishName)}</div>
+                        <div style="font-size:0.72rem; color:var(--text-dim);">${escapeHtml(s.englishNameTranslation)} • ${s.numberOfAyahs} ayahs</div>
+                    </span>
+                </span>
+                <span class="arabic" style="color:var(--gold-soft); font-size:1.1rem;">${escapeHtml(s.name)}</span>
+            </button>
+        `).join('');
+
+        container.querySelectorAll('.surah-row-btn').forEach(btn => {
+            btn.addEventListener('click', () => openSurah(Number(btn.dataset.surah)));
+        });
+    }
+
+    renderFiltered('');
+    document.getElementById('surahSearchInput').addEventListener('input', (e) => renderFiltered(e.target.value));
+}
+
+async function openSurah(surahNumber) {
+    const root = document.getElementById('quranRoot');
+    window.quranState.currentSurah = surahNumber;
+
+    if (window.quranState.surahCache[surahNumber]) {
+        renderSurahReader(window.quranState.surahCache[surahNumber]);
+        return;
+    }
+
+    root.innerHTML = `<div class="status-banner"><i class="fa-solid fa-circle-notch fa-spin"></i><span>Loading surah…</span></div>`;
+
+    try {
+        const url = `https://api.alquran.cloud/v1/surah/${surahNumber}/editions/quran-uthmani,en.sahih`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (data.code !== 200) throw new Error(data.status || 'API error');
+
+        window.quranState.surahCache[surahNumber] = data.data;
+        renderSurahReader(data.data);
+    } catch (e) {
+        console.error('Surah fetch failed:', e);
+        root.innerHTML = `<div class="status-banner error"><i class="fa-solid fa-triangle-exclamation"></i><span>Couldn't load this surah right now (network issue). <button class="btn-inline" onclick="openSurah(${surahNumber})">Retry</button></span></div>`;
+    }
+}
+
+function renderSurahReader(editions) {
+    const root = document.getElementById('quranRoot');
+    const arabicEd = editions.find(e => e.edition.identifier === 'quran-uthmani');
+    const englishEd = editions.find(e => e.edition.identifier === 'en.sahih');
+    if (!arabicEd) return;
+
+    const ayahCount = arabicEd.ayahs.length;
+    const versesHtml = arabicEd.ayahs.map((ayah, i) => {
+        const englishText = englishEd ? englishEd.ayahs[i].text : '';
+        return `
+            <div style="border-bottom:1px solid var(--border-color); padding:1rem 0;">
+                <div style="display:flex; gap:0.6rem; align-items:baseline; margin-bottom:0.5rem;">
+                    <span style="
+                        width:24px; height:24px; border-radius:50%; background:var(--bg-elevated); border:1px solid var(--emerald);
+                        display:flex; align-items:center; justify-content:center; font-size:0.65rem; color:var(--emerald-bright); flex-shrink:0;
+                    ">${ayah.numberInSurah}</span>
+                </div>
+                <div class="arabic" style="font-size:1.5rem; text-align:right; color:var(--text-main); line-height:2; margin-bottom:0.6rem;" dir="rtl">${escapeHtml(ayah.text)}</div>
+                ${englishText ? `<div style="font-size:0.88rem; color:var(--text-muted); line-height:1.6;">${escapeHtml(englishText)}</div>` : ''}
+            </div>
+        `;
+    }).join('');
+
+    root.innerHTML = `
+        <button class="btn-outline-sm" style="margin-bottom:1rem;" onclick="backToSurahList()"><i class="fa-solid fa-arrow-left"></i> Back to Surahs</button>
+        <div class="panel" style="text-align:center; margin-bottom:1rem;">
+            <div class="arabic" style="font-size:1.8rem; color:var(--gold-soft);">${escapeHtml(arabicEd.name)}</div>
+            <div style="color:var(--text-muted); font-size:0.85rem; margin-top:0.3rem;">${escapeHtml(arabicEd.englishName)} — ${escapeHtml(arabicEd.englishNameTranslation)}</div>
+            <div style="color:var(--text-dim); font-size:0.75rem; margin-top:0.3rem;">${arabicEd.revelationType} • ${ayahCount} Ayahs</div>
+        </div>
+        <div class="panel">${versesHtml}</div>
+    `;
+}
+
+window.backToSurahList = function backToSurahList() {
+    renderSurahList();
+};
+
+// =========================================================================
+// ZAKAT CALCULATOR — pure client-side calculation, no API.
+// Rules used (standard across major schools, sourced from Islamic Relief,
+// Muslim Aid, and HalalWallet zakat guides):
+//   - Nisab (gold standard): value of 87.48g of gold
+//   - Nisab (silver standard): value of 612.36g of silver — lower threshold,
+//     so more cautious / inclusive of more payers, preferred by many scholars
+//   - Zakat rate: 2.5% of total zakatable wealth, once it equals or exceeds
+//     the chosen nisab, held for one full lunar year (hawl)
+// Since there's no free, real-time, no-key gold/silver price API, the user
+// enters today's price per gram themselves — we never fabricate a "live"
+// price, since an inaccurate nisab could lead someone to under- or over-pay.
+// =========================================================================
+
+const ZAKAT_RATE = 0.025;
+const NISAB_GOLD_GRAMS = 87.48;
+const NISAB_SILVER_GRAMS = 612.36;
+
+window.initZakat = function initZakat() {
+    const root = document.getElementById('zakatRoot');
+    if (root.dataset.initialized) return;
+    root.dataset.initialized = 'true';
+    renderZakatForm();
+};
+
+function renderZakatForm() {
+    const root = document.getElementById('zakatRoot');
+    const saved = loadFromStorage('sakeenah_zakat_inputs', {
+        nisabStandard: 'silver',
+        goldPricePerGram: '',
+        silverPricePerGram: '',
+        cash: '', bankSavings: '', investments: '', goldGrams: '', silverGrams: '', businessAssets: '', debtsOwedToYou: '',
+        immediateDebts: '', dueExpenses: ''
+    });
+
+    root.innerHTML = `
+        <div class="panel">
+            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.4rem; font-weight:600;">Nisab Standard</div>
+            <div class="radio-row" style="margin-bottom:0.5rem;">
+                <label class="radio-pill zakat-standard-pill" data-standard="silver"><input type="radio" name="nisabStandard" value="silver"> Silver (lower, more cautious)</label>
+                <label class="radio-pill zakat-standard-pill" data-standard="gold"><input type="radio" name="nisabStandard" value="gold"> Gold (higher threshold)</label>
+            </div>
+            <div style="font-size:0.75rem; color:var(--text-dim);">Scholars differ on this choice — many recommend the silver standard since it includes more people in the obligation, benefiting more recipients. Consult a scholar if unsure.</div>
+        </div>
+
+        <div class="panel">
+            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.75rem; font-weight:600;">Today's Precious Metal Prices</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Gold price (per gram, your currency)</label>
+                    <input type="number" min="0" step="0.01" id="goldPricePerGram" placeholder="e.g. 75.00" value="${escapeHtml(saved.goldPricePerGram)}">
+                </div>
+                <div class="form-group">
+                    <label>Silver price (per gram)</label>
+                    <input type="number" min="0" step="0.01" id="silverPricePerGram" placeholder="e.g. 0.95" value="${escapeHtml(saved.silverPricePerGram)}">
+                </div>
+            </div>
+            <div style="font-size:0.75rem; color:var(--text-dim);">Prices change daily — check a live source (your local jeweler, bank, or a precious metals site) before calculating.</div>
+        </div>
+
+        <div class="panel">
+            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.75rem; font-weight:600;">Zakatable Assets</div>
+            <div class="form-group"><label>Cash on hand</label><input type="number" min="0" step="0.01" id="zCash" value="${escapeHtml(saved.cash)}" placeholder="0"></div>
+            <div class="form-group"><label>Bank savings / accounts</label><input type="number" min="0" step="0.01" id="zBank" value="${escapeHtml(saved.bankSavings)}" placeholder="0"></div>
+            <div class="form-group"><label>Investments / stocks (market value)</label><input type="number" min="0" step="0.01" id="zInvest" value="${escapeHtml(saved.investments)}" placeholder="0"></div>
+            <div class="form-row">
+                <div class="form-group"><label>Gold owned (grams)</label><input type="number" min="0" step="0.01" id="zGoldG" value="${escapeHtml(saved.goldGrams)}" placeholder="0"></div>
+                <div class="form-group"><label>Silver owned (grams)</label><input type="number" min="0" step="0.01" id="zSilverG" value="${escapeHtml(saved.silverGrams)}" placeholder="0"></div>
+            </div>
+            <div class="form-group"><label>Business assets / trade inventory</label><input type="number" min="0" step="0.01" id="zBusiness" value="${escapeHtml(saved.businessAssets)}" placeholder="0"></div>
+            <div class="form-group"><label>Money owed to you (likely to be repaid)</label><input type="number" min="0" step="0.01" id="zReceivable" value="${escapeHtml(saved.debtsOwedToYou)}" placeholder="0"></div>
+        </div>
+
+        <div class="panel">
+            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.75rem; font-weight:600;">Deductible Liabilities</div>
+            <div class="form-group"><label>Debts due within 12 months</label><input type="number" min="0" step="0.01" id="zDebts" value="${escapeHtml(saved.immediateDebts)}" placeholder="0"></div>
+            <div class="form-group"><label>Other immediate due expenses</label><input type="number" min="0" step="0.01" id="zExpenses" value="${escapeHtml(saved.dueExpenses)}" placeholder="0"></div>
+        </div>
+
+        <button class="btn btn-primary btn-block" id="zakatCalcBtn" style="margin-bottom:1rem;">Calculate Zakat</button>
+        <div id="zakatResultArea"></div>
+    `;
+
+    // Restore selected standard
+    root.querySelectorAll('.zakat-standard-pill').forEach(pill => {
+        const checked = pill.dataset.standard === saved.nisabStandard;
+        pill.classList.toggle('checked', checked);
+        pill.querySelector('input').checked = checked;
+        pill.addEventListener('click', () => {
+            root.querySelectorAll('.zakat-standard-pill').forEach(p => p.classList.remove('checked'));
+            pill.classList.add('checked');
+            pill.querySelector('input').checked = true;
+        });
+    });
+
+    document.getElementById('zakatCalcBtn').addEventListener('click', calculateZakat);
+}
+
+function calculateZakat() {
+    const num = (id) => Math.max(0, parseFloat(document.getElementById(id).value) || 0);
+
+    const standardPill = document.querySelector('.zakat-standard-pill.checked');
+    const nisabStandard = standardPill ? standardPill.dataset.standard : 'silver';
+
+    const goldPrice = num('goldPricePerGram');
+    const silverPrice = num('silverPricePerGram');
+
+    const inputs = {
+        nisabStandard,
+        goldPricePerGram: document.getElementById('goldPricePerGram').value,
+        silverPricePerGram: document.getElementById('silverPricePerGram').value,
+        cash: document.getElementById('zCash').value,
+        bankSavings: document.getElementById('zBank').value,
+        investments: document.getElementById('zInvest').value,
+        goldGrams: document.getElementById('zGoldG').value,
+        silverGrams: document.getElementById('zSilverG').value,
+        businessAssets: document.getElementById('zBusiness').value,
+        debtsOwedToYou: document.getElementById('zReceivable').value,
+        immediateDebts: document.getElementById('zDebts').value,
+        dueExpenses: document.getElementById('zExpenses').value
+    };
+    saveToStorage('sakeenah_zakat_inputs', inputs);
+
+    const resultArea = document.getElementById('zakatResultArea');
+
+    const priceNeeded = nisabStandard === 'gold' ? goldPrice : silverPrice;
+    if (priceNeeded <= 0) {
+        resultArea.innerHTML = `<div class="status-banner error"><i class="fa-solid fa-triangle-exclamation"></i><span>Please enter the current ${nisabStandard} price per gram to calculate your nisab threshold.</span></div>`;
+        return;
+    }
+
+    const goldValue = num('zGoldG') * goldPrice;
+    const silverValue = num('zSilverG') * silverPrice;
+
+    const totalAssets = num('zCash') + num('zBank') + num('zInvest') + goldValue + silverValue + num('zBusiness') + num('zReceivable');
+    const totalLiabilities = num('zDebts') + num('zExpenses');
+    const netZakatableWealth = Math.max(0, totalAssets - totalLiabilities);
+
+    const nisabThreshold = nisabStandard === 'gold'
+        ? NISAB_GOLD_GRAMS * goldPrice
+        : NISAB_SILVER_GRAMS * silverPrice;
+
+    const meetsNisab = netZakatableWealth >= nisabThreshold;
+    const zakatDue = meetsNisab ? netZakatableWealth * ZAKAT_RATE : 0;
+
+    resultArea.innerHTML = `
+        <div class="panel" style="text-align:center; border-color:${meetsNisab ? 'var(--emerald)' : 'var(--border-color)'};">
+            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.4rem;">Net Zakatable Wealth</div>
+            <div style="font-size:1.4rem; font-weight:700; color:#fff; margin-bottom:1rem;">${formatMoney(netZakatableWealth)}</div>
+
+            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.4rem;">Nisab Threshold (${nisabStandard})</div>
+            <div style="font-size:1rem; color:var(--text-main); margin-bottom:1rem;">${formatMoney(nisabThreshold)}</div>
+
+            ${meetsNisab ? `
+                <div style="border-top:1px solid var(--border-color); padding-top:1rem;">
+                    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.4rem;">Zakat Due (2.5%)</div>
+                    <div style="font-size:2rem; font-weight:800; color:var(--gold-soft);">${formatMoney(zakatDue)}</div>
+                </div>
+            ` : `
+                <div style="border-top:1px solid var(--border-color); padding-top:1rem; color:var(--text-muted); font-size:0.85rem;">
+                    Your wealth is below the nisab threshold, so Zakat isn't currently obligatory — unless this wealth has been held above nisab for a full lunar year at some point.
+                </div>
+            `}
+        </div>
+        <div class="status-banner" style="margin-top:0;">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>This is a calculation aid, not a religious ruling. Zakat also requires that wealth be held for one full lunar year (hawl) above nisab. If your situation involves debts, jewelry-for-personal-use, retirement accounts, or business inventory, consider consulting a scholar.</span>
+        </div>
+    `;
+}
+
+function formatMoney(value) {
+    return value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+</script>
 </body>
 </html>
