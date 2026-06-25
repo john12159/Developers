@@ -3,1217 +3,783 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sakeenah — Prayer Times & Companion</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-</head>
+<title>Prayer</title>
 <style>
-:root {
-    --bg-primary: #0a1612;
-    --bg-surface: #0f2119;
-    --bg-surface-hover: #15301f;
-    --bg-elevated: #122a1e;
-    --text-main: #f0f7f2;
-    --text-muted: #8fa89a;
-    --text-dim: #5f7d6c;
-    --gold: #d4af37;
-    --gold-soft: #e8c863;
-    --emerald: #1f8a5f;
-    --emerald-bright: #2bb074;
-    --border-color: #1b3326;
-    --danger: #e07856;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-    font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
-    background: radial-gradient(ellipse at top, #0d1f16, var(--bg-primary) 60%);
-    color: var(--text-main);
-    line-height: 1.5;
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --sage: #3D5C4D;
+    --sage-dark: #2C4538;
+    --sage-light: #E8EFE9;
+    --cream: #FAF6EE;
+    --gold: #C9A85C;
+    --charcoal: #2A2A28;
+    --line: #E2DACA;
+    --muted: #6B6459;
+    --error: #B3463F;
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin: 0;
+    background: var(--cream);
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: var(--charcoal);
     min-height: 100vh;
-    padding-bottom: 5.5rem;
-}
-.arabic { font-family: 'Amiri', serif; }
+  }
 
-/* Top bar */
-.topbar {
-    background: rgba(15, 33, 25, 0.85);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--border-color);
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    padding: 0.9rem 1.25rem;
+  .screen{
+    display: none;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+  .screen.active{ display: flex; }
+
+  .page{
+    flex: 1;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    padding: 32px 24px 0;
+    max-width: 480px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* Desktop: card with left heading column + right form column, like a typical sign-in card */
+  @media (min-width: 760px){
+    #signin-email, #signin-password, #signup{
+      align-items: center;
+      justify-content: center;
+      background: #DDD9CE;
+    }
+    #signin-email .page, #signin-password .page, #signup .page{
+      flex: none;
+      flex-direction: row;
+      align-items: center;
+      gap: 64px;
+      max-width: 880px;
+      width: 100%;
+      background: var(--cream);
+      border-radius: 28px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08), 0 24px 48px rgba(42,42,40,0.12);
+      padding: 56px 64px;
+      margin: 40px auto;
+    }
+    #signin-email .page > .auth-left,
+    #signin-password .page > .auth-left,
+    #signup .page > .auth-left{
+      flex: 0 0 300px;
+    }
+    #signin-email .page > .auth-right,
+    #signin-password .page > .auth-right,
+    #signup .page > .auth-right{
+      flex: 1;
+      min-width: 0;
+    }
+    #signin-email footer, #signin-password footer, #signup footer{
+      display: none;
+    }
+    .auth-left .mark{ margin-bottom: 28px; }
+    .auth-left h1{ font-size: 30px; }
+    .auth-left .subtitle{ margin-bottom: 0; }
+    .auth-right .actions{ margin-top: 40px; padding: 0; }
+    .auth-right .guest-note{ margin-top: 28px; }
+  }
+  @media (min-width: 760px) and (max-width: 899px){
+    #signin-email .page, #signin-password .page, #signup .page{ gap: 40px; padding: 48px; }
+    .auth-left{ flex-basis: 240px; }
+  }
+
+  .mark{
+    display: flex;
     align-items: center;
-}
-.brand { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 1.05rem; color: #fff; }
-.brand i { color: var(--gold); }
-.location-chip {
-    display: flex; align-items: center; gap: 0.4rem;
-    background: var(--bg-elevated); border: 1px solid var(--border-color);
-    padding: 0.4rem 0.75rem; border-radius: 9999px; font-size: 0.78rem; color: var(--text-muted);
-    cursor: pointer; transition: border-color 0.15s;
-}
-.location-chip:hover { border-color: var(--emerald); color: var(--text-main); }
-.location-chip i { color: var(--emerald-bright); }
-.settings-btn {
-    background: var(--bg-elevated); border: 1px solid var(--border-color); color: var(--text-muted);
-    width: 36px; height: 36px; border-radius: 9999px; cursor: pointer; font-size: 0.95rem;
-    display: flex; align-items: center; justify-content: center; transition: all 0.15s;
-}
-.settings-btn:hover { color: #fff; border-color: var(--emerald); }
+    gap: 10px;
+    margin-bottom: 36px;
+  }
+  .mark svg{ width: 34px; height: 34px; flex-shrink: 0; }
+  .mark span{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: 0.2px;
+    color: var(--sage-dark);
+  }
 
-/* Main container */
-.app-container { max-width: 720px; margin: 0 auto; padding: 1.25rem; }
+  h1{
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 32px;
+    margin: 0 0 8px;
+  }
 
-/* Status banners */
-.status-banner {
-    display: flex; align-items: center; gap: 0.6rem; background: var(--bg-elevated);
-    border: 1px solid var(--border-color); border-radius: 0.6rem; padding: 0.8rem 1rem;
-    margin-bottom: 1rem; font-size: 0.82rem; color: var(--text-muted);
-}
-.status-banner.error { border-color: rgba(224, 120, 86, 0.4); color: #f3b59b; }
-.status-banner i { color: var(--gold); flex-shrink: 0; }
-.status-banner.error i { color: var(--danger); }
-.status-banner button.btn-inline {
-    background: var(--emerald); color: #fff; border: none; padding: 0.4rem 0.8rem;
-    border-radius: 0.4rem; font-size: 0.78rem; cursor: pointer; font-weight: 600; flex-shrink: 0; margin-left: auto;
-}
+  .subtitle{
+    font-size: 15px;
+    color: var(--muted);
+    margin: 0 0 32px;
+    line-height: 1.5;
+  }
 
-/* Hero next-prayer card */
-.next-prayer-card {
-    background: linear-gradient(135deg, var(--bg-elevated), var(--bg-surface));
-    border: 1px solid var(--border-color);
-    border-radius: 1.1rem;
-    padding: 1.75rem;
-    text-align: center;
-    margin-bottom: 1.5rem;
-    position: relative;
-    overflow: hidden;
-}
-.next-prayer-card::before {
-    content: '';
-    position: absolute; top: -50%; right: -20%; width: 280px; height: 280px;
-    background: radial-gradient(circle, rgba(212,175,55,0.08), transparent 70%);
+  .field{ position: relative; margin-bottom: 16px; }
+  .field input{
+    width: 100%;
+    padding: 17px 16px;
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--charcoal);
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .field input::placeholder{ color: transparent; }
+  .field input:focus{
+    border-color: var(--sage);
+    border-width: 2px;
+    padding: 16.5px 15.5px;
+  }
+  .field.error input{ border-color: var(--error); }
+
+  /* Floating label: centered inside the field at rest,
+     rises to straddle the top border on focus or when filled. */
+  .field label{
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: #A39C8E;
+    background: transparent;
+    padding: 0 4px;
     pointer-events: none;
-}
-.np-label { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; }
-.np-name { font-size: 2rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem; }
-.np-time { font-size: 1.1rem; color: var(--gold-soft); font-weight: 600; margin-bottom: 0.75rem; }
-.np-countdown { font-size: 0.95rem; color: var(--text-muted); font-variant-numeric: tabular-nums; }
-.np-countdown strong { color: var(--emerald-bright); font-weight: 700; }
-.hijri-date-line { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.9rem; padding-top: 0.9rem; border-top: 1px solid var(--border-color); }
+    transition: top 0.15s ease, font-size 0.15s ease, color 0.15s ease;
+  }
+  .field input:focus + label,
+  .field input:not(:placeholder-shown) + label{
+    top: 0;
+    font-size: 12.5px;
+    background: var(--cream);
+  }
+  .field input:focus + label{ color: #6FA882; }
+  .field input:not(:placeholder-shown) + label{ color: var(--muted); }
+  .field.error input:focus + label,
+  .field.error input:not(:placeholder-shown) + label{ color: var(--error); }
 
-/* Today's timings grid */
-.timings-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(95px, 1fr)); gap: 0.6rem;
-    margin-bottom: 1.5rem;
-}
-.timing-cell {
-    background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 0.7rem;
-    padding: 0.85rem 0.5rem; text-align: center; transition: all 0.15s;
-}
-.timing-cell.is-next { border-color: var(--emerald); background: var(--bg-surface-hover); }
-.timing-cell .t-name { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.35rem; }
-.timing-cell .t-time { font-size: 1.05rem; font-weight: 700; color: var(--text-main); font-variant-numeric: tabular-nums; }
-.timing-cell.is-next .t-time { color: var(--gold-soft); }
+  .field-error{
+    font-size: 13px;
+    color: var(--error);
+    margin: 6px 2px 0;
+    display: none;
+  }
+  .field.error .field-error{ display: block; }
 
-/* Suhoor/Iftar card */
-.fast-card {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
-    background: var(--border-color); border-radius: 0.9rem; overflow: hidden;
-    margin-bottom: 1.5rem; border: 1px solid var(--border-color);
-}
-.fast-cell { background: var(--bg-surface); padding: 1.1rem; text-align: center; }
-.fast-cell .f-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.3rem; }
-.fast-cell .f-time { font-size: 1.3rem; font-weight: 700; color: var(--text-main); }
-.fast-cell .f-sub { font-size: 0.72rem; color: var(--text-dim); margin-top: 0.2rem; }
-.fast-cell.suhoor .f-time { color: #93c5fd; }
-.fast-cell.iftar .f-time { color: var(--gold-soft); }
+  .static-field{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+    padding: 8px 16px 8px 10px;
+    width: fit-content;
+    margin-bottom: 28px;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .static-field .avatar{
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--sage);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600;
+    flex-shrink: 0;
+  }
+  .static-field .chev{ color: var(--muted); font-size: 11px; margin-left: 2px; }
 
-/* Section nav (bottom tabs) */
-.bottom-nav {
-    position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
-    background: rgba(15, 33, 25, 0.92); backdrop-filter: blur(10px);
-    border-top: 1px solid var(--border-color);
-    display: flex; justify-content: space-around; padding: 0.5rem 0.25rem;
-}
-.nav-item {
-    display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
-    background: none; border: none; color: var(--text-dim); font-size: 0.65rem; cursor: pointer;
-    padding: 0.3rem 0.5rem; border-radius: 0.5rem; flex: 1; max-width: 80px; font-weight: 500;
-}
-.nav-item i { font-size: 1.15rem; }
-.nav-item.active { color: var(--gold-soft); }
+  .checkbox-row{
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 4px 2px 0;
+    font-size: 14.5px;
+    color: var(--charcoal);
+    cursor: pointer;
+    user-select: none;
+  }
+  .checkbox-row input{ width: 16px; height: 16px; accent-color: var(--sage-dark); cursor: pointer; }
 
-/* Section views */
-.section-view { display: none; }
-.section-view.active { display: block; }
-.section-title { font-size: 1.3rem; font-weight: 700; color: #fff; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
-.section-title i { color: var(--gold); }
+  .hint{ font-size: 13px; color: var(--muted); margin: 6px 2px 0; line-height: 1.5; }
 
-/* Generic cards / buttons */
-.panel { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 0.9rem; padding: 1.25rem; margin-bottom: 1rem; }
-.btn {
-    padding: 0.65rem 1.25rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer;
-    font-size: 0.875rem; border: 1px solid transparent; transition: all 0.15s ease;
-}
-.btn-primary { background: var(--emerald); color: #fff; }
-.btn-primary:hover { background: var(--emerald-bright); }
-.btn-secondary { background: var(--bg-elevated); color: var(--text-main); border-color: var(--border-color); }
-.btn-secondary:hover { background: var(--bg-surface-hover); }
-.btn-block { width: 100%; display: block; }
-.btn-outline-sm { background: transparent; border-color: var(--border-color); color: var(--text-muted); padding: 0.35rem 0.7rem; font-size: 0.78rem; border-radius: 0.4rem; cursor: pointer; }
-.btn-outline-sm:hover { color: #fff; border-color: var(--emerald); }
+  .link-row{ margin-top: 24px; }
+  .link-row a, .link-row button.linklike{
+    color: var(--sage-dark);
+    font-size: 14.5px;
+    font-weight: 500;
+    text-decoration: none;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+  }
+  .link-row a:hover, .link-row button.linklike:hover{ text-decoration: underline; }
 
-/* Modals */
-.modal-overlay {
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(5,12,9,0.8);
-    backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center;
-    z-index: 1000; padding: 1rem;
-}
-.modal-overlay.active { display: flex; }
-.modal-box {
-    background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 1rem;
-    width: 100%; max-width: 460px; padding: 1.5rem; max-height: 88vh; overflow-y: auto;
-    animation: modalSlide 0.2s cubic-bezier(0.16,1,0.3,1);
-}
-@keyframes modalSlide { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; }
-.modal-header h3 { font-size: 1.1rem; font-weight: 700; }
-.close-btn { background: none; border: none; color: var(--text-muted); font-size: 1.4rem; cursor: pointer; line-height: 1; }
-.close-btn:hover { color: #fff; }
+  .guest-note{
+    margin-top: 32px;
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .guest-note a{ color: var(--sage-dark); text-decoration: none; font-weight: 500; }
+  .guest-note a:hover{ text-decoration: underline; }
 
-.form-group { margin-bottom: 1.1rem; }
-.form-group label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.35rem; font-weight: 500; }
-.form-group input, .form-group select {
-    width: 100%; background: var(--bg-primary); border: 1px solid var(--border-color);
-    padding: 0.6rem 0.7rem; border-radius: 0.45rem; color: white; outline: none; font-size: 0.9rem;
-}
-.form-group input:focus, .form-group select:focus { border-color: var(--emerald); }
-.form-group select option { background: var(--bg-surface); }
-.radio-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-.radio-pill {
-    background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 9999px;
-    padding: 0.4rem 0.9rem; font-size: 0.8rem; cursor: pointer; color: var(--text-muted);
-}
-.radio-pill input { display: none; }
-.radio-pill.checked { background: var(--emerald); color: #fff; border-color: var(--emerald); }
+  .actions{
+    margin-top: auto;
+    padding: 28px 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .actions.single{ justify-content: flex-end; }
 
-@media(max-width: 480px) {
-    .np-name { font-size: 1.6rem; }
-    .timings-grid { grid-template-columns: repeat(3, 1fr); }
-}
+  .switch-link{
+    color: var(--sage-dark);
+    font-size: 14.5px;
+    font-weight: 600;
+    text-decoration: none;
+    background: none;
+    border: none;
+    padding: 10px 4px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+  }
+  .switch-link:hover{ text-decoration: underline; }
+
+  button.next{
+    background: var(--sage-dark);
+    color: #fff;
+    border: none;
+    padding: 12px 26px;
+    border-radius: 999px;
+    font-size: 14.5px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+  }
+  button.next:hover{ background: var(--sage); box-shadow: 0 2px 10px rgba(61,92,77,0.25); }
+  button.next:focus-visible{ outline: 2px solid var(--gold); outline-offset: 2px; }
+  button.next:disabled{ opacity: 0.6; cursor: not-allowed; }
+
+  footer{
+    border-top: 1px solid var(--line);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12.5px;
+    color: var(--muted);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .lang select{ border: none; background: transparent; color: var(--muted); font-size: 12.5px; font-family: 'Inter', sans-serif; }
+  .footer-links{ display: flex; gap: 22px; }
+  .footer-links a{ color: var(--muted); text-decoration: none; }
+  .footer-links a:hover{ text-decoration: underline; }
+
+  /* ---- Dashboard ---- */
+  #dashboard .page{ padding-top: 24px; }
+  .dash-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .dash-user{ display: flex; align-items: center; gap: 10px; }
+  .dash-user .avatar{
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--sage);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 14px;
+  }
+  .dash-user .uname{ font-size: 14.5px; font-weight: 600; }
+  .dash-user .uemail{ font-size: 12.5px; color: var(--muted); }
+  .logout-btn{
+    background: none; border: 1.5px solid var(--line); border-radius: 999px;
+    padding: 7px 16px; font-size: 13px; color: var(--muted); cursor: pointer;
+    font-family: 'Inter', sans-serif; font-weight: 500;
+  }
+  .logout-btn:hover{ border-color: var(--sage); color: var(--sage-dark); }
+
+  .counter-card{
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 36px 24px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .counter-card .label{
+    font-size: 13.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .counter-count{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 72px;
+    color: var(--sage-dark);
+    line-height: 1;
+    margin-bottom: 28px;
+  }
+  .tap-btn{
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: var(--sage-dark);
+    color: #fff;
+    border: none;
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 500;
+    cursor: pointer;
+    margin: 0 auto 18px;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.08s ease, background 0.15s ease;
+    box-shadow: 0 8px 24px rgba(44,69,56,0.25);
+  }
+  .tap-btn:active{ transform: scale(0.95); background: var(--sage); }
+
+  .reset-row{ display: flex; justify-content: center; gap: 10px; }
+  .reset-row button{
+    background: none; border: none; color: var(--muted);
+    font-size: 13px; cursor: pointer; font-family: 'Inter', sans-serif;
+    text-decoration: underline;
+  }
+
+  .history{
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px 20px;
+  }
+  .history .h-title{ font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .history-row{
+    display: flex; justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+  }
+  .history-row:last-child{ border-bottom: none; }
+  .history-row .h-date{ color: var(--muted); }
+  .history-row .h-count{ font-weight: 600; color: var(--sage-dark); }
+  .empty-history{ color: var(--muted); font-size: 13.5px; text-align: center; padding: 8px 0; }
+
+  .toast{
+    position: fixed;
+    bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--charcoal);
+    color: #fff;
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+    z-index: 50;
+  }
+  .toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 380px){
+    .footer-links{ gap: 14px; }
+    footer{ font-size: 11.5px; }
+    .counter-count{ font-size: 58px; }
+    .tap-btn{ width: 120px; height: 120px; }
+  }
 </style>
+</head>
 <body>
 
-<!-- Top Bar -->
-<header class="topbar">
-    <div class="brand"><i class="fa-solid fa-moon"></i> Sakeenah</div>
-    <div style="display:flex; align-items:center; gap:0.6rem;">
-        <button class="location-chip" id="locationChip" onclick="toggleModal('locationModal')">
-            <i class="fa-solid fa-location-dot"></i> <span id="locationLabel">Locating…</span>
-        </button>
-        <button class="settings-btn" onclick="toggleModal('settingsModal')"><i class="fa-solid fa-gear"></i></button>
+  <!-- ===================== SIGN IN STEP 1: EMAIL ===================== -->
+  <div class="screen active" id="signin-email">
+    <div class="page">
+      <div class="auth-left">
+        <div class="mark">
+          <svg viewBox="0 0 40 40" fill="none">
+            <path d="M20 3C20 3 9 11 9 21C9 28.7 14.6 34 20 34C16.5 30.5 15 26.5 15 22C15 14.5 20 9 20 9C20 9 25 14.5 25 22C25 26.5 23.5 30.5 20 34C25.4 34 31 28.7 31 21C31 11 20 3 20 3Z" fill="#3D5C4D"/>
+            <circle cx="20" cy="33.5" r="2.3" fill="#C9A85C"/>
+          </svg>
+          <span>Prayer</span>
+        </div>
+
+        <h1>Sign in</h1>
+        <p class="subtitle">Use your Prayer account</p>
+      </div>
+
+      <div class="auth-right">
+        <div class="field" id="se-field">
+          <input type="text" id="se-input" placeholder="Email" autocomplete="username">
+          <label for="se-input">Email</label>
+          <p class="field-error">Enter a valid email to continue.</p>
+        </div>
+        <p class="hint">No account yet?</p>
+
+        <p class="guest-note">
+          Your tasbih counts are saved to your account so you can pick up<br>
+          where you left off on any device.
+        </p>
+
+        <div class="actions">
+          <button class="switch-link" onclick="goTo('signup')">Create account</button>
+          <button class="next" onclick="submitEmail()">Next</button>
+        </div>
+      </div>
     </div>
-</header>
+    <footer>
+      <div class="lang"><select><option>English (United States)</option></select></div>
+      <div class="footer-links"><a href="#">Help</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+    </footer>
+  </div>
 
-<div class="app-container">
-    <div id="globalStatusArea"></div>
-
-    <!-- HOME / PRAYER TIMES -->
-    <section id="view-home" class="section-view active">
-
-        <div class="next-prayer-card">
-            <div class="np-label">Next Prayer</div>
-            <div class="np-name" id="nextPrayerName">—</div>
-            <div class="np-time" id="nextPrayerTime">—:—</div>
-            <div class="np-countdown">in <strong id="nextPrayerCountdown">—</strong></div>
-            <div class="hijri-date-line" id="hijriDateLine">Loading Hijri date…</div>
+  <!-- ===================== SIGN IN STEP 2: PASSWORD ===================== -->
+  <div class="screen" id="signin-password">
+    <div class="page">
+      <div class="auth-left">
+        <div class="mark">
+          <svg viewBox="0 0 40 40" fill="none">
+            <path d="M20 3C20 3 9 11 9 21C9 28.7 14.6 34 20 34C16.5 30.5 15 26.5 15 22C15 14.5 20 9 20 9C20 9 25 14.5 25 22C25 26.5 23.5 30.5 20 34C25.4 34 31 28.7 31 21C31 11 20 3 20 3Z" fill="#3D5C4D"/>
+            <circle cx="20" cy="33.5" r="2.3" fill="#C9A85C"/>
+          </svg>
+          <span>Prayer</span>
         </div>
 
-        <div class="timings-grid" id="timingsGrid">
-            <!-- populated by JS -->
+        <h1>Welcome back</h1>
+        <p class="subtitle">Enter your password to continue</p>
+      </div>
+
+      <div class="auth-right">
+        <div class="static-field" onclick="goTo('signin-email')">
+          <span class="avatar" id="sp-avatar">?</span>
+          <span id="sp-email">you@example.com</span>
+          <span class="chev">鈻�</span>
         </div>
 
-        <div class="fast-card">
-            <div class="fast-cell suhoor">
-                <div class="f-label"><i class="fa-solid fa-cloud-moon"></i> Suhoor ends</div>
-                <div class="f-time" id="suhoorTime">—:—</div>
-                <div class="f-sub">at Fajr (Imsak)</div>
-            </div>
-            <div class="fast-cell iftar">
-                <div class="f-label"><i class="fa-solid fa-sun"></i> Iftar begins</div>
-                <div class="f-time" id="iftarTime">—:—</div>
-                <div class="f-sub">at Maghrib</div>
-            </div>
+        <div class="field" id="sp-field">
+          <input type="password" id="sp-input" placeholder="Enter your password">
+          <label for="sp-input">Enter your password</label>
+          <p class="field-error" id="sp-error">Incorrect password. Try again.</p>
         </div>
-    </section>
+        <label class="checkbox-row">
+          <input type="checkbox" onclick="document.getElementById('sp-input').type = this.checked ? 'text' : 'password'">
+          Show password
+        </label>
 
-    <!-- TASBIH -->
-    <section id="view-tasbih" class="section-view">
-        <div class="section-title"><i class="fa-solid fa-circle-dot"></i> Tasbih Counter</div>
-        <div id="tasbihRoot"></div>
-    </section>
-
-    <!-- HIJRI CALENDAR -->
-    <section id="view-calendar" class="section-view">
-        <div class="section-title"><i class="fa-solid fa-calendar-days"></i> Hijri Calendar</div>
-        <div id="calendarRoot"></div>
-    </section>
-
-    <!-- QURAN -->
-    <section id="view-quran" class="section-view">
-        <div class="section-title"><i class="fa-solid fa-book-quran"></i> Quran</div>
-        <div id="quranRoot"></div>
-    </section>
-
-    <!-- ZAKAT -->
-    <section id="view-zakat" class="section-view">
-        <div class="section-title"><i class="fa-solid fa-hand-holding-dollar"></i> Zakat Calculator</div>
-        <div id="zakatRoot"></div>
-    </section>
-</div>
-
-<!-- Bottom Navigation -->
-<nav class="bottom-nav">
-    <button class="nav-item active" data-view="home" onclick="switchSection('home')"><i class="fa-solid fa-mosque"></i>Times</button>
-    <button class="nav-item" data-view="tasbih" onclick="switchSection('tasbih')"><i class="fa-solid fa-circle-dot"></i>Tasbih</button>
-    <button class="nav-item" data-view="calendar" onclick="switchSection('calendar')"><i class="fa-solid fa-calendar-days"></i>Hijri</button>
-    <button class="nav-item" data-view="quran" onclick="switchSection('quran')"><i class="fa-solid fa-book-quran"></i>Quran</button>
-    <button class="nav-item" data-view="zakat" onclick="switchSection('zakat')"><i class="fa-solid fa-hand-holding-dollar"></i>Zakat</button>
-</nav>
-
-<!-- LOCATION MODAL -->
-<div class="modal-overlay" id="locationModal">
-    <div class="modal-box">
-        <div class="modal-header">
-            <h3>Set Location</h3>
-            <button class="close-btn" onclick="toggleModal('locationModal')">&times;</button>
+        <div class="link-row">
+          <a href="#">Forgot password?</a>
         </div>
-        <button class="btn btn-primary btn-block" onclick="requestGeolocation()" style="margin-bottom:1rem;">
-            <i class="fa-solid fa-location-crosshairs"></i> Use My Current Location
-        </button>
-        <div style="text-align:center; color:var(--text-dim); font-size:0.8rem; margin-bottom:1rem;">or search manually</div>
-        <div class="form-group">
-            <label>City name</label>
-            <input type="text" id="manualCityInput" placeholder="e.g. Karachi, Pakistan">
+
+        <div class="actions">
+          <button class="switch-link" onclick="goTo('signin-email')">Back</button>
+          <button class="next" onclick="submitPassword()">Sign in</button>
         </div>
-        <button class="btn btn-secondary btn-block" onclick="searchManualCity()">Search</button>
-        <div id="locationModalStatus" style="margin-top:0.75rem; font-size:0.8rem; color:var(--text-muted);"></div>
+      </div>
     </div>
-</div>
+    <footer>
+      <div class="lang"><select><option>English (United States)</option></select></div>
+      <div class="footer-links"><a href="#">Help</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+    </footer>
+  </div>
 
-<!-- SETTINGS MODAL -->
-<div class="modal-overlay" id="settingsModal">
-    <div class="modal-box">
-        <div class="modal-header">
-            <h3>Settings</h3>
-            <button class="close-btn" onclick="toggleModal('settingsModal')">&times;</button>
+  <!-- ===================== SIGN UP ===================== -->
+  <div class="screen" id="signup">
+    <div class="page">
+      <div class="auth-left">
+        <div class="mark">
+          <svg viewBox="0 0 40 40" fill="none">
+            <path d="M20 3C20 3 9 11 9 21C9 28.7 14.6 34 20 34C16.5 30.5 15 26.5 15 22C15 14.5 20 9 20 9C20 9 25 14.5 25 22C25 26.5 23.5 30.5 20 34C25.4 34 31 28.7 31 21C31 11 20 3 20 3Z" fill="#3D5C4D"/>
+            <circle cx="20" cy="33.5" r="2.3" fill="#C9A85C"/>
+          </svg>
+          <span>Prayer</span>
         </div>
-        <div class="form-group">
-            <label>Calculation Method</label>
-            <select id="methodSelect">
-                <option value="3">Muslim World League</option>
-                <option value="2">ISNA (North America)</option>
-                <option value="4">Umm Al-Qura, Makkah</option>
-                <option value="5">Egyptian General Authority</option>
-                <option value="1">University of Islamic Sciences, Karachi</option>
-                <option value="8">Gulf Region</option>
-                <option value="9">Kuwait</option>
-                <option value="10">Qatar</option>
-                <option value="11">Singapore</option>
-                <option value="17">JAKIM, Malaysia</option>
-                <option value="20">Kemenag, Indonesia</option>
-                <option value="7">Tehran</option>
-                <option value="0">Jafari (Shia Ithna-Ashari)</option>
-            </select>
+
+        <h1>Create account</h1>
+        <p class="subtitle">Save your tasbih count and pick up where you left off</p>
+      </div>
+
+      <div class="auth-right">
+        <div class="field" id="su-name-field">
+          <input type="text" id="su-name" placeholder="Full name">
+          <label for="su-name">Full name</label>
+          <p class="field-error">Enter your name.</p>
         </div>
-        <div class="form-group">
-            <label>Asr Calculation (Madhab)</label>
-            <div class="radio-row">
-                <label class="radio-pill" data-school="0"><input type="radio" name="school" value="0"> Shafi/Maliki/Hanbali</label>
-                <label class="radio-pill" data-school="1"><input type="radio" name="school" value="1"> Hanafi</label>
-            </div>
+        <div class="field" id="su-email-field">
+          <input type="text" id="su-email" placeholder="Email">
+          <label for="su-email">Email</label>
+          <p class="field-error" id="su-email-error">Enter a valid email.</p>
         </div>
-        <button class="btn btn-primary btn-block" onclick="saveSettingsAndRefresh()">Save & Refresh Timings</button>
+        <div class="field" id="su-pass-field">
+          <input type="password" id="su-pass" placeholder="Password">
+          <label for="su-pass">Password</label>
+          <p class="field-error">Password must be at least 6 characters.</p>
+        </div>
+
+        <div class="actions">
+          <button class="switch-link" onclick="goTo('signin-email')">I already have an account</button>
+          <button class="next" onclick="submitSignup()">Create</button>
+        </div>
+      </div>
     </div>
-</div>
+    <footer>
+      <div class="lang"><select><option>English (United States)</option></select></div>
+      <div class="footer-links"><a href="#">Help</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+    </footer>
+  </div>
+
+  <!-- ===================== DASHBOARD ===================== -->
+  <div class="screen" id="dashboard">
+    <div class="page">
+      <div class="dash-header">
+        <div class="dash-user">
+          <span class="avatar" id="dash-avatar">?</span>
+          <div>
+            <div class="uname" id="dash-name">User</div>
+            <div class="uemail" id="dash-email">you@example.com</div>
+          </div>
+        </div>
+        <button class="logout-btn" onclick="logout()">Sign out</button>
+      </div>
+
+      <div class="counter-card">
+        <div class="label">Today's Tasbih</div>
+        <div class="counter-count" id="count-display">0</div>
+        <button class="tap-btn" onclick="incrementCount()">Tap to count</button>
+        <div class="reset-row">
+          <button onclick="resetToday()">Reset today's count</button>
+        </div>
+      </div>
+
+      <div class="history">
+        <div class="h-title">Recent history</div>
+        <div id="history-list"><p class="empty-history">No previous sessions yet.</p></div>
+      </div>
+    </div>
+    <footer>
+      <div class="lang"><select><option>English (United States)</option></select></div>
+      <div class="footer-links"><a href="#">Help</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast"></div>
 
 <script>
-window.appState = {
-    latitude: null,
-    longitude: null,
-    locationLabel: 'Locating…',
-    method: 3,
-    school: 0,
-    todayTimings: null,
-    hijriToday: null,
-    nextPrayerKey: null,
-    nextPrayerTimestamp: null
-};
+  // ---- Storage helpers (localStorage acting as the user-wise "database") ----
+  const DB_KEY = 'prayer_users_db';
 
-function toggleModal(modalId) {
-    const m = document.getElementById(modalId);
-    if (m) m.classList.toggle('active');
-}
+  function loadDB(){
+    try { return JSON.parse(localStorage.getItem(DB_KEY)) || {}; }
+    catch(e){ return {}; }
+  }
+  function saveDB(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
 
-function switchSection(viewName) {
-    document.querySelectorAll('.section-view').forEach(v => v.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById(`view-${viewName}`).classList.add('active');
-    document.querySelector(`.nav-item[data-view="${viewName}"]`).classList.add('active');
+  let pendingEmail = '';
+  let currentUser = null; // { email, name }
 
-    // Lazy-init each section the first time it's opened
-    if (viewName === 'tasbih' && window.initTasbih) window.initTasbih();
-    if (viewName === 'calendar' && window.initCalendar) window.initCalendar();
-    if (viewName === 'quran' && window.initQuran) window.initQuran();
-    if (viewName === 'zakat' && window.initZakat) window.initZakat();
-}
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(()=> t.classList.remove('show'), 2200);
+  }
 
-function renderGlobalStatus(message, isError) {
-    const area = document.getElementById('globalStatusArea');
-    if (!area) return;
-    if (!message) { area.innerHTML = ''; return; }
-    area.innerHTML = `<div class="status-banner ${isError ? 'error' : ''}">
-        <i class="fa-solid ${isError ? 'fa-triangle-exclamation' : 'fa-circle-info'}"></i>
-        <span>${message}</span>
-        ${isError ? `<button class="btn-inline" onclick="toggleModal('locationModal')">Set Location</button>` : ''}
-    </div>`;
-}
+  function goTo(screenId){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+  }
 
-function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str == null ? '' : String(str);
-    return div.innerHTML;
-}
+  function isValidEmail(v){
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+  }
 
-// =========================================================================
-// PRAYER TIMES ENGINE — powered by the free AlAdhan API (api.aladhan.com)
-// No API key required. Method IDs match AlAdhan's official /v1/methods list.
-// =========================================================================
+  function initials(name, email){
+    const src = (name || email || '?').trim();
+    return src.charAt(0).toUpperCase();
+  }
 
-const PRAYER_ORDER = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
-const PRAYER_LABELS = { Fajr: 'Fajr', Sunrise: 'Sunrise', Dhuhr: 'Dhuhr', Asr: 'Asr', Maghrib: 'Maghrib', Isha: 'Isha' };
-// Prayers used for the "next prayer" countdown (Sunrise isn't a prayer, so excluded there)
-const COUNTDOWN_PRAYERS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+  // ---- Step 1: email ----
+  function submitEmail(){
+    const input = document.getElementById('se-input');
+    const field = document.getElementById('se-field');
+    const val = input.value.trim();
 
-function loadFromStorage(key, fallback) {
-    try {
-        const raw = localStorage.getItem(key);
-        return raw ? JSON.parse(raw) : fallback;
-    } catch (e) {
-        console.warn(`Could not read ${key}`, e);
-        return fallback;
+    if(!isValidEmail(val)){
+      field.classList.add('error');
+      return;
     }
-}
-function saveToStorage(key, value) {
-    try { localStorage.setItem(key, JSON.stringify(value)); }
-    catch (e) { console.warn(`Could not persist ${key}`, e); }
-}
+    field.classList.remove('error');
 
-function initSettingsFromStorage() {
-    const saved = loadFromStorage('sakeenah_settings', null);
-    if (saved) {
-        window.appState.method = saved.method;
-        window.appState.school = saved.school;
-    }
-    document.getElementById('methodSelect').value = String(window.appState.method);
-    document.querySelectorAll('.radio-pill').forEach(pill => {
-        const isChecked = Number(pill.dataset.school) === window.appState.school;
-        pill.classList.toggle('checked', isChecked);
-        pill.querySelector('input').checked = isChecked;
-    });
-    document.querySelectorAll('.radio-pill').forEach(pill => {
-        pill.addEventListener('click', () => {
-            document.querySelectorAll('.radio-pill').forEach(p => p.classList.remove('checked'));
-            pill.classList.add('checked');
-            pill.querySelector('input').checked = true;
-        });
-    });
-}
-
-function saveSettingsAndRefresh() {
-    const method = Number(document.getElementById('methodSelect').value);
-    const checkedPill = document.querySelector('.radio-pill.checked');
-    const school = checkedPill ? Number(checkedPill.dataset.school) : 0;
-    window.appState.method = method;
-    window.appState.school = school;
-    saveToStorage('sakeenah_settings', { method, school });
-    toggleModal('settingsModal');
-    if (window.appState.latitude != null) {
-        fetchPrayerTimings();
-    }
-}
-
-function requestGeolocation(isAutoRequest) {
-    const statusEl = document.getElementById('locationModalStatus');
-
-    if (!navigator.geolocation) {
-        if (statusEl) statusEl.textContent = 'Geolocation is not supported in this browser. Please search your city manually.';
-        if (isAutoRequest) toggleModal('locationModal');
-        return;
-    }
-    if (statusEl) statusEl.textContent = 'Requesting location permission…';
-
-    navigator.geolocation.getCurrentPosition(
-        (pos) => {
-            window.appState.latitude = pos.coords.latitude;
-            window.appState.longitude = pos.coords.longitude;
-            window.appState.locationLabel = `${pos.coords.latitude.toFixed(2)}°, ${pos.coords.longitude.toFixed(2)}°`;
-            document.getElementById('locationLabel').textContent = window.appState.locationLabel;
-            saveToStorage('sakeenah_location', { latitude: pos.coords.latitude, longitude: pos.coords.longitude, label: window.appState.locationLabel });
-            // Only close the modal if it was opened (manual trigger) — on
-            // auto-request at first load, the modal was never opened.
-            if (!isAutoRequest) toggleModal('locationModal');
-            fetchPrayerTimings();
-            reverseGeocodeLabel(pos.coords.latitude, pos.coords.longitude);
-        },
-        (err) => {
-            console.warn('Geolocation error:', err);
-            const message = 'Location permission denied or unavailable. Please search your city manually below.';
-            if (statusEl) statusEl.textContent = message;
-            document.getElementById('locationLabel').textContent = 'Set location';
-            renderGlobalStatus('We couldn\'t access your location automatically. Please set it manually to see accurate prayer times.', true);
-            if (isAutoRequest) toggleModal('locationModal');
-        },
-        { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 }
-    );
-}
-
-/**
- * Resolves coordinates to a human-readable place name using AlAdhan's
- * geocoding-backed address endpoint, purely for display in the location
- * chip. Failure here doesn't affect prayer time accuracy — it's cosmetic.
- */
-async function reverseGeocodeLabel(lat, lon) {
-    try {
-        const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=${window.appState.method}`);
-        const data = await res.json();
-        if (data?.data?.meta?.timezone) {
-            const tz = data.data.meta.timezone.split('/').pop().replace(/_/g, ' ');
-            window.appState.locationLabel = tz;
-            document.getElementById('locationLabel').textContent = tz;
-        }
-    } catch (e) {
-        // Non-critical — keep showing coordinates
-    }
-}
-
-/**
- * Manual city search using AlAdhan's timingsByAddress endpoint, which
- * geocodes the address server-side. We immediately request today's timings
- * for that address, then extract the resolved lat/long from the response
- * meta so subsequent days can be fetched directly by coordinates.
- */
-async function searchManualCity() {
-    const cityValue = document.getElementById('manualCityInput').value.trim();
-    if (!cityValue) return;
-
-    const statusEl = document.getElementById('locationModalStatus');
-    statusEl.textContent = 'Searching…';
-
-    try {
-        const url = `https://api.aladhan.com/v1/timingsByAddress?address=${encodeURIComponent(cityValue)}&method=${window.appState.method}`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (data.code !== 200) throw new Error(data.status || 'Lookup failed');
-
-        const meta = data.data.meta;
-        window.appState.latitude = meta.latitude;
-        window.appState.longitude = meta.longitude;
-        window.appState.locationLabel = cityValue;
-        document.getElementById('locationLabel').textContent = cityValue;
-        saveToStorage('sakeenah_location', { latitude: meta.latitude, longitude: meta.longitude, label: cityValue });
-
-        applyTimingsResponse(data.data);
-        toggleModal('locationModal');
-        renderGlobalStatus('', false);
-    } catch (e) {
-        console.error('Manual city search failed:', e);
-        statusEl.textContent = "Couldn't find that location. Try a more specific name, e.g. 'Lahore, Pakistan'.";
-    }
-}
-
-/**
- * Core fetch: gets today's timings for the current stored coordinates.
- */
-async function fetchPrayerTimings() {
-    if (window.appState.latitude == null || window.appState.longitude == null) return;
-
-    renderGlobalStatus('Fetching today\'s prayer timings…', false);
-
-    try {
-        const timestamp = Math.floor(Date.now() / 1000);
-        const url = `https://api.aladhan.com/v1/timings/${timestamp}?latitude=${window.appState.latitude}&longitude=${window.appState.longitude}&method=${window.appState.method}&school=${window.appState.school}`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (data.code !== 200) throw new Error(data.status || 'API error');
-
-        applyTimingsResponse(data.data);
-        renderGlobalStatus('', false);
-    } catch (e) {
-        console.error('Prayer timings fetch failed:', e);
-        renderGlobalStatus("Couldn't reach the prayer times service right now (network issue). Showing last known timings if available.", true);
-    }
-}
-
-function applyTimingsResponse(data) {
-    window.appState.todayTimings = data.timings;
-    window.appState.hijriToday = data.date.hijri;
-    saveToStorage('sakeenah_last_timings', { timings: data.timings, hijri: data.date.hijri, gregorian: data.date.gregorian, fetchedAt: Date.now() });
-    renderTimingsGrid();
-    renderHijriLine();
-    renderFastCard();
-    updateNextPrayer();
-}
-
-function renderTimingsGrid() {
-    const grid = document.getElementById('timingsGrid');
-    const t = window.appState.todayTimings;
-    if (!grid || !t) return;
-
-    grid.innerHTML = PRAYER_ORDER.map(key => {
-        const isNext = key === window.appState.nextPrayerKey;
-        const timeClean = (t[key] || '--:--').split(' ')[0];
-        return `<div class="timing-cell ${isNext ? 'is-next' : ''}">
-            <div class="t-name">${PRAYER_LABELS[key]}</div>
-            <div class="t-time">${escapeHtml(timeClean)}</div>
-        </div>`;
-    }).join('');
-}
-
-function renderHijriLine() {
-    const el = document.getElementById('hijriDateLine');
-    const h = window.appState.hijriToday;
-    if (!el || !h) return;
-    el.textContent = `${h.day} ${h.month.en} ${h.year} AH`;
-}
-
-function renderFastCard() {
-    const t = window.appState.todayTimings;
-    if (!t) return;
-    document.getElementById('suhoorTime').textContent = (t.Imsak || t.Fajr || '--:--').split(' ')[0];
-    document.getElementById('iftarTime').textContent = (t.Maghrib || '--:--').split(' ')[0];
-}
-
-/**
- * Parses a "HH:MM" (24h) time string against today's date in the browser's
- * local time. AlAdhan returns times already adjusted for the location's
- * timezone, so we treat them as wall-clock times for "now".
- */
-function timeStringToTodayDate(timeStr) {
-    const clean = (timeStr || '').split(' ')[0];
-    const [h, m] = clean.split(':').map(Number);
-    if (Number.isNaN(h) || Number.isNaN(m)) return null;
-    const d = new Date();
-    d.setHours(h, m, 0, 0);
-    return d;
-}
-
-function updateNextPrayer() {
-    const t = window.appState.todayTimings;
-    if (!t) return;
-
-    const now = new Date();
-    let nextKey = null;
-    let nextDate = null;
-
-    for (const key of COUNTDOWN_PRAYERS) {
-        const candidate = timeStringToTodayDate(t[key]);
-        if (candidate && candidate > now) {
-            nextKey = key;
-            nextDate = candidate;
-            break;
-        }
+    const db = loadDB();
+    if(!db[val]){
+      showToast("No account found for this email 鈥� create one first.");
+      field.classList.add('error');
+      field.querySelector('.field-error').textContent = "We couldn't find an account with that email.";
+      return;
     }
 
-    // All of today's prayers have passed — next is tomorrow's Fajr.
-    // We show today's Fajr time as a placeholder estimate and re-fetch at midnight.
-    if (!nextKey) {
-        nextKey = 'Fajr';
-        const tomorrowFajr = timeStringToTodayDate(t.Fajr);
-        if (tomorrowFajr) tomorrowFajr.setDate(tomorrowFajr.getDate() + 1);
-        nextDate = tomorrowFajr;
+    pendingEmail = val;
+    document.getElementById('sp-email').textContent = val;
+    document.getElementById('sp-avatar').textContent = initials(db[val].name, val);
+    document.getElementById('sp-input').value = '';
+    document.getElementById('sp-field').classList.remove('error');
+    goTo('signin-password');
+  }
+
+  // ---- Step 2: password ----
+  function submitPassword(){
+    const input = document.getElementById('sp-input');
+    const field = document.getElementById('sp-field');
+    const val = input.value;
+
+    const db = loadDB();
+    const user = db[pendingEmail];
+
+    if(!user || user.password !== val){
+      field.classList.add('error');
+      return;
+    }
+    field.classList.remove('error');
+
+    currentUser = { email: pendingEmail, name: user.name };
+    enterDashboard();
+  }
+
+  // ---- Signup ----
+  function submitSignup(){
+    const name = document.getElementById('su-name');
+    const email = document.getElementById('su-email');
+    const pass = document.getElementById('su-pass');
+
+    const nameField = document.getElementById('su-name-field');
+    const emailField = document.getElementById('su-email-field');
+    const passField = document.getElementById('su-pass-field');
+
+    let valid = true;
+
+    if(name.value.trim().length < 1){ nameField.classList.add('error'); valid = false; }
+    else nameField.classList.remove('error');
+
+    if(!isValidEmail(email.value)){ emailField.classList.add('error'); valid = false; }
+    else emailField.classList.remove('error');
+
+    if(pass.value.length < 6){ passField.classList.add('error'); valid = false; }
+    else passField.classList.remove('error');
+
+    if(!valid) return;
+
+    const db = loadDB();
+    const emailVal = email.value.trim();
+
+    if(db[emailVal]){
+      emailField.classList.add('error');
+      document.getElementById('su-email-error').textContent = 'An account with this email already exists.';
+      return;
     }
 
-    window.appState.nextPrayerKey = nextKey;
-    window.appState.nextPrayerTimestamp = nextDate ? nextDate.getTime() : null;
-
-    document.getElementById('nextPrayerName').textContent = PRAYER_LABELS[nextKey];
-    document.getElementById('nextPrayerTime').textContent = (t[nextKey] || '--:--').split(' ')[0];
-    renderTimingsGrid();
-    tickCountdown();
-}
-
-function tickCountdown() {
-    const target = window.appState.nextPrayerTimestamp;
-    const el = document.getElementById('nextPrayerCountdown');
-    if (!target || !el) return;
-
-    const diffMs = target - Date.now();
-    if (diffMs <= 0) {
-        // Time to refresh — the prayer has arrived.
-        fetchPrayerTimings();
-        return;
-    }
-    const totalMinutes = Math.floor(diffMs / 60000);
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
-    el.innerHTML = hours > 0
-        ? `${hours}h ${minutes}m`
-        : `${minutes}m`;
-}
-
-setInterval(tickCountdown, 30000);
-
-// =========================================================================
-// TASBIH COUNTER — fully client-side, persists per-dhikr counts locally.
-// =========================================================================
-
-const TASBIH_PRESETS = [
-    { id: 'subhanallah', arabic: 'سُبْحَانَ اللَّهِ', translit: 'SubhanAllah', target: 33 },
-    { id: 'alhamdulillah', arabic: 'الْحَمْدُ لِلَّهِ', translit: 'Alhamdulillah', target: 33 },
-    { id: 'allahuakbar', arabic: 'اللَّهُ أَكْبَرُ', translit: 'Allahu Akbar', target: 34 },
-    { id: 'astaghfirullah', arabic: 'أَسْتَغْفِرُ اللَّهَ', translit: 'Astaghfirullah', target: 100 },
-    { id: 'custom', arabic: '', translit: 'Custom Count', target: 0 }
-];
-
-window.initTasbih = function initTasbih() {
-    const root = document.getElementById('tasbihRoot');
-    if (root.dataset.initialized) return;
-    root.dataset.initialized = 'true';
-
-    const state = loadFromStorage('sakeenah_tasbih', { activeId: 'subhanallah', counts: {} });
-
-    function render() {
-        const active = TASBIH_PRESETS.find(p => p.id === state.activeId) || TASBIH_PRESETS[0];
-        const count = state.counts[active.id] || 0;
-        const target = active.target;
-        const pct = target > 0 ? Math.min(100, Math.round((count / target) * 100)) : 0;
-
-        root.innerHTML = `
-            <div class="panel" style="text-align:center;">
-                <div class="arabic" style="font-size:1.8rem; color:var(--gold-soft); margin-bottom:0.3rem;">${escapeHtml(active.arabic)}</div>
-                <div style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.25rem;">${escapeHtml(active.translit)}</div>
-
-                <button id="tasbihTapBtn" style="
-                    width:160px; height:160px; border-radius:50%; border:3px solid var(--emerald);
-                    background:var(--bg-elevated); color:var(--text-main); font-size:2.6rem; font-weight:800;
-                    font-variant-numeric:tabular-nums; cursor:pointer; margin:0 auto 1rem; display:block;
-                    transition: transform 0.08s;
-                ">${count}</button>
-
-                ${target > 0 ? `
-                    <div style="font-size:0.78rem; color:var(--text-dim); margin-bottom:0.5rem;">${count} / ${target}</div>
-                    <div style="background:var(--bg-elevated); border-radius:9999px; height:6px; overflow:hidden; margin-bottom:1.25rem;">
-                        <div style="background:var(--emerald-bright); height:100%; width:${pct}%; transition: width 0.2s;"></div>
-                    </div>
-                ` : `<div style="margin-bottom:1.25rem;"></div>`}
-
-                <div style="display:flex; gap:0.5rem; justify-content:center;">
-                    <button class="btn btn-secondary" id="tasbihResetBtn"><i class="fa-solid fa-rotate-left"></i> Reset</button>
-                </div>
-            </div>
-
-            <div class="panel">
-                <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.75rem; font-weight:600;">Choose Dhikr</div>
-                <div style="display:flex; flex-direction:column; gap:0.5rem;">
-                    ${TASBIH_PRESETS.map(p => `
-                        <button class="tasbih-preset-btn" data-id="${p.id}" style="
-                            display:flex; justify-content:space-between; align-items:center;
-                            background:${p.id === state.activeId ? 'var(--bg-surface-hover)' : 'var(--bg-elevated)'};
-                            border:1px solid ${p.id === state.activeId ? 'var(--emerald)' : 'var(--border-color)'};
-                            border-radius:0.5rem; padding:0.6rem 0.9rem; cursor:pointer; color:var(--text-main); text-align:left;
-                        ">
-                            <span>${escapeHtml(p.translit)}</span>
-                            <span style="color:var(--text-dim); font-size:0.8rem;">${state.counts[p.id] || 0}${p.target ? ' / ' + p.target : ''}</span>
-                        </button>
-                    `).join('')}
-                </div>
-            </div>
-        `;
-
-        document.getElementById('tasbihTapBtn').addEventListener('click', () => {
-            state.counts[active.id] = (state.counts[active.id] || 0) + 1;
-            saveToStorage('sakeenah_tasbih', state);
-            // Subtle haptic feedback on supported devices
-            if (navigator.vibrate) navigator.vibrate(10);
-            render();
-        });
-        document.getElementById('tasbihResetBtn').addEventListener('click', () => {
-            state.counts[active.id] = 0;
-            saveToStorage('sakeenah_tasbih', state);
-            render();
-        });
-        root.querySelectorAll('.tasbih-preset-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                state.activeId = btn.dataset.id;
-                saveToStorage('sakeenah_tasbih', state);
-                render();
-            });
-        });
-    }
-
-    render();
-};
-
-
-document.addEventListener('DOMContentLoaded', () => {
-    initSettingsFromStorage();
-
-    const savedLocation = loadFromStorage('sakeenah_location', null);
-    const cachedTimings = loadFromStorage('sakeenah_last_timings', null);
-
-    if (cachedTimings) {
-        window.appState.todayTimings = cachedTimings.timings;
-        window.appState.hijriToday = cachedTimings.hijri;
-        renderTimingsGrid();
-        renderHijriLine();
-        renderFastCard();
-        updateNextPrayer();
-    }
-
-    if (savedLocation) {
-        window.appState.latitude = savedLocation.latitude;
-        window.appState.longitude = savedLocation.longitude;
-        window.appState.locationLabel = savedLocation.label;
-        document.getElementById('locationLabel').textContent = savedLocation.label;
-        fetchPrayerTimings();
-    } else {
-        // First visit — ask for geolocation automatically.
-        requestGeolocation(true);
-    }
-});
-
-// =========================================================================
-// HIJRI CALENDAR — powered by AlAdhan's gToHCalendar endpoint, which maps
-// a Gregorian month onto its corresponding Hijri dates. No API key needed.
-// Note: this is a date-mapping calendar, not location-dependent the way
-// prayer timings are, since the Hijri calendar follows lunar months.
-// =========================================================================
-
-window.calendarState = { viewMonth: new Date().getMonth() + 1, viewYear: new Date().getFullYear(), data: null };
-
-window.initCalendar = function initCalendar() {
-    const root = document.getElementById('calendarRoot');
-    if (root.dataset.initialized) return;
-    root.dataset.initialized = 'true';
-    fetchHijriCalendarMonth();
-};
-
-async function fetchHijriCalendarMonth() {
-    const root = document.getElementById('calendarRoot');
-    root.innerHTML = `<div class="status-banner"><i class="fa-solid fa-circle-notch fa-spin"></i><span>Loading Hijri calendar…</span></div>`;
-
-    const { viewMonth, viewYear } = window.calendarState;
-    try {
-        const url = `https://api.aladhan.com/v1/gToHCalendar/${viewMonth}/${viewYear}`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (data.code !== 200) throw new Error(data.status || 'API error');
-
-        window.calendarState.data = data.data;
-        renderHijriCalendar();
-    } catch (e) {
-        console.error('Hijri calendar fetch failed:', e);
-        root.innerHTML = `<div class="status-banner error"><i class="fa-solid fa-triangle-exclamation"></i><span>Couldn't load the calendar right now (network issue). <button class="btn-inline" onclick="fetchHijriCalendarMonth()">Retry</button></span></div>`;
-    }
-}
-
-function renderHijriCalendar() {
-    const root = document.getElementById('calendarRoot');
-    const days = window.calendarState.data;
-    if (!days || days.length === 0) return;
-
-    const firstDay = days[0];
-    const lastDay = days[days.length - 1];
-    const monthLabel = firstDay.gregorian.month.en + ' ' + firstDay.gregorian.year;
-    const hijriSpan = firstDay.hijri.month.en === lastDay.hijri.month.en
-        ? `${firstDay.hijri.month.en} ${firstDay.hijri.year} AH`
-        : `${firstDay.hijri.month.en} – ${lastDay.hijri.month.en} ${lastDay.hijri.year} AH`;
-
-    const todayStr = new Date().toDateString();
-
-    root.innerHTML = `
-        <div class="panel" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-            <button class="btn-outline-sm" onclick="changeCalendarMonth(-1)"><i class="fa-solid fa-chevron-left"></i></button>
-            <div style="text-align:center;">
-                <div style="font-weight:700; color:#fff;">${escapeHtml(monthLabel)}</div>
-                <div style="font-size:0.78rem; color:var(--gold-soft);">${escapeHtml(hijriSpan)}</div>
-            </div>
-            <button class="btn-outline-sm" onclick="changeCalendarMonth(1)"><i class="fa-solid fa-chevron-right"></i></button>
-        </div>
-        <div class="panel" style="padding:0.75rem;">
-            <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:0.3rem; font-size:0.7rem; color:var(--text-dim); text-align:center; margin-bottom:0.4rem;">
-                ${['S','M','T','W','T','F','S'].map(d => `<div>${d}</div>`).join('')}
-            </div>
-            <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:0.3rem;">
-                ${renderCalendarCells(days)}
-            </div>
-        </div>
-    `;
-
-    function isToday(dayObj) {
-        const d = new Date(`${dayObj.gregorian.year}-${dayObj.gregorian.month.number}-${dayObj.gregorian.day}`);
-        return d.toDateString() === todayStr;
-    }
-
-    function renderCalendarCells(daysArr) {
-        const firstWeekday = new Date(`${daysArr[0].gregorian.year}-${daysArr[0].gregorian.month.number}-${daysArr[0].gregorian.day}`).getDay();
-        const blanks = Array(firstWeekday).fill('<div></div>').join('');
-        const cells = daysArr.map(d => {
-            const today = isToday(d);
-            return `<div style="
-                text-align:center; padding:0.4rem 0.1rem; border-radius:0.4rem;
-                background:${today ? 'var(--emerald)' : 'transparent'};
-            ">
-                <div style="font-size:0.85rem; font-weight:${today ? '700' : '500'}; color:${today ? '#fff' : 'var(--text-main)'};">${d.gregorian.day}</div>
-                <div style="font-size:0.62rem; color:${today ? 'rgba(255,255,255,0.85)' : 'var(--text-dim)'};">${d.hijri.day}</div>
-            </div>`;
-        }).join('');
-        return blanks + cells;
-    }
-}
-
-window.changeCalendarMonth = function changeCalendarMonth(delta) {
-    let { viewMonth, viewYear } = window.calendarState;
-    viewMonth += delta;
-    if (viewMonth > 12) { viewMonth = 1; viewYear++; }
-    if (viewMonth < 1) { viewMonth = 12; viewYear--; }
-    window.calendarState.viewMonth = viewMonth;
-    window.calendarState.viewYear = viewYear;
-    fetchHijriCalendarMonth();
-};
-
-// =========================================================================
-// QURAN — powered by the free AlQuran Cloud API (api.alquran.cloud).
-// No API key, no signup, CORS-enabled. We fetch Arabic (quran-uthmani)
-// and an English translation (en.sahih, Sahih International) together via
-// the multi-edition endpoint, and cache surah list once since it's static.
-// =========================================================================
-
-window.quranState = { surahList: null, currentSurah: null, surahCache: {} };
-
-window.initQuran = function initQuran() {
-    const root = document.getElementById('quranRoot');
-    if (root.dataset.initialized) return;
-    root.dataset.initialized = 'true';
-    fetchSurahList();
-};
-
-async function fetchSurahList() {
-    const root = document.getElementById('quranRoot');
-    root.innerHTML = `<div class="status-banner"><i class="fa-solid fa-circle-notch fa-spin"></i><span>Loading the list of surahs…</span></div>`;
-
-    try {
-        const res = await fetch('https://api.alquran.cloud/v1/surah');
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (data.code !== 200) throw new Error(data.status || 'API error');
-
-        window.quranState.surahList = data.data;
-        renderSurahList();
-    } catch (e) {
-        console.error('Surah list fetch failed:', e);
-        root.innerHTML = `<div class="status-banner error"><i class="fa-solid fa-triangle-exclamation"></i><span>Couldn't load the Quran index right now (network issue). <button class="btn-inline" onclick="fetchSurahList()">Retry</button></span></div>`;
-    }
-}
-
-function renderSurahList() {
-    const root = document.getElementById('quranRoot');
-    const list = window.quranState.surahList;
-
-    root.innerHTML = `
-        <div class="form-group" style="margin-bottom:1rem;">
-            <input type="text" id="surahSearchInput" placeholder="Search surahs by name or number…">
-        </div>
-        <div class="panel" style="padding:0.5rem;">
-            <div id="surahListContainer" style="display:flex; flex-direction:column; gap:0.3rem; max-height:60vh; overflow-y:auto;"></div>
-        </div>
-    `;
-
-    function renderFiltered(query) {
-        const q = (query || '').toLowerCase();
-        const filtered = list.filter(s =>
-            s.englishName.toLowerCase().includes(q) ||
-            s.englishNameTranslation.toLowerCase().includes(q) ||
-            String(s.number).includes(q)
-        );
-        const container = document.getElementById('surahListContainer');
-        container.innerHTML = filtered.map(s => `
-            <button class="surah-row-btn" data-surah="${s.number}" style="
-                display:flex; justify-content:space-between; align-items:center; width:100%;
-                background:var(--bg-elevated); border:1px solid var(--border-color); border-radius:0.5rem;
-                padding:0.65rem 0.9rem; cursor:pointer; text-align:left; color:var(--text-main);
-            ">
-                <span style="display:flex; align-items:center; gap:0.6rem;">
-                    <span style="
-                        width:28px; height:28px; border-radius:50%; border:1px solid var(--emerald);
-                        display:flex; align-items:center; justify-content:center; font-size:0.7rem; color:var(--emerald-bright); flex-shrink:0;
-                    ">${s.number}</span>
-                    <span>
-                        <div style="font-size:0.9rem;">${escapeHtml(s.englishName)}</div>
-                        <div style="font-size:0.72rem; color:var(--text-dim);">${escapeHtml(s.englishNameTranslation)} • ${s.numberOfAyahs} ayahs</div>
-                    </span>
-                </span>
-                <span class="arabic" style="color:var(--gold-soft); font-size:1.1rem;">${escapeHtml(s.name)}</span>
-            </button>
-        `).join('');
-
-        container.querySelectorAll('.surah-row-btn').forEach(btn => {
-            btn.addEventListener('click', () => openSurah(Number(btn.dataset.surah)));
-        });
-    }
-
-    renderFiltered('');
-    document.getElementById('surahSearchInput').addEventListener('input', (e) => renderFiltered(e.target.value));
-}
-
-async function openSurah(surahNumber) {
-    const root = document.getElementById('quranRoot');
-    window.quranState.currentSurah = surahNumber;
-
-    if (window.quranState.surahCache[surahNumber]) {
-        renderSurahReader(window.quranState.surahCache[surahNumber]);
-        return;
-    }
-
-    root.innerHTML = `<div class="status-banner"><i class="fa-solid fa-circle-notch fa-spin"></i><span>Loading surah…</span></div>`;
-
-    try {
-        const url = `https://api.alquran.cloud/v1/surah/${surahNumber}/editions/quran-uthmani,en.sahih`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (data.code !== 200) throw new Error(data.status || 'API error');
-
-        window.quranState.surahCache[surahNumber] = data.data;
-        renderSurahReader(data.data);
-    } catch (e) {
-        console.error('Surah fetch failed:', e);
-        root.innerHTML = `<div class="status-banner error"><i class="fa-solid fa-triangle-exclamation"></i><span>Couldn't load this surah right now (network issue). <button class="btn-inline" onclick="openSurah(${surahNumber})">Retry</button></span></div>`;
-    }
-}
-
-function renderSurahReader(editions) {
-    const root = document.getElementById('quranRoot');
-    const arabicEd = editions.find(e => e.edition.identifier === 'quran-uthmani');
-    const englishEd = editions.find(e => e.edition.identifier === 'en.sahih');
-    if (!arabicEd) return;
-
-    const ayahCount = arabicEd.ayahs.length;
-    const versesHtml = arabicEd.ayahs.map((ayah, i) => {
-        const englishText = englishEd ? englishEd.ayahs[i].text : '';
-        return `
-            <div style="border-bottom:1px solid var(--border-color); padding:1rem 0;">
-                <div style="display:flex; gap:0.6rem; align-items:baseline; margin-bottom:0.5rem;">
-                    <span style="
-                        width:24px; height:24px; border-radius:50%; background:var(--bg-elevated); border:1px solid var(--emerald);
-                        display:flex; align-items:center; justify-content:center; font-size:0.65rem; color:var(--emerald-bright); flex-shrink:0;
-                    ">${ayah.numberInSurah}</span>
-                </div>
-                <div class="arabic" style="font-size:1.5rem; text-align:right; color:var(--text-main); line-height:2; margin-bottom:0.6rem;" dir="rtl">${escapeHtml(ayah.text)}</div>
-                ${englishText ? `<div style="font-size:0.88rem; color:var(--text-muted); line-height:1.6;">${escapeHtml(englishText)}</div>` : ''}
-            </div>
-        `;
-    }).join('');
-
-    root.innerHTML = `
-        <button class="btn-outline-sm" style="margin-bottom:1rem;" onclick="backToSurahList()"><i class="fa-solid fa-arrow-left"></i> Back to Surahs</button>
-        <div class="panel" style="text-align:center; margin-bottom:1rem;">
-            <div class="arabic" style="font-size:1.8rem; color:var(--gold-soft);">${escapeHtml(arabicEd.name)}</div>
-            <div style="color:var(--text-muted); font-size:0.85rem; margin-top:0.3rem;">${escapeHtml(arabicEd.englishName)} — ${escapeHtml(arabicEd.englishNameTranslation)}</div>
-            <div style="color:var(--text-dim); font-size:0.75rem; margin-top:0.3rem;">${arabicEd.revelationType} • ${ayahCount} Ayahs</div>
-        </div>
-        <div class="panel">${versesHtml}</div>
-    `;
-}
-
-window.backToSurahList = function backToSurahList() {
-    renderSurahList();
-};
-
-// =========================================================================
-// ZAKAT CALCULATOR — pure client-side calculation, no API.
-// Rules used (standard across major schools, sourced from Islamic Relief,
-// Muslim Aid, and HalalWallet zakat guides):
-//   - Nisab (gold standard): value of 87.48g of gold
-//   - Nisab (silver standard): value of 612.36g of silver — lower threshold,
-//     so more cautious / inclusive of more payers, preferred by many scholars
-//   - Zakat rate: 2.5% of total zakatable wealth, once it equals or exceeds
-//     the chosen nisab, held for one full lunar year (hawl)
-// Since there's no free, real-time, no-key gold/silver price API, the user
-// enters today's price per gram themselves — we never fabricate a "live"
-// price, since an inaccurate nisab could lead someone to under- or over-pay.
-// =========================================================================
-
-const ZAKAT_RATE = 0.025;
-const NISAB_GOLD_GRAMS = 87.48;
-const NISAB_SILVER_GRAMS = 612.36;
-
-window.initZakat = function initZakat() {
-    const root = document.getElementById('zakatRoot');
-    if (root.dataset.initialized) return;
-    root.dataset.initialized = 'true';
-    renderZakatForm();
-};
-
-function renderZakatForm() {
-    const root = document.getElementById('zakatRoot');
-    const saved = loadFromStorage('sakeenah_zakat_inputs', {
-        nisabStandard: 'silver',
-        goldPricePerGram: '',
-        silverPricePerGram: '',
-        cash: '', bankSavings: '', investments: '', goldGrams: '', silverGrams: '', businessAssets: '', debtsOwedToYou: '',
-        immediateDebts: '', dueExpenses: ''
-    });
-
-    root.innerHTML = `
-        <div class="panel">
-            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.4rem; font-weight:600;">Nisab Standard</div>
-            <div class="radio-row" style="margin-bottom:0.5rem;">
-                <label class="radio-pill zakat-standard-pill" data-standard="silver"><input type="radio" name="nisabStandard" value="silver"> Silver (lower, more cautious)</label>
-                <label class="radio-pill zakat-standard-pill" data-standard="gold"><input type="radio" name="nisabStandard" value="gold"> Gold (higher threshold)</label>
-            </div>
-            <div style="font-size:0.75rem; color:var(--text-dim);">Scholars differ on this choice — many recommend the silver standard since it includes more people in the obligation, benefiting more recipients. Consult a scholar if unsure.</div>
-        </div>
-
-        <div class="panel">
-            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.75rem; font-weight:600;">Today's Precious Metal Prices</div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Gold price (per gram, your currency)</label>
-                    <input type="number" min="0" step="0.01" id="goldPricePerGram" placeholder="e.g. 75.00" value="${escapeHtml(saved.goldPricePerGram)}">
-                </div>
-                <div class="form-group">
-                    <label>Silver price (per gram)</label>
-                    <input type="number" min="0" step="0.01" id="silverPricePerGram" placeholder="e.g. 0.95" value="${escapeHtml(saved.silverPricePerGram)}">
-                </div>
-            </div>
-            <div style="font-size:0.75rem; color:var(--text-dim);">Prices change daily — check a live source (your local jeweler, bank, or a precious metals site) before calculating.</div>
-        </div>
-
-        <div class="panel">
-            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.75rem; font-weight:600;">Zakatable Assets</div>
-            <div class="form-group"><label>Cash on hand</label><input type="number" min="0" step="0.01" id="zCash" value="${escapeHtml(saved.cash)}" placeholder="0"></div>
-            <div class="form-group"><label>Bank savings / accounts</label><input type="number" min="0" step="0.01" id="zBank" value="${escapeHtml(saved.bankSavings)}" placeholder="0"></div>
-            <div class="form-group"><label>Investments / stocks (market value)</label><input type="number" min="0" step="0.01" id="zInvest" value="${escapeHtml(saved.investments)}" placeholder="0"></div>
-            <div class="form-row">
-                <div class="form-group"><label>Gold owned (grams)</label><input type="number" min="0" step="0.01" id="zGoldG" value="${escapeHtml(saved.goldGrams)}" placeholder="0"></div>
-                <div class="form-group"><label>Silver owned (grams)</label><input type="number" min="0" step="0.01" id="zSilverG" value="${escapeHtml(saved.silverGrams)}" placeholder="0"></div>
-            </div>
-            <div class="form-group"><label>Business assets / trade inventory</label><input type="number" min="0" step="0.01" id="zBusiness" value="${escapeHtml(saved.businessAssets)}" placeholder="0"></div>
-            <div class="form-group"><label>Money owed to you (likely to be repaid)</label><input type="number" min="0" step="0.01" id="zReceivable" value="${escapeHtml(saved.debtsOwedToYou)}" placeholder="0"></div>
-        </div>
-
-        <div class="panel">
-            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.75rem; font-weight:600;">Deductible Liabilities</div>
-            <div class="form-group"><label>Debts due within 12 months</label><input type="number" min="0" step="0.01" id="zDebts" value="${escapeHtml(saved.immediateDebts)}" placeholder="0"></div>
-            <div class="form-group"><label>Other immediate due expenses</label><input type="number" min="0" step="0.01" id="zExpenses" value="${escapeHtml(saved.dueExpenses)}" placeholder="0"></div>
-        </div>
-
-        <button class="btn btn-primary btn-block" id="zakatCalcBtn" style="margin-bottom:1rem;">Calculate Zakat</button>
-        <div id="zakatResultArea"></div>
-    `;
-
-    // Restore selected standard
-    root.querySelectorAll('.zakat-standard-pill').forEach(pill => {
-        const checked = pill.dataset.standard === saved.nisabStandard;
-        pill.classList.toggle('checked', checked);
-        pill.querySelector('input').checked = checked;
-        pill.addEventListener('click', () => {
-            root.querySelectorAll('.zakat-standard-pill').forEach(p => p.classList.remove('checked'));
-            pill.classList.add('checked');
-            pill.querySelector('input').checked = true;
-        });
-    });
-
-    document.getElementById('zakatCalcBtn').addEventListener('click', calculateZakat);
-}
-
-function calculateZakat() {
-    const num = (id) => Math.max(0, parseFloat(document.getElementById(id).value) || 0);
-
-    const standardPill = document.querySelector('.zakat-standard-pill.checked');
-    const nisabStandard = standardPill ? standardPill.dataset.standard : 'silver';
-
-    const goldPrice = num('goldPricePerGram');
-    const silverPrice = num('silverPricePerGram');
-
-    const inputs = {
-        nisabStandard,
-        goldPricePerGram: document.getElementById('goldPricePerGram').value,
-        silverPricePerGram: document.getElementById('silverPricePerGram').value,
-        cash: document.getElementById('zCash').value,
-        bankSavings: document.getElementById('zBank').value,
-        investments: document.getElementById('zInvest').value,
-        goldGrams: document.getElementById('zGoldG').value,
-        silverGrams: document.getElementById('zSilverG').value,
-        businessAssets: document.getElementById('zBusiness').value,
-        debtsOwedToYou: document.getElementById('zReceivable').value,
-        immediateDebts: document.getElementById('zDebts').value,
-        dueExpenses: document.getElementById('zExpenses').value
+    db[emailVal] = {
+      name: name.value.trim(),
+      password: pass.value,
+      todayCount: 0,
+      lastDate: new Date().toDateString(),
+      history: []
     };
-    saveToStorage('sakeenah_zakat_inputs', inputs);
+    saveDB(db);
 
-    const resultArea = document.getElementById('zakatResultArea');
+    currentUser = { email: emailVal, name: name.value.trim() };
+    showToast('Account created!');
+    enterDashboard();
+  }
 
-    const priceNeeded = nisabStandard === 'gold' ? goldPrice : silverPrice;
-    if (priceNeeded <= 0) {
-        resultArea.innerHTML = `<div class="status-banner error"><i class="fa-solid fa-triangle-exclamation"></i><span>Please enter the current ${nisabStandard} price per gram to calculate your nisab threshold.</span></div>`;
-        return;
+  // ---- Dashboard ----
+  function enterDashboard(){
+    const db = loadDB();
+    const user = db[currentUser.email];
+    const today = new Date().toDateString();
+
+    // Roll previous day into history if date changed
+    if(user.lastDate !== today){
+      if(user.todayCount > 0){
+        user.history = user.history || [];
+        user.history.unshift({ date: user.lastDate, count: user.todayCount });
+        user.history = user.history.slice(0, 10);
+      }
+      user.todayCount = 0;
+      user.lastDate = today;
+      db[currentUser.email] = user;
+      saveDB(db);
     }
 
-    const goldValue = num('zGoldG') * goldPrice;
-    const silverValue = num('zSilverG') * silverPrice;
+    document.getElementById('dash-name').textContent = user.name;
+    document.getElementById('dash-email').textContent = currentUser.email;
+    document.getElementById('dash-avatar').textContent = initials(user.name, currentUser.email);
+    document.getElementById('count-display').textContent = user.todayCount;
 
-    const totalAssets = num('zCash') + num('zBank') + num('zInvest') + goldValue + silverValue + num('zBusiness') + num('zReceivable');
-    const totalLiabilities = num('zDebts') + num('zExpenses');
-    const netZakatableWealth = Math.max(0, totalAssets - totalLiabilities);
+    renderHistory(user.history || []);
+    goTo('dashboard');
+  }
 
-    const nisabThreshold = nisabStandard === 'gold'
-        ? NISAB_GOLD_GRAMS * goldPrice
-        : NISAB_SILVER_GRAMS * silverPrice;
+  function renderHistory(history){
+    const el = document.getElementById('history-list');
+    if(!history || history.length === 0){
+      el.innerHTML = '<p class="empty-history">No previous sessions yet.</p>';
+      return;
+    }
+    el.innerHTML = history.map(h =>
+      `<div class="history-row"><span class="h-date">${h.date}</span><span class="h-count">${h.count}</span></div>`
+    ).join('');
+  }
 
-    const meetsNisab = netZakatableWealth >= nisabThreshold;
-    const zakatDue = meetsNisab ? netZakatableWealth * ZAKAT_RATE : 0;
+  function incrementCount(){
+    const db = loadDB();
+    const user = db[currentUser.email];
+    user.todayCount = (user.todayCount || 0) + 1;
+    db[currentUser.email] = user;
+    saveDB(db);
+    document.getElementById('count-display').textContent = user.todayCount;
 
-    resultArea.innerHTML = `
-        <div class="panel" style="text-align:center; border-color:${meetsNisab ? 'var(--emerald)' : 'var(--border-color)'};">
-            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.4rem;">Net Zakatable Wealth</div>
-            <div style="font-size:1.4rem; font-weight:700; color:#fff; margin-bottom:1rem;">${formatMoney(netZakatableWealth)}</div>
+    if(navigator.vibrate) navigator.vibrate(10);
+  }
 
-            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.4rem;">Nisab Threshold (${nisabStandard})</div>
-            <div style="font-size:1rem; color:var(--text-main); margin-bottom:1rem;">${formatMoney(nisabThreshold)}</div>
+  function resetToday(){
+    const db = loadDB();
+    const user = db[currentUser.email];
+    user.todayCount = 0;
+    db[currentUser.email] = user;
+    saveDB(db);
+    document.getElementById('count-display').textContent = 0;
+    showToast('Today\'s count reset.');
+  }
 
-            ${meetsNisab ? `
-                <div style="border-top:1px solid var(--border-color); padding-top:1rem;">
-                    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.4rem;">Zakat Due (2.5%)</div>
-                    <div style="font-size:2rem; font-weight:800; color:var(--gold-soft);">${formatMoney(zakatDue)}</div>
-                </div>
-            ` : `
-                <div style="border-top:1px solid var(--border-color); padding-top:1rem; color:var(--text-muted); font-size:0.85rem;">
-                    Your wealth is below the nisab threshold, so Zakat isn't currently obligatory — unless this wealth has been held above nisab for a full lunar year at some point.
-                </div>
-            `}
-        </div>
-        <div class="status-banner" style="margin-top:0;">
-            <i class="fa-solid fa-circle-info"></i>
-            <span>This is a calculation aid, not a religious ruling. Zakat also requires that wealth be held for one full lunar year (hawl) above nisab. If your situation involves debts, jewelry-for-personal-use, retirement accounts, or business inventory, consider consulting a scholar.</span>
-        </div>
-    `;
-}
+  function logout(){
+    currentUser = null;
+    pendingEmail = '';
+    document.getElementById('se-input').value = '';
+    document.getElementById('se-field').classList.remove('error');
+    goTo('signin-email');
+  }
 
-function formatMoney(value) {
-    return value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
+  // Enter-key support
+  document.getElementById('se-input').addEventListener('keydown', e => { if(e.key === 'Enter') submitEmail(); });
+  document.getElementById('sp-input').addEventListener('keydown', e => { if(e.key === 'Enter') submitPassword(); });
+  document.getElementById('su-pass').addEventListener('keydown', e => { if(e.key === 'Enter') submitSignup(); });
 </script>
+
 </body>
 </html>
