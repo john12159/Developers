@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/x-icon" href="/favicon.png">
+<title>Google</title>
+<style>
+ 
+
+  :root{
+    --sage: #0058FF;
+    --sage-dark: #0541b1;
+    --sage-light: #E8EFE9;
+    --cream: #ffffff;
+    --gold: #000000;
+    --charcoal: #252525;
+    --line: #E2DACA;
+    --muted: #6B6459;
+    --error: #000000;
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin: 0;
+    background: var(--cream);
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: var(--charcoal);
+    min-height: 100vh;
+  }
+
+  .screen{
+    display: none;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+  .screen.active{ display: flex; }
+
+  .page{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 32px 24px 0;
+    max-width: 480px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* Desktop: card with left heading column + right form column, like a typical sign-in card */
+  @media (min-width: 760px){
+    #signin-email, #signin-password, #signup{
+      align-items: center;
+      justify-content: center;
+      background: #f0f4f9;
+    }
+    #signin-email .page, #signin-password .page, #signup .page{
+      flex: none;
+      flex-direction: row;
+      align-items: center;
+      gap: 64px;
+      max-width: 880px;
+      width: 100%;
+      background: #fff;
+      border-radius: 28px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08), 0 24px 48px rgba(255, 255, 255, 0.12);
+      padding: 56px 64px;
+      margin: 40px auto;
+      height: 400px;
+    }
+    #signin-email .page > .auth-left,
+    #signin-password .page > .auth-left,
+    #signup .page > .auth-left{
+      flex: 0 0 300px;
+      height: 200px;
+      margin-top: -150px;
+      margin-left: -22px;
+    }
+    #signin-email .page > .auth-right,
+    #signin-password .page > .auth-right,
+    #signup .page > .auth-right{
+      flex: 1;
+      min-width: 0;
+      margin-top: 95px;
+      margin-left: 50px;
+    }
+    #signin-email footer, #signin-password footer, #signup footer{
+      /* display: none; */
+    }
+    .auth-left .mark{ margin-bottom: 0; }
+    .auth-left h1{ font-size: 2.4rem;color: #1f1f1f;margin-top: 16px; }
+    .auth-left .subtitle{ margin-bottom: 128px; }
+    .auth-right .actions{ margin-top: 40px; padding: 0; }
+    .auth-right .guest-note{ margin-top: 28px; }
+      
+  }
+  @media (min-width: 760px) and (max-width: 899px){
+    #signin-email .page, #signin-password .page, #signup .page{ gap: 40px; padding: 48px; }
+    .auth-left{ flex-basis: 240px; }
+   
+  }
+  @media (max-width: 768px) {
+  .actions {
+    justify-content: space-between; /* Spreads items out on mobile */
+    
+  }
+  footer{
+     
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12.5px;
+    color: var(--muted);
+    flex-wrap: wrap;
+    gap: 12px;
+    width: 190px;
+  }
+}
+
+  .mark{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0px;
+  }
+  .mark svg{ width: 34px; height: 34px; flex-shrink: 0; }
+  .mark span{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: 0.2px;
+    color: #1f1f1f;
+  }
+
+  h1{
+    color: #1f1f1f;
+  color: #1f1f1f;
+  font-family: "Google Sans",roboto,"Noto Sans Myanmar UI","Noto Sans Khmer",arial,sans-serif;
+  font-weight: 400;
+  
+  line-height: 1.25;
+  word-break: break-word;
+  
+  font-size: calc(33/16*1rem);
+  }
+
+  .subtitle{
+    font-size: 15px;
+    color: #1f1f1f;
+    margin: -10px 0 32px;
+    line-height: 1.5;
+  }
+
+  .field{ position: relative; margin-bottom: 16px; }
+  .field input{
+    width: 100%;
+    padding: 17px 16px;
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+    border: 1.5px solid #8f8f8f;
+    border-radius: 8px;
+    background: #fff;
+    color: #202020;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .field input::placeholder{ color: transparent; }
+  .field input:focus{
+    border-color: var(--sage);
+    border-width: 2px;
+    padding: 16.5px 15.5px;
+  }
+  .field.error input{ border-color: var(--error); }
+
+  /* Floating label: centered inside the field at rest,
+     rises to straddle the top border on focus or when filled. */
+  .field label{
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: #6A6A6A;
+    background: transparent;
+    padding: 0 4px;
+    pointer-events: none;
+    transition: top 0.15s ease, font-size 0.15s ease, color 0.15s ease;
+  }
+  .field input:focus + label,
+  .field input:not(:placeholder-shown) + label{
+    top: 0;
+    font-size: 12.5px;
+    background: var(--cream);
+  }
+  .field input:focus + label{ color: #0b57d0; }
+  .field input:not(:placeholder-shown) + label{ color: var(--muted); }
+  .field.error input:focus + label,
+  .field.error input:not(:placeholder-shown) + label{ color: var(--error); }
+
+  .field-error{
+    font-size: 13px;
+    color: var(--error);
+    margin: 6px 2px 0;
+    display: none;
+  }
+  .field.error .field-error{ display: block; }
+
+  .static-field{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+    padding: 8px 16px 8px 10px;
+    width: fit-content;
+    margin-bottom: 30px;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: -10px;
+  }
+  .static-field{
+    display: -moz-inline-box;
+display: inline-flex;
+-moz-box-align: center;
+align-items: center;
+background: #fff;
+background: var(--gm3-sys-color-surface-container-lowest, #fff);
+border: 1px solid var(--gm3-sys-color-outline, #747775);
+color: var(--gm3-sys-color-on-surface, #1f1f1f);
+cursor: pointer;
+font-size: 0.875rem;
+font-weight: 500;
+letter-spacing: .25px;
+max-width: 100%;
+position: relative;
+  }
+  .static-field .avatar{
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    /* background: var(--sage); */
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600;
+    flex-shrink: 0;
+  }
+  .static-field .chev{ color: var(--muted); font-size: 11px; margin-left: 2px; }
+
+  .checkbox-row{
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 4px 2px 0;
+    font-size: 14.5px;
+    color: #1f1f1f;
+    cursor: pointer;
+    user-select: none;
+  }
+  .checkbox-row input {
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--sage-dark); /* Added 'solid' and a fallback color variable */
+  accent-color: var(--sage-dark);
+  cursor: pointer;
+}
+.checkbox-row input {
+  -webkit-appearance: none; /* For Safari */
+  appearance: none;         /* Removes default browser styling */
+  
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--sage-dark);
+  border-radius: 3px;       /* Optional: softens the sharp corners */
+  background-color: #fff;
+  cursor: pointer;
+  
+  display: inline-grid;     /* Centers the checkmark */
+  place-content: center;
+}
+
+/* Styles the checkmark when the box is checked */
+.checkbox-row input:checked {
+  background-color: var(--sage-dark);
+}
+
+/* Generates a custom white checkmark inside the box */
+.checkbox-row input:checked::before {
+  content: "";
+  width: 10px;
+  height: 5px;
+  border-left: 2px solid white;
+  border-bottom: 2px solid white;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+.checkbox-row input {
+  -webkit-appearance: none; /* For Safari */
+  appearance: none;         /* Removes default browser styling */
+  
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #6c6c6c;
+  border-radius: 3px;       /* Optional: softens the sharp corners */
+  background-color: #fff;
+  cursor: pointer;
+  
+  display: inline-grid;     /* Centers the checkmark */
+  place-content: center;
+}
+
+/* Styles the checkmark when the box is checked */
+.checkbox-row input:checked {
+  background-color: var(--sage-dark);
+}
+
+/* Generates a custom white checkmark inside the box */
+.checkbox-row input:checked::before {
+  content: "";
+  width: 10px;
+  height: 5px;
+  border-left: 2px solid white;
+  border-bottom: 2px solid white;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+
+
+
+  .hint{ font-size: 13px; color: #0b57d0; margin: 6px 2px 0; line-height: 1.5; }
+
+  .link-row{ margin-top: 24px; }
+  .link-row a, .link-row button.linklike{
+    color: var(--sage-dark);
+    font-size: 14.5px;
+    font-weight: 500;
+    text-decoration: none;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+  }
+  .link-row a:hover, .link-row button.linklike:hover{ text-decoration: underline; }
+
+  .guest-note{
+    margin-top: 32px;
+    font-size: 13.5px;
+    color: #444746;
+    line-height: 1.6;
+    font-family: "Google Sans", roboto, "Noto Sans Myanmar UI", "Noto Sans Khmer", arial, sans-serif;;
+  }
+  .guest-note a{ color: #0b57d0; text-decoration: none; font-weight: 500; }
+  .guest-note a:hover{ text-decoration: underline; }
+
+  .actions {
+  margin-top: auto;
+  padding: 28px 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: end; 
+  gap: 38px;
+  flex-wrap: wrap;
+  
+}
+@media (max-width: 1024px) { /* Increased from 768px to capture larger mobile/tablet screens */
+  .actions {
+    justify-content: space-between;
+  }
+    
+}
+@media (min-width: 1024px) {
+footer{
+   
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12.5px;
+  color: var(--muted);
+  flex-wrap: wrap;
+  gap: 43px;
+  width: 870px;
+  margin-top: -39px;
+
+  }
+}
+  .actions.single{ justify-content: flex-end; }
+
+  .switch-link{
+    color: #0b57d0;
+    font-family: "Google Sans",roboto,"Noto Sans Myanmar UI","Noto Sans Khmer",arial,sans-serif;
+    font-size: 16px;
+  
+  background: none;
+  border: none;
+  }
+  .switch-link:hover{ text-decoration: underline; }
+
+  button.next{
+    background: #0b57d0;
+    color: #fff;
+    border: none;
+    padding: 12px 26px;
+    border-radius: 999px;
+    font-size: 14.5px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+  }
+  button.next:hover{ background: #0d4eb7; box-shadow: 0 2px 10px rgba(61,92,77,0.25); }
+  button.next:focus-visible{ outline: 2px solid var(--gold); outline-offset: 2px; }
+  button.next:disabled{ opacity: 0.6; cursor: not-allowed; }
+
+
+  .lang select{ border: none; background: transparent; color: var(--muted); font-size: 12.5px; font-family: 'Inter', sans-serif; }
+  .footer-links{ display: flex; gap: 22px; }
+  .footer-links a{ color: var(--muted); text-decoration: none; }
+  .footer-links a:hover{ text-decoration: underline; }
+
+  /* ---- Dashboard ---- */
+  #dashboard .page{ padding-top: 24px; }
+  .dash-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .dash-user{ display: flex; align-items: center; gap: 10px; }
+  .dash-user .avatar{
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--sage);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 14px;
+  }
+  .dash-user .uname{ font-size: 14.5px; font-weight: 600; }
+  .dash-user .uemail{ font-size: 12.5px; color: var(--muted); }
+  .logout-btn{
+    background: none; border: 1.5px solid var(--line); border-radius: 999px;
+    padding: 7px 16px; font-size: 13px; color: var(--muted); cursor: pointer;
+    font-family: 'Inter', sans-serif; font-weight: 500;
+  }
+  .logout-btn:hover{ border-color: var(--sage); color: var(--sage-dark); }
+
+  .counter-card{
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 36px 24px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .counter-card .label{
+    font-size: 13.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .counter-count{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 72px;
+    color: var(--sage-dark);
+    line-height: 1;
+    margin-bottom: 28px;
+  }
+  .tap-btn{
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: var(--sage-dark);
+    color: #fff;
+    border: none;
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 500;
+    cursor: pointer;
+    margin: 0 auto 18px;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.08s ease, background 0.15s ease;
+    box-shadow: 0 8px 24px rgba(44,69,56,0.25);
+  }
+  .tap-btn:active{ transform: scale(0.95); background: var(--sage); }
+
+  .reset-row{ display: flex; justify-content: center; gap: 10px; }
+  .reset-row button{
+    background: none; border: none; color: var(--muted);
+    font-size: 13px; cursor: pointer; font-family: 'Inter', sans-serif;
+    text-decoration: underline;
+  }
+
+  .history{
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px 20px;
+  }
+  .history .h-title{ font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .history-row{
+    display: flex; justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+  }
+  .history-row:last-child{ border-bottom: none; }
+  .history-row .h-date{ color: var(--muted); }
+  .history-row .h-count{ font-weight: 600; color: var(--sage-dark); }
+  .empty-history{ color: var(--muted); font-size: 13.5px; text-align: center; padding: 8px 0; }
+
+  .toast{
+    position: fixed;
+    bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--charcoal);
+    color: #fff;
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+    z-index: 50;
+  }
+  .toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 380px){
+    .footer-links{ gap: 14px; }
+    footer{ font-size: 11.5px; }
+    .counter-count{ font-size: 58px; }
+    .tap-btn{ width: 120px; height: 120px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ===================== SIGN IN STEP 1: EMAIL ===================== -->
+  <div class="screen active" id="signin-email">
+    <div class="page">
+      <div class="auth-left">
+        <div class="mark">
+          <img src="google.png" style="width: 60px; height: 60px;">
+          
+        </div>
+
+        <h1>Sign in</h1>
+        <p class="subtitle">Use your Google Account</p>
+      </div>
+
+      <div class="auth-right">
+        <div class="field" id="se-field">
+          <input type="text" id="se-input" placeholder="Email" autocomplete="username" autofocus>
+          <label for="se-input">Email or phone</label>
+          <p class="field-error">Enter a valid email to continue.</p>
+        </div>
+        <p class="hint">Forgot email?</p>
+
+        <p class="guest-note">
+         Not your computer? Use a private browsing window to sign in. <a href="" aria-label="Learn more about using Guest mode (external, opens in a new window)">Learn more about using Guest mode</a>
+        </p>
+
+        <div class="actions">
+          <button class="switch-link" onclick="goTo('signup')">Create account</button>
+          <button class="next" id="nextBtn" onclick="submitEmail()">Next</button>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="lang"><select><option value="en-US">English (United States)</option>
+    <option value="es-ES">Español (España)</option>
+    <option value="fr-FR">Français (France)</option>
+    <option value="de-DE">Deutsch (Deutschland)</option>
+    <option value="zh-CN">中文 (简体)</option>
+    <option value="ja-JP">日本語 (日本)</option></select></div>
+      <div class="footer-links"><a href="#">Help</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+    </footer>
+  </div>
+
+  <!-- ===================== SIGN IN STEP 2: PASSWORD ===================== -->
+  <div class="screen" id="signin-password">
+    <div class="page">
+      <div class="auth-left">
+        <div class="mark">
+           <img src="google.png" style="width: 60px; height: 60px;">
+          
+        </div>
+        <h1>Welcome</h1>
+        <div class="static-field" onclick="goTo('signin-email')">
+          <span class="avatar" id="sp-avatar">
+    <img src="avtar.png" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; background: none;">
+</span>
+
+          <span id="sp-email">you@example.com</span>
+          <img src="down.png" style="width: 15px;height: 15px;">
+        </div>
+      </div>
+
+      <div class="auth-right">
+        
+
+        <div class="field" id="sp-field">
+          <input type="password" id="sp-input" placeholder="Enter your password" required>
+          <label for="sp-input">Enter your password</label>
+          <p class="field-error" id="sp-error">Incorrect password. Try again.</p>
+        </div>
+        <label class="checkbox-row">
+          <input type="checkbox" onclick="document.getElementById('sp-input').type = this.checked ? 'text' : 'password'">
+          Show password
+        </label>
+
+        
+
+        <div class="actions">
+          <a href="#" style="text-decoration: none; color: #0d4eb7;
+          font-family: Google Sans, Sans Myanmar UI,Noto Sans Khmer,arial,sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0rem;
+  line-height: 1.4285714286;">Forgot password?</a>
+          <button class="next" onclick="submitPassword()">Sign in</button>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="lang"><select><option>English (United States)</option><option value="en-US">English (United States)</option>
+    <option value="es-ES">Español (España)</option>
+    <option value="fr-FR">Français (France)</option>
+    <option value="de-DE">Deutsch (Deutschland)</option>
+    <option value="zh-CN">中文 (简体)</option>
+    <option value="ja-JP">日本語 (日本)</option></select></div>
+      <div class="footer-links"><a href="#">Help</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+    </footer>
+  </div>
+
+  <!-- ===================== SIGN UP ===================== -->
+  <div class="screen" id="signup">
+    <div class="page">
+      <div class="auth-left">
+        <div class="mark">
+          <img src="google.png" style="width: 60px; height: 60px; margin-top: 100px;">
+         
+        </div>
+
+         <a href="#" style="text-decoration: none; color: #0d4eb7;font-family: Google Sans",roboto,"Noto Sans Myanmar UI","Noto Sans Khmer",arial,sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0rem;
+  line-height: 1.4285714286;">Create account</a>
+        <p class="subtitle">Save your tasbih count and pick up where you left off</p>
+      </div>
+
+      <div class="auth-right">
+        <div class="field" id="su-name-field">
+          <input type="text" id="su-name" placeholder="Full name">
+          <label for="su-name">Full name</label>
+          <p class="field-error">Enter your name.</p>
+        </div>
+        <div class="field" id="su-email-field">
+          <input type="text" id="su-email" placeholder="Email">
+          <label for="su-email">Email</label>
+          <p class="field-error" id="su-email-error">Enter a valid email.</p>
+        </div>
+        <div class="field" id="su-pass-field">
+          <input type="password" id="su-pass" placeholder="Password">
+          <label for="su-pass">Password</label>
+          <p class="field-error">Password must be at least 6 characters.</p>
+        </div>
+
+        <div class="actions">
+          <button class="switch-link" onclick="goTo('signin-email')">I already have an account</button>
+          <button class="next" onclick="submitSignup()">Create</button>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="lang"><select><option>English (United States)</option><option value="en-US">English (United States)</option>
+    <option value="es-ES">Español (España)</option>
+    <option value="fr-FR">Français (France)</option>
+    <option value="de-DE">Deutsch (Deutschland)</option>
+    <option value="zh-CN">中文 (简体)</option>
+    <option value="ja-JP">日本語 (日本)</option></select></div>
+      <div class="footer-links"><a href="#">Help</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+    </footer>
+  </div>
+
+  <!-- ===================== DASHBOARD ===================== -->
+  <div class="screen" id="dashboard">
+    <div class="page">
+      <div class="dash-header">
+        <div class="dash-user">
+          <span class="avatar" id="dash-avatar">?</span>
+          <div>
+            <div class="uname" id="dash-name">User</div>
+            <div class="uemail" id="dash-email">you@example.com</div>
+          </div>
+        </div>
+        <button class="logout-btn" onclick="logout()">Sign out</button>
+      </div>
+
+      <div class="counter-card">
+        <div class="label">Today's Tasbih</div>
+        <div class="counter-count" id="count-display">0</div>
+        <button class="tap-btn" onclick="incrementCount()">Tap to count</button>
+        <div class="reset-row">
+          <button onclick="resetToday()">Reset today's count</button>
+        </div>
+      </div>
+
+      <div class="history">
+        <div class="h-title">Recent history</div>
+        <div id="history-list"><p class="empty-history">No previous sessions yet.</p></div>
+      </div>
+    </div>
+    <footer>
+      <div class="lang"><select><option>English (United States)</option></select></div>
+      <div class="footer-links"><a href="#">Help</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+window.addEventListener('pageshow', () => {
+  const inputField = document.getElementById('se-input');
+  if (inputField) {
+    inputField.value = '';
+  }
+});
+
+
+
+  // ---- Storage helpers (localStorage acting as the user-wise "database") ----
+  const DB_KEY = 'prayer_users_db';
+
+  function loadDB(){
+    try { return JSON.parse(localStorage.getItem(DB_KEY)) || {}; }
+    catch(e){ return {}; }
+  }
+  function saveDB(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+
+  let pendingEmail = '';
+  let currentUser = null; // { email, name }
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(()=> t.classList.remove('show'), 2200);
+  }
+
+
+  function isValidEmail(v){
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+  }
+
+  function initials(name, email){
+    const src = (name || email || '?').trim();
+    return src.charAt(0).toUpperCase();
+  }
+
+  // ---- Step 1: email ----
+  function submitEmail(){
+   // 1. Run this immediately on page load to check for a previously saved email
+window.addEventListener('DOMContentLoaded', () => {
+    const spEmail = document.getElementById('sp-email');
+    const emailInput = document.getElementById('se-input');
+    
+    const cachedEmail = localStorage.getItem('userEmail');
+    if (cachedEmail) {
+        if (spEmail) spEmail.textContent = cachedEmail; // Update your span
+        if (emailInput) emailInput.value = cachedEmail; // Fill input if it exists
+    }
+});
+  }
+// 2. This is your main function triggered by your "Next" button
+// 1. Your Screen Router Function
+function goTo(screenId) {
+    // Hide all screens
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    
+    // Find the target screen element
+    const targetScreen = document.getElementById(screenId);
+    if (!targetScreen) {
+        console.error(`Screen with ID "${screenId}" was not found.`);
+        return;
+    }
+    
+    // Show the target screen
+    targetScreen.classList.add('active');
+
+    // CRITICAL FIX: If entering the password screen, pull the email from storage and show it
+    if (screenId === 'signin-password') {
+        const cachedEmail = localStorage.getItem('userEmail');
+        const spEmail = document.getElementById('sp-email');
+        if (spEmail && cachedEmail) {
+            spEmail.textContent = cachedEmail;
+        }
+    }
+}
+
+// 2. Your Next Button Click Function
+function submitEmail() {
+    const emailInput = document.getElementById('se-input');
+
+    if (!emailInput) {
+        console.error("Input field 'se-input' not found.");
+        return;
+    }
+
+    const enteredEmail = emailInput.value.trim();
+
+    if (enteredEmail === "") {
+        alert("Please enter an email address first.");
+        return;
+    }
+
+    // Save locally in the browser
+    localStorage.setItem('userEmail', enteredEmail);
+
+    // Change screen (the goTo function will now handle updating the span text)
+    goTo('signin-password');
+}
+
+
+  // ---- Step 2: password ----
+  function submitPassword(){
+    const passwordInput = document.getElementById('sp-input');
+    if (!passwordInput) return;
+
+    const enteredPassword = passwordInput.value.trim();
+
+    // This manually enforces the 'required' rule in JavaScript
+    if (enteredPassword === "") {
+        alert("Please enter your password first.");
+        return; // Stops execution if field is empty
+    } // Closes the 'if' statement correctly
+
+    // Runs only if a password was successfully entered
+    enterDashboard();
+}
+
+
+  // ---- Signup ----
+  function submitSignup(){
+    const name = document.getElementById('su-name');
+    const email = document.getElementById('su-email');
+    const pass = document.getElementById('su-pass');
+
+    const nameField = document.getElementById('su-name-field');
+    const emailField = document.getElementById('su-email-field');
+    const passField = document.getElementById('su-pass-field');
+
+    let valid = true;
+
+    if(name.value.trim().length < 1){ nameField.classList.add('error'); valid = false; }
+    else nameField.classList.remove('error');
+
+    if(!isValidEmail(email.value)){ emailField.classList.add('error'); valid = false; }
+    else emailField.classList.remove('error');
+
+    if(pass.value.length < 6){ passField.classList.add('error'); valid = false; }
+    else passField.classList.remove('error');
+
+    if(!valid) return;
+
+    const db = loadDB();
+    const emailVal = email.value.trim();
+
+    if(db[emailVal]){
+      emailField.classList.add('error');
+      document.getElementById('su-email-error').textContent = 'An account with this email already exists.';
+      return;
+    }
+
+    db[emailVal] = {
+      name: name.value.trim(),
+      password: pass.value,
+      todayCount: 0,
+      lastDate: new Date().toDateString(),
+      history: []
+    };
+    saveDB(db);
+
+    currentUser = { email: emailVal, name: name.value.trim() };
+    showToast('Account created!');
+    enterDashboard();
+  }
+
+  // ---- Dashboard ----
+  function enterDashboard(){
+    
+    goTo('dashboard');
+  }
+
+  function renderHistory(history){
+    const el = document.getElementById('history-list');
+    if(!history || history.length === 0){
+      el.innerHTML = '<p class="empty-history">No previous sessions yet.</p>';
+      return;
+    }
+    el.innerHTML = history.map(h =>
+      `<div class="history-row"><span class="h-date">${h.date}</span><span class="h-count">${h.count}</span></div>`
+    ).join('');
+  }
+
+  function incrementCount(){
+    const db = loadDB();
+    const user = db[currentUser.email];
+    user.todayCount = (user.todayCount || 0) + 1;
+    db[currentUser.email] = user;
+    saveDB(db);
+    document.getElementById('count-display').textContent = user.todayCount;
+
+    if(navigator.vibrate) navigator.vibrate(10);
+  }
+
+  function resetToday(){
+    const db = loadDB();
+    const user = db[currentUser.email];
+    user.todayCount = 0;
+    db[currentUser.email] = user;
+    saveDB(db);
+    document.getElementById('count-display').textContent = 0;
+    showToast('Today\'s count reset.');
+  }
+
+  function logout(){
+    currentUser = null;
+    pendingEmail = '';
+    document.getElementById('se-input').value = '';
+    document.getElementById('se-field').classList.remove('error');
+    goTo('signin-email');
+  }
+
+  // Enter-key support
+  document.getElementById('se-input').addEventListener('keydown', e => { if(e.key === 'Enter') submitEmail(); });
+  document.getElementById('sp-input').addEventListener('keydown', e => { if(e.key === 'Enter') submitPassword(); });
+  document.getElementById('su-pass').addEventListener('keydown', e => { if(e.key === 'Enter') submitSignup(); });
+</script>
+
+</body>
+</html>
