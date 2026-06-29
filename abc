@@ -62,8 +62,9 @@
   }
 
   /* Container adjustments */
-#step1 {
+#step1, #step2 {
   max-width: 400px;         /* Reduces the width of the form */
+  width: 100%;
   margin: 0 auto;           /* Centers the container itself on the page */
   display: flex;
   flex-direction: column;   /* Stacks all items vertically */
@@ -72,7 +73,7 @@
 }
 
 /* Ensure full-width elements span properly while centered */
-.field, .actions, #emailInput {
+.field, .actions, #emailInput, .credentials-box, .keep-row {
   width: 100%;
 }
 
@@ -225,6 +226,7 @@
     font-weight:600;
     font-family:'Inter', sans-serif;
     cursor:pointer;
+    margin-top:18px;
     transition:filter .12s ease, transform .12s ease;
   }
   .btn-signin:hover{ filter:brightness(1.08); }
