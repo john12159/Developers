@@ -61,18 +61,49 @@
     padding:32px 16px;
   }
 
+  /* Container adjustments */
+#step1 {
+  max-width: 400px;         /* Reduces the width of the form */
+  margin: 0 auto;           /* Centers the container itself on the page */
+  display: flex;
+  flex-direction: column;   /* Stacks all items vertically */
+  align-items: center;      /* Centers all items by default */
+  text-align: center;       /* Centers inline text inside elements */
+}
+
+/* Ensure full-width elements span properly while centered */
+.field, .actions, #emailInput {
+  width: 100%;
+}
+
+/* Specific overrides for left-alignment */
+#step1 .create-link {
+  align-self: flex-start;   /* Overrides center alignment to align left */
+  text-align: left;
+  width: 100%;
+  margin-bottom: 15px;      /* Adjust spacing as needed */
+}
+
+#step1 .info-row {
+  align-self: flex-start;   /* Overrides center alignment to align left */
+  text-align: left;
+             /* Keeps SVG and text inline */
+  align-items: flex-start;
+  gap: 10px;                /* Adds spacing between icon and text */
+}
+
+
   .card{
-    position:relative;
-    z-index:1;
-    width:100%;
-    max-width:420px;
-    background:var(--card);
-    border-radius:22px;
-    padding:44px 36px 32px;
-    box-shadow:
-      0 1px 0 rgba(255,255,255,0.4) inset,
-      0 30px 60px -20px rgba(0,0,0,0.45);
-    border:1px solid rgba(201,163,92,0.25);
+    position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 640px;
+  background: var(--card);
+  border-radius: 22px;
+  padding: 44px 36px 32px;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.4) inset, 0 30px 60px -20px rgba(0,0,0,0.45);
+  border: 1px solid rgba(201,163,92,0.25);
+  height: 675px;
   }
 
   .tasbih-icon{
@@ -211,7 +242,7 @@
   .create-link:hover{ text-decoration:underline; }
 
   .info-row{
-    display:flex;
+   
     gap:12px;
     margin-bottom:26px;
   }
@@ -291,7 +322,7 @@
     text-align:center;
     font-size:11.5px;
     color:var(--muted);
-    margin:14px 0 0;
+    margin-left: 184px;
   }
 
   .footer{
@@ -334,7 +365,7 @@
         <!-- STEP 1: email entry -->
         <div class="step active" id="step1">
           <div class="field">
-            <input type="email" id="emailInput" placeholder="Email" autocomplete="email">
+            <input type="email" id="emailInput" placeholder="Email or Phone Number" autocomplete="email">
           </div>
 
           <a href="#" class="create-link">Create Your Tasbih Account</a>
@@ -360,7 +391,7 @@
               Sign in with Passkey
             </button>
           </div>
-          <p class="passkey-note">Requires a device with biometric unlock enabled.</p>
+          <p class="passkey-note">Requires a device with iOS 17 or later.</p>
         </div>
 
         <!-- STEP 2: password entry -->
