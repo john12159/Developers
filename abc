@@ -230,9 +230,9 @@
   .btn-signin:hover{ filter:brightness(1.08); }
   .btn-signin:active{ transform:scale(0.99); }
 
-  .step{ display:none; }
+  .step{ display:none !important; }
   .step.active{
-    display: flex;
+    display: flex !important;
     flex-direction: column;
     flex: 1;
   }
@@ -456,7 +456,9 @@
       }
       emailDisplay.value = emailVal;
       step1.classList.remove('active');
+      step1.style.display = 'none';
       step2.classList.add('active');
+      step2.style.display = 'flex';
       setTimeout(() => passwordInput.focus(), 50);
     });
 
