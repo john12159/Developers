@@ -104,6 +104,8 @@
   box-shadow: 0 1px 0 rgba(255,255,255,0.4) inset, 0 30px 60px -20px rgba(0,0,0,0.45);
   border: 1px solid rgba(201,163,92,0.25);
   height: 675px;
+  display: flex;
+  flex-direction: column;
   }
 
   .tasbih-icon{
@@ -229,7 +231,15 @@
   .btn-signin:active{ transform:scale(0.99); }
 
   .step{ display:none; }
-  .step.active{ display:block; }
+  .step.active{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  #step2.step.active{
+    justify-content: center;
+  }
 
   .create-link{
     display:block;
@@ -295,6 +305,7 @@
     .card{
       max-width:100%;
       width:100%;
+      height:auto;
       padding:0;
       background:transparent;
       border:none;
