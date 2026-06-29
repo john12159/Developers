@@ -3,783 +3,438 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prayer</title>
+<title>Sign in with Tasbih Account</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap');
-
   :root{
-    --sage: #3D5C4D;
-    --sage-dark: #2C4538;
-    --sage-light: #E8EFE9;
-    --cream: #FAF6EE;
-    --gold: #C9A85C;
-    --charcoal: #2A2A28;
-    --line: #E2DACA;
-    --muted: #6B6459;
-    --error: #B3463F;
+    --bg-deep: #0D3B2E;
+    --bg-deep-2: #0A2E23;
+    --gold: #C9A35C;
+    --gold-soft: #E3CB94;
+    --card: #FAF6EE;
+    --ink: #1A2620;
+    --muted: #5C6B63;
+    --line: #E2D9C4;
   }
 
   *{ box-sizing: border-box; }
 
+  html, body{ height:100%; }
+
   body{
-    margin: 0;
-    background: var(--cream);
-    font-family: 'Inter', -apple-system, sans-serif;
-    color: var(--charcoal);
-    min-height: 100vh;
+    margin:0;
+    min-height:100vh;
+    font-family:'Inter', sans-serif;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(201,163,92,0.10), transparent 40%),
+      radial-gradient(circle at 80% 85%, rgba(201,163,92,0.08), transparent 45%),
+      linear-gradient(160deg, var(--bg-deep) 0%, var(--bg-deep-2) 100%);
+    position:relative;
+    overflow:hidden;
   }
 
-  .screen{
-    display: none;
-    min-height: 100vh;
-    flex-direction: column;
+  /* subtle geometric pattern overlay, faint */
+  body::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+      repeating-linear-gradient(45deg, rgba(201,163,92,0.035) 0px, rgba(201,163,92,0.035) 1px, transparent 1px, transparent 26px),
+      repeating-linear-gradient(-45deg, rgba(201,163,92,0.035) 0px, rgba(201,163,92,0.035) 1px, transparent 1px, transparent 26px);
+    pointer-events:none;
   }
-  .screen.active{ display: flex; }
 
   .page{
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 32px 24px 0;
-    max-width: 480px;
-    margin: 0 auto;
-    width: 100%;
+    position:relative;
+    z-index:1;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
   }
 
-  /* Desktop: card with left heading column + right form column, like a typical sign-in card */
-  @media (min-width: 760px){
-    #signin-email, #signin-password, #signup{
-      align-items: center;
-      justify-content: center;
-      background: #DDD9CE;
-    }
-    #signin-email .page, #signin-password .page, #signup .page{
-      flex: none;
-      flex-direction: row;
-      align-items: center;
-      gap: 64px;
-      max-width: 880px;
-      width: 100%;
-      background: var(--cream);
-      border-radius: 28px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08), 0 24px 48px rgba(42,42,40,0.12);
-      padding: 56px 64px;
-      margin: 40px auto;
-    }
-    #signin-email .page > .auth-left,
-    #signin-password .page > .auth-left,
-    #signup .page > .auth-left{
-      flex: 0 0 300px;
-    }
-    #signin-email .page > .auth-right,
-    #signin-password .page > .auth-right,
-    #signup .page > .auth-right{
-      flex: 1;
-      min-width: 0;
-    }
-    #signin-email footer, #signin-password footer, #signup footer{
-      display: none;
-    }
-    .auth-left .mark{ margin-bottom: 28px; }
-    .auth-left h1{ font-size: 30px; }
-    .auth-left .subtitle{ margin-bottom: 0; }
-    .auth-right .actions{ margin-top: 40px; padding: 0; }
-    .auth-right .guest-note{ margin-top: 28px; }
-  }
-  @media (min-width: 760px) and (max-width: 899px){
-    #signin-email .page, #signin-password .page, #signup .page{ gap: 40px; padding: 48px; }
-    .auth-left{ flex-basis: 240px; }
+  .center-wrap{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px 16px;
   }
 
-  .mark{
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 36px;
+  .card{
+    position:relative;
+    z-index:1;
+    width:100%;
+    max-width:420px;
+    background:var(--card);
+    border-radius:22px;
+    padding:44px 36px 32px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.4) inset,
+      0 30px 60px -20px rgba(0,0,0,0.45);
+    border:1px solid rgba(201,163,92,0.25);
   }
-  .mark svg{ width: 34px; height: 34px; flex-shrink: 0; }
-  .mark span{
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    font-size: 22px;
-    letter-spacing: 0.2px;
-    color: var(--sage-dark);
+
+  .tasbih-icon{
+    width:84px;
+    height:84px;
+    margin:0 auto 22px;
+    display:block;
   }
 
   h1{
-    font-family: 'Fraunces', serif;
-    font-weight: 500;
-    font-size: 32px;
-    margin: 0 0 8px;
+    font-family:'Amiri', serif;
+    font-size:27px;
+    line-height:1.3;
+    color:var(--ink);
+    text-align:center;
+    margin:0 0 26px;
+    font-weight:700;
   }
 
-  .subtitle{
-    font-size: 15px;
-    color: var(--muted);
-    margin: 0 0 32px;
-    line-height: 1.5;
+  .field{
+    position:relative;
+    margin-bottom:20px;
   }
 
-  .field{ position: relative; margin-bottom: 16px; }
   .field input{
-    width: 100%;
-    padding: 17px 16px;
-    font-size: 16px;
-    font-family: 'Inter', sans-serif;
-    border: 1.5px solid var(--line);
-    border-radius: 8px;
-    background: #fff;
-    color: var(--charcoal);
-    outline: none;
-    transition: border-color 0.15s ease;
+    width:100%;
+    padding:15px 18px;
+    border-radius:14px;
+    border:1.5px solid var(--line);
+    background:#fff;
+    font-size:15px;
+    font-family:'Inter', sans-serif;
+    color:var(--ink);
+    outline:none;
+    transition:border-color .15s ease, box-shadow .15s ease;
   }
-  .field input::placeholder{ color: transparent; }
+
   .field input:focus{
-    border-color: var(--sage);
-    border-width: 2px;
-    padding: 16.5px 15.5px;
+    border-color:var(--gold);
+    box-shadow:0 0 0 3px rgba(201,163,92,0.18);
   }
-  .field.error input{ border-color: var(--error); }
 
-  /* Floating label: centered inside the field at rest,
-     rises to straddle the top border on focus or when filled. */
-  .field label{
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 16px;
-    color: #A39C8E;
-    background: transparent;
-    padding: 0 4px;
-    pointer-events: none;
-    transition: top 0.15s ease, font-size 0.15s ease, color 0.15s ease;
-  }
-  .field input:focus + label,
-  .field input:not(:placeholder-shown) + label{
-    top: 0;
-    font-size: 12.5px;
-    background: var(--cream);
-  }
-  .field input:focus + label{ color: #6FA882; }
-  .field input:not(:placeholder-shown) + label{ color: var(--muted); }
-  .field.error input:focus + label,
-  .field.error input:not(:placeholder-shown) + label{ color: var(--error); }
+  .field input::placeholder{ color:#9AA59E; }
 
-  .field-error{
-    font-size: 13px;
-    color: var(--error);
-    margin: 6px 2px 0;
-    display: none;
+  /* two-step: combined email+password box like Apple's flow */
+  .credentials-box{
+    border:1.5px solid var(--line);
+    border-radius:14px;
+    background:#fff;
+    overflow:hidden;
+    margin-bottom:20px;
   }
-  .field.error .field-error{ display: block; }
+  .credentials-box .sub-field{
+    position:relative;
+    padding:8px 18px 10px;
+  }
+  .credentials-box .sub-field + .sub-field{
+    border-top:1px solid var(--line);
+  }
+  .credentials-box label{
+    display:block;
+    font-size:11.5px;
+    color:var(--muted);
+    margin-bottom:2px;
+  }
+  .credentials-box input{
+    width:100%;
+    border:none;
+    outline:none;
+    padding:2px 0 4px;
+    font-size:15px;
+    font-family:'Inter', sans-serif;
+    color:var(--ink);
+    background:transparent;
+  }
+  .credentials-box.single-field .sub-field{ padding:15px 18px; }
+  .credentials-box.single-field label{ display:none; }
 
-  .static-field{
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border: 1.5px solid var(--line);
-    border-radius: 999px;
-    padding: 8px 16px 8px 10px;
-    width: fit-content;
-    margin-bottom: 28px;
-    font-size: 15px;
-    cursor: pointer;
+  .keep-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:26px;
+    font-size:13.5px;
   }
-  .static-field .avatar{
-    width: 26px; height: 26px;
-    border-radius: 50%;
-    background: var(--sage);
-    color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 600;
-    flex-shrink: 0;
+  .keep-row .checkbox-label{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--ink);
+    cursor:pointer;
   }
-  .static-field .chev{ color: var(--muted); font-size: 11px; margin-left: 2px; }
+  .keep-row input[type="checkbox"]{
+    width:17px;
+    height:17px;
+    accent-color:#1E6B4F;
+    cursor:pointer;
+  }
+  .keep-row a{
+    color:#1E5C44;
+    text-decoration:none;
+    font-weight:600;
+  }
+  .keep-row a:hover{ text-decoration:underline; }
 
-  .checkbox-row{
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    margin: 4px 2px 0;
-    font-size: 14.5px;
-    color: var(--charcoal);
-    cursor: pointer;
-    user-select: none;
+  .btn-signin{
+    display:block;
+    width:100%;
+    padding:15px 16px;
+    border:none;
+    border-radius:13px;
+    background:linear-gradient(180deg, #1E6B4F, #14523C);
+    color:#fff;
+    font-size:15px;
+    font-weight:600;
+    font-family:'Inter', sans-serif;
+    cursor:pointer;
+    transition:filter .12s ease, transform .12s ease;
   }
-  .checkbox-row input{ width: 16px; height: 16px; accent-color: var(--sage-dark); cursor: pointer; }
+  .btn-signin:hover{ filter:brightness(1.08); }
+  .btn-signin:active{ transform:scale(0.99); }
 
-  .hint{ font-size: 13px; color: var(--muted); margin: 6px 2px 0; line-height: 1.5; }
+  .step{ display:none; }
+  .step.active{ display:block; }
 
-  .link-row{ margin-top: 24px; }
-  .link-row a, .link-row button.linklike{
-    color: var(--sage-dark);
-    font-size: 14.5px;
-    font-weight: 500;
-    text-decoration: none;
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    font-family: 'Inter', sans-serif;
+  .create-link{
+    display:block;
+    font-size:14px;
+    color:#1E5C44;
+    text-decoration:none;
+    font-weight:600;
+    margin-bottom:18px;
   }
-  .link-row a:hover, .link-row button.linklike:hover{ text-decoration: underline; }
+  .create-link:hover{ text-decoration:underline; }
 
-  .guest-note{
-    margin-top: 32px;
-    font-size: 13.5px;
-    color: var(--muted);
-    line-height: 1.6;
+  .info-row{
+    display:flex;
+    gap:12px;
+    margin-bottom:26px;
   }
-  .guest-note a{ color: var(--sage-dark); text-decoration: none; font-weight: 500; }
-  .guest-note a:hover{ text-decoration: underline; }
+
+  .info-row svg{ flex:0 0 auto; margin-top:2px; }
+
+  .info-row p{
+    margin:0;
+    font-size:12.5px;
+    line-height:1.55;
+    color:var(--muted);
+  }
+
+  .info-row a{ color:#1E5C44; text-decoration:none; font-weight:600; }
+  .info-row a:hover{ text-decoration:underline; }
 
   .actions{
-    margin-top: auto;
-    padding: 28px 0 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
   }
-  .actions.single{ justify-content: flex-end; }
-
-  .switch-link{
-    color: var(--sage-dark);
-    font-size: 14.5px;
-    font-weight: 600;
-    text-decoration: none;
-    background: none;
-    border: none;
-    padding: 10px 4px;
-    cursor: pointer;
-    font-family: 'Inter', sans-serif;
-  }
-  .switch-link:hover{ text-decoration: underline; }
-
-  button.next{
-    background: var(--sage-dark);
-    color: #fff;
-    border: none;
-    padding: 12px 26px;
-    border-radius: 999px;
-    font-size: 14.5px;
-    font-weight: 600;
-    font-family: 'Inter', sans-serif;
-    letter-spacing: 0.2px;
-    cursor: pointer;
-    transition: background 0.15s ease, box-shadow 0.15s ease;
-  }
-  button.next:hover{ background: var(--sage); box-shadow: 0 2px 10px rgba(61,92,77,0.25); }
-  button.next:focus-visible{ outline: 2px solid var(--gold); outline-offset: 2px; }
-  button.next:disabled{ opacity: 0.6; cursor: not-allowed; }
-
-  footer{
-    border-top: 1px solid var(--line);
-    padding: 18px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 12.5px;
-    color: var(--muted);
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-  .lang select{ border: none; background: transparent; color: var(--muted); font-size: 12.5px; font-family: 'Inter', sans-serif; }
-  .footer-links{ display: flex; gap: 22px; }
-  .footer-links a{ color: var(--muted); text-decoration: none; }
-  .footer-links a:hover{ text-decoration: underline; }
-
-  /* ---- Dashboard ---- */
-  #dashboard .page{ padding-top: 24px; }
-  .dash-header{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 28px;
-  }
-  .dash-user{ display: flex; align-items: center; gap: 10px; }
-  .dash-user .avatar{
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    background: var(--sage);
-    color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 600; font-size: 14px;
-  }
-  .dash-user .uname{ font-size: 14.5px; font-weight: 600; }
-  .dash-user .uemail{ font-size: 12.5px; color: var(--muted); }
-  .logout-btn{
-    background: none; border: 1.5px solid var(--line); border-radius: 999px;
-    padding: 7px 16px; font-size: 13px; color: var(--muted); cursor: pointer;
-    font-family: 'Inter', sans-serif; font-weight: 500;
-  }
-  .logout-btn:hover{ border-color: var(--sage); color: var(--sage-dark); }
-
-  .counter-card{
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 20px;
-    padding: 36px 24px;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  .counter-card .label{
-    font-size: 13.5px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    font-weight: 600;
-    margin-bottom: 12px;
-  }
-  .counter-count{
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    font-size: 72px;
-    color: var(--sage-dark);
-    line-height: 1;
-    margin-bottom: 28px;
-  }
-  .tap-btn{
-    width: 140px; height: 140px;
-    border-radius: 50%;
-    background: var(--sage-dark);
-    color: #fff;
-    border: none;
-    font-family: 'Fraunces', serif;
-    font-size: 17px;
-    font-weight: 500;
-    cursor: pointer;
-    margin: 0 auto 18px;
-    display: flex; align-items: center; justify-content: center;
-    transition: transform 0.08s ease, background 0.15s ease;
-    box-shadow: 0 8px 24px rgba(44,69,56,0.25);
-  }
-  .tap-btn:active{ transform: scale(0.95); background: var(--sage); }
-
-  .reset-row{ display: flex; justify-content: center; gap: 10px; }
-  .reset-row button{
-    background: none; border: none; color: var(--muted);
-    font-size: 13px; cursor: pointer; font-family: 'Inter', sans-serif;
-    text-decoration: underline;
-  }
-
-  .history{
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 18px 20px;
-  }
-  .history .h-title{ font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
-  .history-row{
-    display: flex; justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--line);
-    font-size: 14px;
-  }
-  .history-row:last-child{ border-bottom: none; }
-  .history-row .h-date{ color: var(--muted); }
-  .history-row .h-count{ font-weight: 600; color: var(--sage-dark); }
-  .empty-history{ color: var(--muted); font-size: 13.5px; text-align: center; padding: 8px 0; }
-
-  .toast{
-    position: fixed;
-    bottom: 24px; left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--charcoal);
-    color: #fff;
-    padding: 12px 22px;
-    border-radius: 999px;
-    font-size: 13.5px;
-    opacity: 0;
-    transition: opacity 0.2s ease, transform 0.2s ease;
-    pointer-events: none;
-    z-index: 50;
-  }
-  .toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
 
   @media (max-width: 380px){
-    .footer-links{ gap: 14px; }
-    footer{ font-size: 11.5px; }
-    .counter-count{ font-size: 58px; }
-    .tap-btn{ width: 120px; height: 120px; }
+    .actions{ flex-direction:column; }
+    .btn{ flex:1 1 100%; min-width:0; }
   }
+
+  .btn{
+    flex:1;
+    min-width:140px;
+    padding:14px 16px;
+    border-radius:13px;
+    border:none;
+    font-size:14.5px;
+    font-weight:600;
+    font-family:'Inter', sans-serif;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    white-space:nowrap;
+    transition:transform .12s ease, filter .12s ease;
+  }
+
+  .btn-secondary{ flex:1.35; }
+
+  @media (max-width: 600px){
+    .center-wrap{ padding:28px 24px; align-items:flex-start; }
+    .card{
+      max-width:100%;
+      width:100%;
+      padding:0;
+      background:transparent;
+      border:none;
+      border-radius:0;
+      box-shadow:none;
+    }
+    .tasbih-icon{ width:96px; height:96px; }
+  }
+
+  .btn:active{ transform:scale(0.98); }
+
+  .btn-primary{
+    background:linear-gradient(180deg, #1E6B4F, #14523C);
+    color:#fff;
+  }
+  .btn-primary:hover{ filter:brightness(1.08); }
+
+  .btn-secondary{
+    background:var(--ink);
+    color:var(--gold-soft);
+  }
+  .btn-secondary:hover{ filter:brightness(1.15); }
+
+  .passkey-note{
+    text-align:center;
+    font-size:11.5px;
+    color:var(--muted);
+    margin:14px 0 0;
+  }
+
+  .footer{
+    text-align:center;
+    padding:20px 16px 24px;
+    font-size:11px;
+    color:rgba(255,255,255,0.65);
+  }
+  .footer a{ color:rgba(255,255,255,0.78); text-decoration:none; margin:0 8px; }
+  .footer a:hover{ text-decoration:underline; }
+  .footer .copyright{ margin-top:8px; display:block; color:rgba(255,255,255,0.45); }
 </style>
 </head>
 <body>
 
-  <!-- ===================== SIGN IN STEP 1: EMAIL ===================== -->
-  <div class="screen active" id="signin-email">
-    <div class="page">
-      <div class="auth-left">
-        <div class="mark">
-          <svg viewBox="0 0 40 40" fill="none">
-            <path d="M20 3C20 3 9 11 9 21C9 28.7 14.6 34 20 34C16.5 30.5 15 26.5 15 22C15 14.5 20 9 20 9C20 9 25 14.5 25 22C25 26.5 23.5 30.5 20 34C25.4 34 31 28.7 31 21C31 11 20 3 20 3Z" fill="#3D5C4D"/>
-            <circle cx="20" cy="33.5" r="2.3" fill="#C9A85C"/>
-          </svg>
-          <span>Prayer</span>
-        </div>
+  <div class="page">
+    <div class="center-wrap">
+      <div class="card">
+        <svg class="tasbih-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="34" stroke="#C9A35C" stroke-width="1.4" stroke-dasharray="2 6"/>
+          <g fill="#1E6B4F">
+            <circle cx="50" cy="16" r="5.2"/>
+            <circle cx="68" cy="21" r="5.2"/>
+            <circle cx="80" cy="35" r="5.2"/>
+            <circle cx="84" cy="50" r="5.2"/>
+            <circle cx="80" cy="65" r="5.2"/>
+            <circle cx="68" cy="79" r="5.2"/>
+            <circle cx="50" cy="84" r="5.2"/>
+            <circle cx="32" cy="79" r="5.2"/>
+            <circle cx="20" cy="65" r="5.2"/>
+            <circle cx="16" cy="50" r="5.2"/>
+            <circle cx="20" cy="35" r="5.2"/>
+            <circle cx="32" cy="21" r="5.2"/>
+          </g>
+          <circle cx="50" cy="50" r="9" fill="#C9A35C"/>
+        </svg>
 
-        <h1>Sign in</h1>
-        <p class="subtitle">Use your Prayer account</p>
-      </div>
+        <h1>Sign in with<br>Tasbih Account</h1>
 
-      <div class="auth-right">
-        <div class="field" id="se-field">
-          <input type="text" id="se-input" placeholder="Email" autocomplete="username">
-          <label for="se-input">Email</label>
-          <p class="field-error">Enter a valid email to continue.</p>
-        </div>
-        <p class="hint">No account yet?</p>
-
-        <p class="guest-note">
-          Your tasbih counts are saved to your account so you can pick up<br>
-          where you left off on any device.
-        </p>
-
-        <div class="actions">
-          <button class="switch-link" onclick="goTo('signup')">Create account</button>
-          <button class="next" onclick="submitEmail()">Next</button>
-        </div>
-      </div>
-    </div>
-    <footer>
-      <div class="lang"><select><option>English (United States)</option></select></div>
-      <div class="footer-links"><a href="#">Help</a><a href="#">Privacy</a><a href="#">Terms</a></div>
-    </footer>
-  </div>
-
-  <!-- ===================== SIGN IN STEP 2: PASSWORD ===================== -->
-  <div class="screen" id="signin-password">
-    <div class="page">
-      <div class="auth-left">
-        <div class="mark">
-          <svg viewBox="0 0 40 40" fill="none">
-            <path d="M20 3C20 3 9 11 9 21C9 28.7 14.6 34 20 34C16.5 30.5 15 26.5 15 22C15 14.5 20 9 20 9C20 9 25 14.5 25 22C25 26.5 23.5 30.5 20 34C25.4 34 31 28.7 31 21C31 11 20 3 20 3Z" fill="#3D5C4D"/>
-            <circle cx="20" cy="33.5" r="2.3" fill="#C9A85C"/>
-          </svg>
-          <span>Prayer</span>
-        </div>
-
-        <h1>Welcome back</h1>
-        <p class="subtitle">Enter your password to continue</p>
-      </div>
-
-      <div class="auth-right">
-        <div class="static-field" onclick="goTo('signin-email')">
-          <span class="avatar" id="sp-avatar">?</span>
-          <span id="sp-email">you@example.com</span>
-          <span class="chev">鈻�</span>
-        </div>
-
-        <div class="field" id="sp-field">
-          <input type="password" id="sp-input" placeholder="Enter your password">
-          <label for="sp-input">Enter your password</label>
-          <p class="field-error" id="sp-error">Incorrect password. Try again.</p>
-        </div>
-        <label class="checkbox-row">
-          <input type="checkbox" onclick="document.getElementById('sp-input').type = this.checked ? 'text' : 'password'">
-          Show password
-        </label>
-
-        <div class="link-row">
-          <a href="#">Forgot password?</a>
-        </div>
-
-        <div class="actions">
-          <button class="switch-link" onclick="goTo('signin-email')">Back</button>
-          <button class="next" onclick="submitPassword()">Sign in</button>
-        </div>
-      </div>
-    </div>
-    <footer>
-      <div class="lang"><select><option>English (United States)</option></select></div>
-      <div class="footer-links"><a href="#">Help</a><a href="#">Privacy</a><a href="#">Terms</a></div>
-    </footer>
-  </div>
-
-  <!-- ===================== SIGN UP ===================== -->
-  <div class="screen" id="signup">
-    <div class="page">
-      <div class="auth-left">
-        <div class="mark">
-          <svg viewBox="0 0 40 40" fill="none">
-            <path d="M20 3C20 3 9 11 9 21C9 28.7 14.6 34 20 34C16.5 30.5 15 26.5 15 22C15 14.5 20 9 20 9C20 9 25 14.5 25 22C25 26.5 23.5 30.5 20 34C25.4 34 31 28.7 31 21C31 11 20 3 20 3Z" fill="#3D5C4D"/>
-            <circle cx="20" cy="33.5" r="2.3" fill="#C9A85C"/>
-          </svg>
-          <span>Prayer</span>
-        </div>
-
-        <h1>Create account</h1>
-        <p class="subtitle">Save your tasbih count and pick up where you left off</p>
-      </div>
-
-      <div class="auth-right">
-        <div class="field" id="su-name-field">
-          <input type="text" id="su-name" placeholder="Full name">
-          <label for="su-name">Full name</label>
-          <p class="field-error">Enter your name.</p>
-        </div>
-        <div class="field" id="su-email-field">
-          <input type="text" id="su-email" placeholder="Email">
-          <label for="su-email">Email</label>
-          <p class="field-error" id="su-email-error">Enter a valid email.</p>
-        </div>
-        <div class="field" id="su-pass-field">
-          <input type="password" id="su-pass" placeholder="Password">
-          <label for="su-pass">Password</label>
-          <p class="field-error">Password must be at least 6 characters.</p>
-        </div>
-
-        <div class="actions">
-          <button class="switch-link" onclick="goTo('signin-email')">I already have an account</button>
-          <button class="next" onclick="submitSignup()">Create</button>
-        </div>
-      </div>
-    </div>
-    <footer>
-      <div class="lang"><select><option>English (United States)</option></select></div>
-      <div class="footer-links"><a href="#">Help</a><a href="#">Privacy</a><a href="#">Terms</a></div>
-    </footer>
-  </div>
-
-  <!-- ===================== DASHBOARD ===================== -->
-  <div class="screen" id="dashboard">
-    <div class="page">
-      <div class="dash-header">
-        <div class="dash-user">
-          <span class="avatar" id="dash-avatar">?</span>
-          <div>
-            <div class="uname" id="dash-name">User</div>
-            <div class="uemail" id="dash-email">you@example.com</div>
+        <!-- STEP 1: email entry -->
+        <div class="step active" id="step1">
+          <div class="field">
+            <input type="email" id="emailInput" placeholder="Email" autocomplete="email">
           </div>
-        </div>
-        <button class="logout-btn" onclick="logout()">Sign out</button>
-      </div>
 
-      <div class="counter-card">
-        <div class="label">Today's Tasbih</div>
-        <div class="counter-count" id="count-display">0</div>
-        <button class="tap-btn" onclick="incrementCount()">Tap to count</button>
-        <div class="reset-row">
-          <button onclick="resetToday()">Reset today's count</button>
-        </div>
-      </div>
+          <a href="#" class="create-link">Create Your Tasbih Account</a>
 
-      <div class="history">
-        <div class="h-title">Recent history</div>
-        <div id="history-list"><p class="empty-history">No previous sessions yet.</p></div>
+          <div class="info-row">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <circle cx="9" cy="7" r="3" fill="#1E6B4F"/>
+              <path d="M3 19c0-3.3 2.7-6 6-6s6 2.7 6 6" fill="#1E6B4F"/>
+              <circle cx="17" cy="8" r="2.4" fill="#9DB6A6"/>
+              <path d="M13 19c0-2.6 1.8-4.7 4-5" stroke="#9DB6A6" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+            </svg>
+            <p>
+              Your Tasbih Account is used to sync your dhikr counts and access your data securely.
+              We keep a record of certain activity for support and reporting purposes.
+              <a href="#">See how your data is managed…</a>
+            </p>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-primary" id="continueBtn">Continue</button>
+            <button class="btn btn-secondary">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 12c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4zm0 2c-3.3 0-8 1.7-8 5v2h16v-2c0-3.3-4.7-5-8-5z" fill="#E3CB94"/></svg>
+              Sign in with Passkey
+            </button>
+          </div>
+          <p class="passkey-note">Requires a device with biometric unlock enabled.</p>
+        </div>
+
+        <!-- STEP 2: password entry -->
+        <div class="step" id="step2">
+          <div class="credentials-box">
+            <div class="sub-field">
+              <label>Email</label>
+              <input type="email" id="emailDisplay" readonly>
+            </div>
+            <div class="sub-field">
+              <label>Password</label>
+              <input type="password" id="passwordInput" placeholder="Password" autocomplete="current-password">
+            </div>
+          </div>
+
+          <div class="keep-row">
+            <label class="checkbox-label">
+              <input type="checkbox" id="keepSignedIn">
+              Keep me signed in
+            </label>
+            <a href="#">Forgotten password?</a>
+          </div>
+
+          <button class="btn-signin" id="signInBtn">Sign In</button>
+        </div>
       </div>
     </div>
-    <footer>
-      <div class="lang"><select><option>English (United States)</option></select></div>
-      <div class="footer-links"><a href="#">Help</a><a href="#">Privacy</a><a href="#">Terms</a></div>
-    </footer>
+
+    <div class="footer">
+      <a href="#">System Status</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms &amp; Conditions</a>
+      <span class="copyright">Copyright © 2026 Tasbih Inc. All rights reserved.</span>
+    </div>
   </div>
 
-  <div class="toast" id="toast"></div>
+  <script>
+    const continueBtn = document.getElementById('continueBtn');
+    const step1 = document.getElementById('step1');
+    const step2 = document.getElementById('step2');
+    const emailInput = document.getElementById('emailInput');
+    const emailDisplay = document.getElementById('emailDisplay');
+    const passwordInput = document.getElementById('passwordInput');
+    const signInBtn = document.getElementById('signInBtn');
 
-<script>
-  // ---- Storage helpers (localStorage acting as the user-wise "database") ----
-  const DB_KEY = 'prayer_users_db';
-
-  function loadDB(){
-    try { return JSON.parse(localStorage.getItem(DB_KEY)) || {}; }
-    catch(e){ return {}; }
-  }
-  function saveDB(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
-
-  let pendingEmail = '';
-  let currentUser = null; // { email, name }
-
-  function showToast(msg){
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(()=> t.classList.remove('show'), 2200);
-  }
-
-  function goTo(screenId){
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(screenId).classList.add('active');
-  }
-
-  function isValidEmail(v){
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
-  }
-
-  function initials(name, email){
-    const src = (name || email || '?').trim();
-    return src.charAt(0).toUpperCase();
-  }
-
-  // ---- Step 1: email ----
-  function submitEmail(){
-    const input = document.getElementById('se-input');
-    const field = document.getElementById('se-field');
-    const val = input.value.trim();
-
-    if(!isValidEmail(val)){
-      field.classList.add('error');
-      return;
-    }
-    field.classList.remove('error');
-
-    const db = loadDB();
-    if(!db[val]){
-      showToast("No account found for this email 鈥� create one first.");
-      field.classList.add('error');
-      field.querySelector('.field-error').textContent = "We couldn't find an account with that email.";
-      return;
-    }
-
-    pendingEmail = val;
-    document.getElementById('sp-email').textContent = val;
-    document.getElementById('sp-avatar').textContent = initials(db[val].name, val);
-    document.getElementById('sp-input').value = '';
-    document.getElementById('sp-field').classList.remove('error');
-    goTo('signin-password');
-  }
-
-  // ---- Step 2: password ----
-  function submitPassword(){
-    const input = document.getElementById('sp-input');
-    const field = document.getElementById('sp-field');
-    const val = input.value;
-
-    const db = loadDB();
-    const user = db[pendingEmail];
-
-    if(!user || user.password !== val){
-      field.classList.add('error');
-      return;
-    }
-    field.classList.remove('error');
-
-    currentUser = { email: pendingEmail, name: user.name };
-    enterDashboard();
-  }
-
-  // ---- Signup ----
-  function submitSignup(){
-    const name = document.getElementById('su-name');
-    const email = document.getElementById('su-email');
-    const pass = document.getElementById('su-pass');
-
-    const nameField = document.getElementById('su-name-field');
-    const emailField = document.getElementById('su-email-field');
-    const passField = document.getElementById('su-pass-field');
-
-    let valid = true;
-
-    if(name.value.trim().length < 1){ nameField.classList.add('error'); valid = false; }
-    else nameField.classList.remove('error');
-
-    if(!isValidEmail(email.value)){ emailField.classList.add('error'); valid = false; }
-    else emailField.classList.remove('error');
-
-    if(pass.value.length < 6){ passField.classList.add('error'); valid = false; }
-    else passField.classList.remove('error');
-
-    if(!valid) return;
-
-    const db = loadDB();
-    const emailVal = email.value.trim();
-
-    if(db[emailVal]){
-      emailField.classList.add('error');
-      document.getElementById('su-email-error').textContent = 'An account with this email already exists.';
-      return;
-    }
-
-    db[emailVal] = {
-      name: name.value.trim(),
-      password: pass.value,
-      todayCount: 0,
-      lastDate: new Date().toDateString(),
-      history: []
-    };
-    saveDB(db);
-
-    currentUser = { email: emailVal, name: name.value.trim() };
-    showToast('Account created!');
-    enterDashboard();
-  }
-
-  // ---- Dashboard ----
-  function enterDashboard(){
-    const db = loadDB();
-    const user = db[currentUser.email];
-    const today = new Date().toDateString();
-
-    // Roll previous day into history if date changed
-    if(user.lastDate !== today){
-      if(user.todayCount > 0){
-        user.history = user.history || [];
-        user.history.unshift({ date: user.lastDate, count: user.todayCount });
-        user.history = user.history.slice(0, 10);
+    continueBtn.addEventListener('click', () => {
+      const emailVal = emailInput.value.trim();
+      if (!emailVal) {
+        emailInput.focus();
+        return;
       }
-      user.todayCount = 0;
-      user.lastDate = today;
-      db[currentUser.email] = user;
-      saveDB(db);
-    }
+      emailDisplay.value = emailVal;
+      step1.classList.remove('active');
+      step2.classList.add('active');
+      setTimeout(() => passwordInput.focus(), 50);
+    });
 
-    document.getElementById('dash-name').textContent = user.name;
-    document.getElementById('dash-email').textContent = currentUser.email;
-    document.getElementById('dash-avatar').textContent = initials(user.name, currentUser.email);
-    document.getElementById('count-display').textContent = user.todayCount;
+    emailInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') continueBtn.click();
+    });
 
-    renderHistory(user.history || []);
-    goTo('dashboard');
-  }
+    signInBtn.addEventListener('click', () => {
+      if (!passwordInput.value) {
+        passwordInput.focus();
+        return;
+      }
+      // Hook up real authentication here, then redirect to the OTP page.
+      window.location.href = 'otp.html?email=' + encodeURIComponent(emailDisplay.value);
+    });
 
-  function renderHistory(history){
-    const el = document.getElementById('history-list');
-    if(!history || history.length === 0){
-      el.innerHTML = '<p class="empty-history">No previous sessions yet.</p>';
-      return;
-    }
-    el.innerHTML = history.map(h =>
-      `<div class="history-row"><span class="h-date">${h.date}</span><span class="h-count">${h.count}</span></div>`
-    ).join('');
-  }
-
-  function incrementCount(){
-    const db = loadDB();
-    const user = db[currentUser.email];
-    user.todayCount = (user.todayCount || 0) + 1;
-    db[currentUser.email] = user;
-    saveDB(db);
-    document.getElementById('count-display').textContent = user.todayCount;
-
-    if(navigator.vibrate) navigator.vibrate(10);
-  }
-
-  function resetToday(){
-    const db = loadDB();
-    const user = db[currentUser.email];
-    user.todayCount = 0;
-    db[currentUser.email] = user;
-    saveDB(db);
-    document.getElementById('count-display').textContent = 0;
-    showToast('Today\'s count reset.');
-  }
-
-  function logout(){
-    currentUser = null;
-    pendingEmail = '';
-    document.getElementById('se-input').value = '';
-    document.getElementById('se-field').classList.remove('error');
-    goTo('signin-email');
-  }
-
-  // Enter-key support
-  document.getElementById('se-input').addEventListener('keydown', e => { if(e.key === 'Enter') submitEmail(); });
-  document.getElementById('sp-input').addEventListener('keydown', e => { if(e.key === 'Enter') submitPassword(); });
-  document.getElementById('su-pass').addEventListener('keydown', e => { if(e.key === 'Enter') submitSignup(); });
-</script>
+    passwordInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') signInBtn.click();
+    });
+  </script>
 
 </body>
 </html>
