@@ -1,1440 +1,343 @@
-================================================================
-   TOP 50 MOST DEMANDED SWIFT iOS INTERVIEW QUESTIONS 2025
-   With Impressive Answers | Based on Ajit Raj Shekhar's Experience
-================================================================
-   These are the MOST ASKED questions in current iOS job market
-   covering SwiftUI, Combine, Concurrency, Architecture & more
-================================================================
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Two-Factor Authentication | Tasbih Account</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep: #0D3B2E;
+    --bg-deep-2: #0A2E23;
+    --gold: #C9A35C;
+    --gold-soft: #E3CB94;
+    --card: #FAF6EE;
+    --ink: #1A2620;
+    --muted: #5C6B63;
+    --line: #E2D9C4;
+  }
 
-----------------------------------------------------------------
-SECTION 1: SWIFT ADVANCED CONCEPTS (Q1 - Q8)
-----------------------------------------------------------------
+  *{ box-sizing: border-box; }
 
-Q1. What is the difference between VALUE TYPE and REFERENCE TYPE?
-    WHY ASKED: Almost every interviewer asks this first.
+  html, body{ height:100%; }
 
-A:  "Value types (struct, enum) are copied when assigned.
-    Reference types (class) share the same memory reference.
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:'Inter', sans-serif;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(201,163,92,0.10), transparent 40%),
+      radial-gradient(circle at 80% 85%, rgba(201,163,92,0.08), transparent 45%),
+      linear-gradient(160deg, var(--bg-deep) 0%, var(--bg-deep-2) 100%);
+    position:relative;
+    overflow:hidden;
+  }
 
-    struct Point { var x: Int }
-    var a = Point(x: 5)
-    var b = a       // b is a COPY
-    b.x = 10
-    print(a.x)      // still 5
+  /* subtle geometric pattern overlay, faint */
+  body::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+      repeating-linear-gradient(45deg, rgba(201,163,92,0.035) 0px, rgba(201,163,92,0.035) 1px, transparent 1px, transparent 26px),
+      repeating-linear-gradient(-45deg, rgba(201,163,92,0.035) 0px, rgba(201,163,92,0.035) 1px, transparent 1px, transparent 26px);
+    pointer-events:none;
+  }
 
-    In iOS, most Swift standard types (String, Array, Int)
-    are value types (struct). This avoids unintended side effects.
+  .page{
+    position:relative;
+    z-index:1;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
 
-    In my apps, I use structs for data models like prayer times
-    and calorie entries — because I want clean, independent copies
-    when passing data between screens."
+  .center-wrap{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px 16px;
+  }
 
----
+  .card{
+    position:relative;
+    z-index:1;
+    width:100%;
+    max-width:420px;
+    background:var(--card);
+    border-radius:22px;
+    padding:44px 36px 32px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.4) inset,
+      0 30px 60px -20px rgba(0,0,0,0.45);
+    border:1px solid rgba(201,163,92,0.25);
+  }
 
-Q2. What is PROTOCOL ORIENTED PROGRAMMING (POP) in Swift?
-    WHY ASKED: Apple uses POP heavily — top trending question.
+  .tasbih-icon{
+    width:84px;
+    height:84px;
+    margin:0 auto 22px;
+    display:block;
+  }
 
-A:  "Protocol Oriented Programming means designing your app
-    around protocols (behaviors) rather than base classes.
+  h1{
+    font-family:'Amiri', serif;
+    font-size:27px;
+    line-height:1.3;
+    color:var(--ink);
+    text-align:center;
+    margin:0 0 18px;
+    font-weight:700;
+  }
 
-    Benefits:
-    - Works with both struct and class (unlike inheritance)
-    - Multiple protocol conformance (vs single inheritance)
-    - Easier to test with mock objects
+  .otp-intro{
+    text-align:center;
+    font-size:13.5px;
+    line-height:1.6;
+    color:var(--muted);
+    margin:0 0 26px;
+  }
 
-    protocol Calculable {
-        func calculate() -> Double
+  .otp-boxes{
+    display:flex;
+    justify-content:center;
+    gap:9px;
+    margin-bottom:22px;
+  }
+  .otp-boxes input{
+    width:42px;
+    height:52px;
+    text-align:center;
+    font-size:20px;
+    font-weight:600;
+    font-family:'Inter', sans-serif;
+    color:var(--ink);
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    background:#fff;
+    outline:none;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .otp-boxes input:focus{
+    border-color:var(--gold);
+    box-shadow:0 0 0 3px rgba(201,163,92,0.18);
+  }
+  .otp-boxes input.error{
+    border-color:#B3493D;
+    box-shadow:0 0 0 3px rgba(179,73,61,0.15);
+  }
+
+  .otp-error{
+    text-align:center;
+    font-size:12.5px;
+    color:#B3493D;
+    margin:0 0 16px;
+    min-height:16px;
+  }
+
+  .otp-links{
+    text-align:center;
+    margin-bottom:24px;
+  }
+  .otp-links a{
+    display:block;
+    font-size:13.5px;
+    color:#1E5C44;
+    text-decoration:none;
+    font-weight:600;
+    margin-bottom:8px;
+  }
+  .otp-links a:hover{ text-decoration:underline; }
+  .otp-links a.disabled{
+    color:var(--muted);
+    cursor:default;
+    pointer-events:none;
+  }
+
+  .otp-help{
+    text-align:center;
+    font-size:11.5px;
+    line-height:1.6;
+    color:var(--muted);
+    margin:18px 0 0;
+  }
+  .otp-help a{ color:#1E5C44; text-decoration:none; font-weight:600; }
+  .otp-help a:hover{ text-decoration:underline; }
+
+  @media (max-width: 600px){
+    .center-wrap{ padding:28px 24px; align-items:flex-start; }
+    .card{
+      max-width:100%;
+      width:100%;
+      padding:0;
+      background:transparent;
+      border:none;
+      border-radius:0;
+      box-shadow:none;
+    }
+    .tasbih-icon{ width:96px; height:96px; }
+  }
+
+  @media (max-width: 380px){
+    .otp-boxes{ gap:6px; }
+    .otp-boxes input{ width:38px; height:48px; font-size:18px; }
+  }
+
+  .footer{
+    text-align:center;
+    padding:20px 16px 24px;
+    font-size:11px;
+    color:rgba(255,255,255,0.65);
+  }
+  .footer a{ color:rgba(255,255,255,0.78); text-decoration:none; margin:0 8px; }
+  .footer a:hover{ text-decoration:underline; }
+  .footer .copyright{ margin-top:8px; display:block; color:rgba(255,255,255,0.45); }
+</style>
+</head>
+<body>
+
+  <div class="page">
+    <div class="center-wrap">
+      <div class="card">
+        <svg class="tasbih-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="34" stroke="#C9A35C" stroke-width="1.4" stroke-dasharray="2 6"/>
+          <g fill="#1E6B4F">
+            <circle cx="50" cy="16" r="5.2"/>
+            <circle cx="68" cy="21" r="5.2"/>
+            <circle cx="80" cy="35" r="5.2"/>
+            <circle cx="84" cy="50" r="5.2"/>
+            <circle cx="80" cy="65" r="5.2"/>
+            <circle cx="68" cy="79" r="5.2"/>
+            <circle cx="50" cy="84" r="5.2"/>
+            <circle cx="32" cy="79" r="5.2"/>
+            <circle cx="20" cy="65" r="5.2"/>
+            <circle cx="16" cy="50" r="5.2"/>
+            <circle cx="20" cy="35" r="5.2"/>
+            <circle cx="32" cy="21" r="5.2"/>
+          </g>
+          <circle cx="50" cy="50" r="9" fill="#C9A35C"/>
+        </svg>
+
+        <h1>Two-factor<br>authentication</h1>
+        <p class="otp-intro" id="otpIntro">
+          A message with a verification code has been sent to your device.
+          Please enter the code to continue.
+        </p>
+
+        <div class="otp-boxes" id="otpBoxes">
+          <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code">
+          <input type="text" inputmode="numeric" maxlength="1">
+          <input type="text" inputmode="numeric" maxlength="1">
+          <input type="text" inputmode="numeric" maxlength="1">
+          <input type="text" inputmode="numeric" maxlength="1">
+          <input type="text" inputmode="numeric" maxlength="1">
+        </div>
+
+        <p class="otp-error" id="otpError"></p>
+
+        <div class="otp-links">
+          <a href="#" id="resendCode">Resend code</a>
+          <a href="#">Cannot access your devices?</a>
+        </div>
+
+        <p class="otp-help">
+          If you cannot enter a code because you have lost your device, you can use
+          <a href="#">Find Device</a> to locate it or <a href="#">Manage Device</a>
+          to remove your Tasbih Account from it.
+        </p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <a href="#">System Status</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms &amp; Conditions</a>
+      <span class="copyright">Copyright © 2026 Tasbih Inc. All rights reserved.</span>
+    </div>
+  </div>
+
+  <script>
+    const otpInputs = Array.from(document.querySelectorAll('#otpBoxes input'));
+    const resendCode = document.getElementById('resendCode');
+    const otpError = document.getElementById('otpError');
+    const otpIntro = document.getElementById('otpIntro');
+
+    // Show which email the code was sent to, if passed via ?email=
+    const params = new URLSearchParams(window.location.search);
+    const email = params.get('email');
+    if (email) {
+      otpIntro.textContent = 'A message with a verification code has been sent to your device for ' + email + '. Please enter the code to continue.';
     }
 
-    struct ZakatCalculator: Calculable {
-        func calculate() -> Double { return assets * 0.025 }
+    otpInputs[0].focus();
+
+    function checkComplete() {
+      if (otpInputs.every(i => i.value)) {
+        const code = otpInputs.map(i => i.value).join('');
+        // Hook up real verification here.
+        console.log('OTP submitted:', code);
+        otpError.textContent = '';
+      }
     }
 
-    In my Azaan Pro app, I used protocols to define common
-    behaviors like prayer time calculation and notification
-    scheduling — making each module independently testable."
-
----
-
-Q3. What is COMBINE framework and how have you used it?
-    WHY ASKED: Highly demanded since iOS 13 — every interviewer asks.
-
-A:  "Combine is Apple's reactive programming framework.
-    It lets you handle asynchronous events using Publishers
-    and Subscribers.
-
-    Key concepts:
-    - Publisher  : Emits values over time
-    - Subscriber : Receives and reacts to values
-    - Operator   : Transforms values (map, filter, debounce)
-
-    Example I used in Count My Calories:
-    @Published var calorieInput: String = ''
-    calorieInput publisher
-        .debounce(for: 0.5, scheduler: RunLoop.main)
-        .sink { value in self.calculateCalories(value) }
-
-    This prevented recalculation on every keystroke —
-    only triggered 0.5s after user stopped typing.
-    Result: smoother UI and better performance."
-
----
-
-Q4. What is ASYNC/AWAIT in Swift and why is it better than closures?
-    WHY ASKED: Most trending question in 2024-2025 market.
-
-A:  "Async/Await (Swift 5.5+) makes asynchronous code
-    look and behave like synchronous code — much cleaner
-    than nested closures (callback hell).
-
-    OLD WAY (closure):
-    fetchPrayerTimes { times in
-        fetchLocation { location in
-            fetchQibla(location) { angle in
-                // deeply nested — hard to read
-            }
+    otpInputs.forEach((input, idx) => {
+      input.addEventListener('input', () => {
+        input.value = input.value.replace(/[^0-9]/g, '').slice(0, 1);
+        input.classList.remove('error');
+        if (input.value && idx < otpInputs.length - 1) {
+          otpInputs[idx + 1].focus();
         }
-    }
+        checkComplete();
+      });
 
-    NEW WAY (async/await):
-    let times    = await fetchPrayerTimes()
-    let location = await fetchLocation()
-    let angle    = await fetchQibla(location)
-
-    Benefits:
-    - Linear, readable code
-    - Built-in error handling with try/catch
-    - No retain cycle issues with [weak self]
-
-    I have refactored my Azaan Pro network calls to use
-    async/await which reduced code by 40% and made
-    debugging much easier."
-
----
-
-Q5. What are ACTORS in Swift Concurrency?
-    WHY ASKED: New topic — senior developers are expected to know.
-
-A:  "Actors are reference types that protect their state
-    from data races in concurrent environments.
-
-    Without actor — race condition possible:
-    class Counter {
-        var count = 0
-        func increment() { count += 1 } // UNSAFE on multiple threads
-    }
-
-    With actor — thread safe:
-    actor Counter {
-        var count = 0
-        func increment() { count += 1 } // SAFE — serialized access
-    }
-
-    MainActor is a special actor that ensures code runs
-    on the main thread — perfect for UI updates.
-
-    @MainActor func updateUI() {
-        self.label.text = 'Updated'
-    }
-
-    I use @MainActor in my apps to guarantee all UI updates
-    happen on the main thread without manual DispatchQueue calls."
-
----
-
-Q6. What is MEMORY MANAGEMENT and how do you prevent RETAIN CYCLES?
-    WHY ASKED: Critical for senior roles — always asked.
-
-A:  "iOS uses ARC (Automatic Reference Counting) to manage memory.
-    A retain cycle happens when two objects hold strong references
-    to each other — neither gets deallocated — causing memory leak.
-
-    Common scenario — closure capturing self:
-    class ViewModel {
-        var completion: (() -> Void)?
-        func load() {
-            completion = {
-                self.process() // RETAIN CYCLE — self holds completion
-            }
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !input.value && idx > 0) {
+          otpInputs[idx - 1].focus();
         }
-    }
+      });
 
-    FIX — use [weak self]:
-    completion = { [weak self] in
-        self?.process() // safe — self can become nil
-    }
+      input.addEventListener('paste', (e) => {
+        const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '');
+        if (!pasted) return;
+        e.preventDefault();
+        pasted.split('').slice(0, otpInputs.length).forEach((digit, i) => {
+          otpInputs[i].value = digit;
+        });
+        const next = Math.min(pasted.length, otpInputs.length - 1);
+        otpInputs[next].focus();
+        checkComplete();
+      });
+    });
 
-    I always use [weak self] inside Firebase callbacks and
-    URLSession completions in my apps. I also use Instruments
-    — Memory Leak tool in Xcode — to verify zero leaks
-    before App Store submission."
-
----
-
-Q7. What is GENERICS in Swift and where have you used it?
-    WHY ASKED: Shows depth of Swift knowledge — asked in mid/senior roles.
-
-A:  "Generics allow writing flexible, reusable functions
-    that work with any type.
-
-    Without generics — repeated code:
-    func printInt(_ value: Int) { print(value) }
-    func printString(_ value: String) { print(value) }
-
-    With generics — one function for all types:
-    func printValue<T>(_ value: T) { print(value) }
-
-    Real use in my app:
-    func saveToDefaults<T: Codable>(key: String, value: T) {
-        let data = try? JSONEncoder().encode(value)
-        UserDefaults.standard.set(data, forKey: key)
-    }
-    // Works for saving ANY Codable model
-
-    This reusable function saved me from writing separate
-    save functions for prayer times, calorie data, and
-    user preferences in my apps."
-
----
-
-Q8. What is PROPERTY WRAPPERS in Swift?
-    WHY ASKED: SwiftUI heavily uses them — very common question.
-
-A:  "@State, @Binding, @ObservedObject, @Published are
-    all property wrappers.
-
-    Property wrappers add behavior to a property automatically.
-
-    @Published — notifies observers when value changes:
-    class UserSettings: ObservableObject {
-        @Published var dailyCalorieGoal: Int = 2000
-    }
-
-    @State — local state in SwiftUI view:
-    @State private var isLoading = false
-
-    @AppStorage — auto syncs with UserDefaults:
-    @AppStorage('username') var username = ''
-
-    In my Count My Calories app, I used @Published on
-    calorie goal and @AppStorage for user preferences —
-    eliminating manual UserDefaults save/load code."
-
----
-----------------------------------------------------------------
-SECTION 2: SWIFTUI (Q9 - Q16)
-----------------------------------------------------------------
-
-Q9. What is the difference between SwiftUI and UIKit?
-    WHY ASKED: Every company is moving to SwiftUI — must know.
-
-A:  "UIKit: Imperative — you describe HOW to change UI
-    SwiftUI: Declarative — you describe WHAT the UI should look like
-
-    UIKit (imperative):
-    label.text = 'Hello'
-    label.textColor = .red
-
-    SwiftUI (declarative):
-    Text('Hello').foregroundColor(.red)
-
-    SwiftUI advantages:
-    - Less code (up to 70% less boilerplate)
-    - Live Preview in Xcode
-    - Automatic dark mode, dynamic type support
-    - Works across iOS, macOS, watchOS
-
-    I have experience in UIKit and am actively building
-    new features using SwiftUI. Both my personal projects
-    started with UIKit and I have migrated components to
-    SwiftUI progressively."
-
----
-
-Q10. What is @State, @Binding, @ObservableObject in SwiftUI?
-     WHY ASKED: Core SwiftUI — asked in every iOS interview now.
-
-A:  "@State — private local state, owned by one view:
-    @State private var count = 0
-
-    @Binding — two-way connection to parent's state:
-    @Binding var isPresented: Bool
-    (child view reads and writes parent's value)
-
-    @ObservableObject + @Published — shared state across
-    multiple views:
-    class CalorieViewModel: ObservableObject {
-        @Published var totalCalories: Int = 0
-    }
-
-    @EnvironmentObject — inject shared model deep in
-    view hierarchy without passing it manually.
-
-    Think of it like:
-    @State        = your own notebook
-    @Binding      = borrowed notebook from parent
-    @ObservableObject = shared notebook everyone reads/writes"
-
----
-
-Q11. What is the difference between @ObservableObject and @Observable?
-     WHY ASKED: New in iOS 17 — very trending in 2025 interviews.
-
-A:  "@ObservableObject (iOS 13+):
-    - Class must conform to ObservableObject protocol
-    - Must manually mark properties with @Published
-    - Used with @StateObject, @ObservedObject
-
-    @Observable (iOS 17+, Swift 5.9):
-    - Just add @Observable macro to class
-    - ALL stored properties auto-tracked — no @Published needed
-    - Simpler, better performance
-
-    OLD (ObservableObject):
-    class ViewModel: ObservableObject {
-        @Published var name = ''
-        @Published var calories = 0
-    }
-
-    NEW (Observable macro):
-    @Observable class ViewModel {
-        var name = ''
-        var calories = 0  // auto-tracked
-    }
-
-    I am familiar with both approaches and have adopted
-    @Observable in my latest project updates targeting iOS 17+."
-
----
-
-Q12. What is LazyVStack vs VStack in SwiftUI?
-     WHY ASKED: Performance question — shows you care about optimization.
-
-A:  "VStack renders ALL its children at once — even off-screen.
-    LazyVStack renders children ONLY when they appear on screen.
-
-    VStack — use for small, fixed number of items (< 20)
-    LazyVStack — use for long scrollable lists (100+ items)
-
-    In my Quran reader (Azaan Pro), I used LazyVStack to
-    load 6236 verses — only rendering visible verses.
-    This reduced memory usage by 60% and eliminated
-    scroll lag completely.
-
-    Rule: If you have a ScrollView with many items,
-    always prefer LazyVStack or LazyHStack."
-
----
-
-Q13. What is ViewBuilder in SwiftUI?
-     WHY ASKED: Custom component creation — mid/senior level question.
-
-A:  "@ViewBuilder allows a function or computed property
-    to return multiple views and combine them.
-
-    Example — custom card component:
-    struct CalorieCard<Content: View>: View {
-        @ViewBuilder var content: Content
-        var body: some View {
-            VStack { content }.padding().background(.white)
+    let resendCooldown = 0;
+    function startResendCooldown() {
+      resendCooldown = 30;
+      resendCode.classList.add('disabled');
+      const tick = () => {
+        if (resendCooldown <= 0) {
+          resendCode.classList.remove('disabled');
+          resendCode.textContent = 'Resend code';
+          return;
         }
+        resendCode.textContent = 'Resend code (' + resendCooldown + 's)';
+        resendCooldown -= 1;
+        setTimeout(tick, 1000);
+      };
+      tick();
     }
 
-    Usage:
-    CalorieCard {
-        Text('Breakfast')
-        Text('450 kcal')
-    }
-
-    I used ViewBuilder in both my apps to create reusable
-    UI components — reducing duplicate view code by 50%."
-
----
-
-Q14. How do you handle Navigation in SwiftUI?
-     WHY ASKED: Every app has navigation — practical question.
-
-A:  "iOS 16+ introduced NavigationStack (replaces NavigationView):
-
-    NavigationStack {
-        List(prayers) { prayer in
-            NavigationLink(value: prayer) {
-                Text(prayer.name)
-            }
-        }
-        .navigationDestination(for: Prayer.self) { prayer in
-            PrayerDetailView(prayer: prayer)
-        }
-    }
-
-    For programmatic navigation:
-    @State private var path = NavigationPath()
-    path.append(selectedPrayer) // navigate from code
-
-    In Azaan Pro, I use NavigationStack with
-    .navigationDestination for prayer details and
-    Quran chapter navigation — works smoothly."
-
----
-
-Q15. What is Task and TaskGroup in SwiftUI/Swift Concurrency?
-     WHY ASKED: Modern concurrency — highly asked in 2024-2025.
-
-A:  "Task — runs async work from sync context:
-    .onAppear {
-        Task {
-            await loadPrayerTimes()
-        }
-    }
-
-    Task.detached — runs independently of current context.
-
-    TaskGroup — run multiple async tasks IN PARALLEL:
-    await withTaskGroup(of: Double.self) { group in
-        group.addTask { await fetchFajrTime() }
-        group.addTask { await fetchDhuhrTime() }
-        group.addTask { await fetchMaghribTime() }
-        // all 3 run simultaneously — faster than sequential
-    }
-
-    In my app, I used TaskGroup to fetch prayer times,
-    Hijri calendar, and weather simultaneously — reduced
-    loading time from 3 seconds to under 1 second."
-
----
-
-Q16. What is the difference between sheet, fullScreenCover, and popover?
-     WHY ASKED: UI presentation — practical SwiftUI question.
-
-A:  ".sheet          — modal card from bottom (can dismiss by swipe)
-    .fullScreenCover — covers entire screen (no swipe dismiss)
-    .popover         — popup attached to element (iPad style)
-
-    .sheet(isPresented: $showCalc) { ZakatCalculatorView() }
-    .fullScreenCover(isPresented: $showQuran) { QuranReaderView() }
-
-    I use .sheet for quick inputs like calorie entry forms,
-    .fullScreenCover for immersive experiences like the
-    Quran reader in Azaan Pro where distraction-free
-    reading is important."
-
----
-----------------------------------------------------------------
-SECTION 3: ARCHITECTURE PATTERNS (Q17 - Q22)
-----------------------------------------------------------------
-
-Q17. Explain MVVM architecture with a real example.
-     WHY ASKED: Most companies use MVVM — must know deeply.
-
-A:  "MVVM = Model + View + ViewModel
-
-    Model — raw data:
-    struct Calorie: Codable { var food: String; var amount: Int }
-
-    ViewModel — business logic + data binding:
-    @Observable class CalorieViewModel {
-        var calories: [Calorie] = []
-        var totalCalories: Int { calories.reduce(0) { $0 + $1.amount } }
-        func addCalorie(_ item: Calorie) { calories.append(item) }
-    }
-
-    View — only displays, zero logic:
-    struct CalorieView: View {
-        @State var vm = CalorieViewModel()
-        var body: some View {
-            Text('Total: \(vm.totalCalories) kcal')
-        }
-    }
-
-    Benefits I've seen in my apps:
-    - ViewModel is testable without UI
-    - View stays clean and simple
-    - Easy to swap data source (Firebase vs local)
-    without changing the View at all."
-
----
-
-Q18. What is CLEAN ARCHITECTURE in iOS?
-     WHY ASKED: Senior/lead roles ask this — shows you think big picture.
-
-A:  "Clean Architecture separates app into layers:
-
-    Presentation → Domain → Data
-
-    - Presentation: Views + ViewModels (UI layer)
-    - Domain      : Use Cases + Entities (business rules)
-    - Data        : Repositories + API/DB (data sources)
-
-    Key principle: Inner layers know NOTHING about outer layers.
-    Domain layer has zero import UIKit — it's pure Swift.
-
-    Example for prayer times feature:
-    Entity: PrayerTime (pure Swift model)
-    UseCase: FetchPrayerTimesUseCase (business logic)
-    Repository: PrayerRepository (protocol)
-    DataSource: FirebasePrayerDataSource (implementation)
-
-    This means I can switch from Firebase to CoreData
-    without touching business logic at all.
-    I am currently refactoring Azaan Pro to Clean Architecture
-    for better testability and scalability."
-
----
-
-Q19. What is DEPENDENCY INJECTION and why is it important?
-     WHY ASKED: Testability question — asked in all serious companies.
-
-A:  "Dependency Injection means providing an object's
-    dependencies from outside rather than creating them inside.
-
-    BAD — tightly coupled, untestable:
-    class PrayerViewModel {
-        let service = FirebaseService() // hardcoded dependency
-    }
-
-    GOOD — loosely coupled, testable:
-    class PrayerViewModel {
-        let service: PrayerServiceProtocol
-        init(service: PrayerServiceProtocol) {
-            self.service = service // injected from outside
-        }
-    }
-
-    // Production:
-    PrayerViewModel(service: FirebaseService())
-    // Testing:
-    PrayerViewModel(service: MockPrayerService())
-
-    This is how I structure my ViewModels — making it
-    easy to write unit tests by injecting mock services."
-
----
-
-Q20. What is COORDINATOR PATTERN in iOS?
-     WHY ASKED: Navigation management — asked in mid/senior roles.
-
-A:  "Coordinator pattern moves navigation logic OUT of
-    ViewControllers into dedicated Coordinator classes.
-
-    Problem without Coordinator:
-    ViewController knows about and creates other ViewControllers
-    — tightly coupled, hard to reuse.
-
-    With Coordinator:
-    protocol Coordinator {
-        func start()
-        func navigateToDetail(prayer: Prayer)
-    }
-
-    class PrayerCoordinator: Coordinator {
-        var navigationController: UINavigationController
-        func start() { show(PrayerListVC()) }
-        func navigateToDetail(prayer: Prayer) {
-            show(PrayerDetailVC(prayer: prayer))
-        }
-    }
-
-    Benefits:
-    - ViewControllers become reusable (zero navigation code)
-    - Deep links easy to implement
-    - Flow logic in one place
-
-    I am familiar with this pattern and have implemented
-    it in larger feature modules of my projects."
-
----
-
-Q21. What is REPOSITORY PATTERN?
-     WHY ASKED: Data layer architecture — asked in product companies.
-
-A:  "Repository pattern abstracts the data source behind
-    a protocol — so ViewModel doesn't care whether data
-    comes from Firebase, CoreData, or a REST API.
-
-    protocol CalorieRepository {
-        func fetchCalories() async throws -> [Calorie]
-        func save(_ calorie: Calorie) async throws
-    }
-
-    class FirebaseCalorieRepository: CalorieRepository {
-        func fetchCalories() async throws -> [Calorie] {
-            // fetch from Firestore
-        }
-    }
-
-    class LocalCalorieRepository: CalorieRepository {
-        func fetchCalories() async throws -> [Calorie] {
-            // fetch from CoreData
-        }
-    }
-
-    ViewModel uses only the protocol — can swap data source
-    without changing a single line of ViewModel code.
-    I use this in Count My Calories for offline support
-    with CoreData fallback when there's no internet."
-
----
-
-Q22. What is SOLID Principles in iOS development?
-     WHY ASKED: Code quality question — asked in senior roles.
-
-A:  "SOLID is 5 principles for clean, maintainable code:
-
-    S — Single Responsibility: One class, one job.
-        PrayerCalculator only calculates, not saves.
-
-    O — Open/Closed: Open for extension, closed for modification.
-        Add new prayer calculation method without changing
-        existing code.
-
-    L — Liskov Substitution: Subclasses replaceable by parent.
-        MockFirebase can replace real Firebase anywhere.
-
-    I — Interface Segregation: Small focused protocols.
-        Calculable, Saveable, Fetchable separately
-        (not one giant DataManagerProtocol).
-
-    D — Dependency Inversion: Depend on abstractions not
-        concrete classes. (See Q19 — Dependency Injection)
-
-    I follow SOLID actively — my code reviews focus on
-    checking Single Responsibility and Dependency Inversion
-    especially."
-
----
-----------------------------------------------------------------
-SECTION 4: PERFORMANCE & OPTIMIZATION (Q23 - Q28)
-----------------------------------------------------------------
-
-Q23. How do you optimize UITableView / UICollectionView performance?
-     WHY ASKED: Very common in apps — performance critical question.
-
-A:  "Key optimizations I always follow:
-
-    1. Cell Reuse — NEVER skip this:
-       dequeueReusableCell(withIdentifier: 'cell')
-
-    2. Async image loading — never load images on main thread:
-       URLSession.shared.dataTask to load, then
-       DispatchQueue.main.async to set image
-
-    3. Estimated row height for dynamic cells:
-       tableView.estimatedRowHeight = 80
-       tableView.rowHeight = UITableView.automaticDimension
-
-    4. Prefetching data (UITableViewDataSourcePrefetching):
-       Preload next 5 rows before user reaches them.
-
-    5. Avoid heavy work in cellForRowAt:
-       Pre-process data in ViewModel, not while drawing cell.
-
-    In my Quran reader, I handle 6236 verses using all
-    these techniques — scrolling is buttery smooth at 60fps."
-
----
-
-Q24. How do you profile and debug performance issues in iOS?
-     WHY ASKED: Shows professional development skills.
-
-A:  "I use Xcode Instruments — Apple's profiling tool:
-
-    Time Profiler    — finds slow functions, CPU bottlenecks
-    Memory Graph     — identifies retain cycles, memory leaks
-    Network Inspector— finds slow/failed network calls
-    Core Animation  — checks for dropped frames (< 60fps)
-
-    My debug workflow:
-    1. Reproduce the issue consistently
-    2. Open Instruments, choose relevant template
-    3. Run app, perform problematic action
-    4. Analyze heaviest stack traces
-    5. Fix and verify improvement
-
-    Real example: In Azaan Pro, prayer time calculation
-    was causing 0.3s UI freeze. Instruments showed it
-    running on main thread. Moved to background thread —
-    freeze eliminated completely."
-
----
-
-Q25. What is Lazy Loading and how do you implement it?
-     WHY ASKED: Memory and performance — very practical question.
-
-A:  "Lazy loading means creating an object only when it's
-    first needed — not at app startup.
-
-    Swift lazy property:
-    class PrayerViewModel {
-        lazy var calculator = PrayerTimeCalculator()
-        // only created when first accessed
-    }
-
-    SwiftUI LazyVStack/LazyGrid:
-    LazyVGrid(columns: columns) {
-        ForEach(verses) { verse in
-            VerseCard(verse: verse) // only rendered when visible
-        }
-    }
-
-    Image lazy loading:
-    AsyncImage(url: URL(string: imageURL)) { image in
-        image.resizable()
-    } placeholder: {
-        ProgressView()
-    }
-
-    In my apps, I lazy load the Quran audio player, map
-    view, and image assets — reducing launch time by 2
-    seconds on older iPhone models."
-
----
-
-Q26. What is CoreData and when would you use it?
-     WHY ASKED: Local persistence — asked in most iOS roles.
-
-A:  "CoreData is Apple's local database framework for
-    storing structured data persistently on device.
-
-    When to use:
-    - Complex data models with relationships
-    - Offline-first apps
-    - Large datasets needing fast querying
-    - Need undo/redo support
-
-    CoreData vs UserDefaults:
-    UserDefaults: simple key-value, small data (settings)
-    CoreData: complex relational data, thousands of records
-
-    In Count My Calories, I use CoreData to store daily
-    food entries with relationships between meals, food items,
-    and nutritional data — enabling offline access and
-    fast queries for weekly calorie history without
-    any network dependency."
-
----
-
-Q27. What is the difference between CoreData and SwiftData?
-     WHY ASKED: SwiftData is new (iOS 17) — trending interview question.
-
-A:  "SwiftData is Apple's modern replacement for CoreData
-    introduced in iOS 17 — built for Swift from the ground up.
-
-    CoreData — traditional, verbose:
-    let entity = NSEntityDescription.entity(...)
-    let object = NSManagedObject(entity: entity, ...)
-    object.setValue('Breakfast', forKey: 'mealName')
-
-    SwiftData — modern, Swifty:
-    @Model class MealEntry {
-        var name: String
-        var calories: Int
-        var date: Date
-    }
-    // That's it — no schema setup needed!
-
-    Query with SwiftData:
-    @Query(sort: \MealEntry.date) var meals: [MealEntry]
-
-    I am familiar with CoreData and actively learning
-    SwiftData for my next app update targeting iOS 17+.
-    SwiftData integrates seamlessly with SwiftUI."
-
----
-
-Q28. How do you handle OFFLINE SUPPORT in iOS apps?
-     WHY ASKED: Real-world app quality question — senior roles ask this.
-
-A:  "Offline support strategy I follow:
-
-    1. Local cache first:
-       Check CoreData/UserDefaults before making network call.
-       Show cached data immediately, refresh in background.
-
-    2. Network monitoring with NWPathMonitor:
-       let monitor = NWPathMonitor()
-       monitor.pathUpdateHandler = { path in
-           isOnline = path.status == .satisfied
-       }
-
-    3. Queue offline actions:
-       Store pending operations locally, execute when
-       connection restores.
-
-    4. Firebase offline persistence:
-       Firestore.firestore().settings.isPersistenceEnabled = true
-       // Auto-caches data and syncs when back online
-
-    In Azaan Pro, prayer times and Quran data are cached
-    locally so the app works perfectly without internet.
-    Only real-time features (like new Duas) require connection."
-
----
-----------------------------------------------------------------
-SECTION 5: TESTING (Q29 - Q32)
-----------------------------------------------------------------
-
-Q29. What is Unit Testing in iOS and how do you write tests?
-     WHY ASKED: Code quality — every serious company asks this.
-
-A:  "Unit tests verify individual functions work correctly
-    in isolation, without UI or network.
-
-    Example testing calorie calculator:
-    class CalorieCalculatorTests: XCTestCase {
-        func testBMRCalculationForMale() {
-            let calculator = CalorieCalculator()
-            let bmr = calculator.calculateBMR(
-                weight: 70, height: 175, age: 25, gender: .male
-            )
-            XCTAssertEqual(bmr, 1724.0, accuracy: 1.0)
-        }
-    }
-
-    I follow AAA pattern:
-    Arrange — set up test data
-    Act     — call the function
-    Assert  — verify the result
-
-    In Count My Calories, I have unit tests for all
-    calculation functions (BMR, TDEE, water intake)
-    — catching 3 edge case bugs before release."
-
----
-
-Q30. What is UI Testing in iOS?
-     WHY ASKED: Quality assurance — asked in companies with QA culture.
-
-A:  "UI Tests simulate real user interaction with the app
-    — tapping buttons, entering text, verifying screens.
-
-    func testCalorieEntryFlow() {
-        let app = XCUIApplication()
-        app.launch()
-        app.buttons['Add Meal'].tap()
-        app.textFields['Food Name'].typeText('Apple')
-        app.textFields['Calories'].typeText('95')
-        app.buttons['Save'].tap()
-        XCTAssertTrue(app.staticTexts['Apple'].exists)
-    }
-
-    UI Tests run on real device or simulator.
-    Slower than unit tests but verify complete user flows.
-
-    I have UI tests for critical flows: onboarding,
-    calorie entry, and prayer time setup — ensuring
-    nothing breaks after updates."
-
----
-
-Q31. What is Test Driven Development (TDD)?
-     WHY ASKED: Development methodology — asked in agile teams.
-
-A:  "TDD means writing tests BEFORE writing actual code.
-
-    Red-Green-Refactor cycle:
-    1. RED   — write a failing test for new feature
-    2. GREEN — write minimum code to make test pass
-    3. REFACTOR — clean up code while keeping test green
-
-    Benefits:
-    - Forces clear thinking about requirements upfront
-    - Naturally produces testable, decoupled code
-    - Confidence to refactor without breaking features
-
-    For my Zakat calculator, I wrote tests first:
-    XCTAssertEqual(zakatCalc.calculate(assets: 100000), 2500)
-    Then implemented the logic to pass it.
-    The tests caught a Nisab threshold bug immediately."
-
----
-
-Q32. What is Mocking in iOS testing?
-     WHY ASKED: Advanced testing — senior level question.
-
-A:  "Mocking means replacing real dependencies (network, database)
-    with fake objects during testing.
-
-    protocol PrayerServiceProtocol {
-        func fetchTimes() async throws -> [PrayerTime]
-    }
-
-    class MockPrayerService: PrayerServiceProtocol {
-        func fetchTimes() async throws -> [PrayerTime] {
-            return [PrayerTime(name: 'Fajr', time: '05:30')] // fake data
-        }
-    }
-
-    // Test uses mock — no real network call needed:
-    let vm = PrayerViewModel(service: MockPrayerService())
-
-    Benefits:
-    - Tests run fast (no actual network)
-    - Tests are reliable (no flaky network dependency)
-    - Can simulate error cases easily
-
-    This is why Dependency Injection (Q19) is so important
-    — without it, mocking is impossible."
-
----
-----------------------------------------------------------------
-SECTION 6: NETWORKING & APIs (Q33 - Q38)
-----------------------------------------------------------------
-
-Q33. How do you implement a NETWORK LAYER in iOS?
-     WHY ASKED: Architecture of networking — asked in product companies.
-
-A:  "I build a clean network layer with these components:
-
-    1. API Router (enum for endpoints):
-    enum APIEndpoint {
-        case prayerTimes(lat: Double, lon: Double)
-        case calorieData(foodName: String)
-        var url: URL { ... }
-        var method: String { 'GET' }
-    }
-
-    2. Network Manager (generic request handler):
-    func request<T: Codable>(_ endpoint: APIEndpoint) async throws -> T {
-        let (data, response) = try await URLSession.shared.data(from: endpoint.url)
-        guard (response as? HTTPURLResponse)?.statusCode == 200
-        else { throw NetworkError.serverError }
-        return try JSONDecoder().decode(T.self, from: data)
-    }
-
-    3. Repository uses NetworkManager (Q21 pattern)
-
-    This clean layer means adding a new API call is
-    just adding one case to the enum — no duplicate code."
-
----
-
-Q34. How do you handle API AUTHENTICATION and TOKEN REFRESH?
-     WHY ASKED: Real-world security — asked in any app with login.
-
-A:  "JWT Token auth flow:
-
-    1. Login → receive accessToken + refreshToken
-    2. Store accessToken in Keychain (NOT UserDefaults)
-    3. Add token to every request header:
-       request.setValue('Bearer \(token)', forHTTPHeaderField: 'Authorization')
-    4. If 401 (unauthorized) received:
-       - Call refresh token endpoint
-       - Get new accessToken
-       - Retry original request automatically
-
-    Token refresh interceptor in URLSession:
-    func data(for request: URLRequest) async throws -> (Data, URLResponse) {
-        let (data, response) = try await session.data(for: request)
-        if (response as? HTTPURLResponse)?.statusCode == 401 {
-            await refreshToken()
-            return try await data(for: requestWithNewToken)
-        }
-        return (data, response)
-    }
-
-    I implemented this in the Adaptive Control Security app
-    for secure API communication."
-
----
-
-Q35. What is CODABLE and how do you handle complex JSON?
-     WHY ASKED: JSON parsing — very common practical question.
-
-A:  "Codable = Encodable + Decodable. Auto-converts
-    JSON ↔ Swift objects.
-
-    Simple case:
-    struct PrayerTime: Codable {
-        let fajr: String
-        let dhuhr: String
-    }
-
-    Custom keys with CodingKeys:
-    struct PrayerTime: Codable {
-        let fajrTime: String
-        enum CodingKeys: String, CodingKey {
-            case fajrTime = 'fajr_time' // API uses snake_case
-        }
-    }
-
-    Nested JSON:
-    struct APIResponse: Codable {
-        let data: PrayerData
-        let status: String
-    }
-    struct PrayerData: Codable {
-        let timings: PrayerTime
-        let location: String
-    }
-
-    In Azaan Pro, I parse Aladhan API response with 3
-    levels of nesting using Codable — zero manual parsing."
-
----
-
-Q36. What is URLSession and how does it compare to Alamofire?
-     WHY ASKED: Networking framework knowledge — commonly asked.
-
-A:  "URLSession is Apple's built-in networking API.
-    Alamofire is a popular third-party wrapper over URLSession.
-
-    URLSession (native):
-    let (data, _) = try await URLSession.shared.data(from: url)
-
-    Alamofire (third party):
-    AF.request(url).responseDecodable(of: Model.self) { response in ... }
-
-    When to use what:
-    URLSession — simple projects, no external dependencies wanted,
-                 iOS 15+ with async/await is very clean
-    Alamofire  — complex needs (retry, certificate pinning,
-                 multipart upload, request chaining)
-
-    In my personal projects I use URLSession with async/await
-    — it's clean enough without adding dependencies.
-    At Adaptive Control Security, we used Alamofire for
-    complex multipart file uploads."
-
----
-
-Q37. What is CERTIFICATE PINNING in iOS?
-     WHY ASKED: Security question — asked in banking/security apps.
-
-A:  "Certificate Pinning ensures the app only communicates
-    with servers having a specific SSL certificate —
-    protecting against man-in-the-middle attacks.
-
-    Implementation with URLSession:
-    func urlSession(_ session: URLSession,
-        didReceive challenge: URLAuthenticationChallenge,
-        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-
-        guard let serverTrust = challenge.protectionSpace.serverTrust,
-              let certificate = SecTrustGetCertificateAtIndex(serverTrust, 0)
-        else { completionHandler(.cancelAuthenticationChallenge, nil); return }
-
-        let serverCertData = SecCertificateCopyData(certificate) as Data
-        let pinnedCertData = // load from bundle
-
-        if serverCertData == pinnedCertData {
-            completionHandler(.useCredential, URLCredential(trust: serverTrust))
-        } else {
-            completionHandler(.cancelAuthenticationChallenge, nil)
-        }
-    }
-
-    At Adaptive Control Security, certificate pinning was
-    mandatory for all API calls — I implemented and
-    maintained this for the entire app."
-
----
-
-Q38. How do you handle BACKGROUND FETCH and BACKGROUND TASKS?
-     WHY ASKED: Advanced iOS lifecycle — asked for apps with sync.
-
-A:  "BGTaskScheduler (iOS 13+) handles background work:
-
-    Types:
-    BGAppRefreshTask  — short task to refresh content (~30 sec)
-    BGProcessingTask  — longer processing (charging, wifi preferred)
-
-    Setup:
-    BGTaskScheduler.shared.register(
-        forTaskWithIdentifier: 'com.azaanpro.refresh',
-        using: nil
-    ) { task in
-        self.refreshPrayerTimes(task: task as! BGAppRefreshTask)
-    }
-
-    Schedule:
-    let request = BGAppRefreshTaskRequest(identifier: 'com.azaanpro.refresh')
-    request.earliestBeginDate = Date(timeIntervalSinceNow: 60 * 60)
-    try BGTaskScheduler.shared.submit(request)
-
-    In Azaan Pro, I use BGAppRefreshTask to update next
-    day's prayer times overnight — so morning Fajr
-    notification is always accurate even after midnight."
-
----
-----------------------------------------------------------------
-SECTION 7: APP STORE & REAL WORLD (Q39 - Q44)
-----------------------------------------------------------------
-
-Q39. What is the App Store review process and how do you prepare?
-     WHY ASKED: Published app experience — shows real world knowledge.
-
-A:  "App Store review checklist I follow before submission:
-
-    1. Privacy Manifest — declare all data collected and why
-    2. App Privacy labels — accurate data usage description
-    3. TestFlight beta — test with real users first
-    4. Crash-free rate — minimum 99%+ before submission
-    5. No private API usage — App Store rejects immediately
-    6. All permissions justified in Info.plist
-    7. Support all current iOS versions (last 3)
-    8. Screenshot for every device size
-
-    Common rejection reasons I've avoided:
-    - Placeholder content in UI
-    - Broken links or features
-    - Misleading app description
-
-    Both Azaan Pro and Count My Calories passed review
-    on first submission — because I test thoroughly
-    using the App Store Review Guidelines checklist."
-
----
-
-Q40. What is ACCESSIBILITY in iOS and why does it matter?
-     WHY ASKED: Inclusive design — asked in serious companies.
-
-A:  "Accessibility ensures the app works for users with
-    disabilities — using VoiceOver, large text, etc.
-
-    Key implementations:
-    1. Accessibility Labels:
-       Image('prayer-icon').accessibilityLabel('Prayer times icon')
-
-    2. Dynamic Type support:
-       .font(.body) // scales with user's text size setting
-
-    3. Minimum tap target: 44x44 points
-
-    4. Color contrast ratio: minimum 4.5:1
-
-    5. VoiceOver testing: enable in Settings and navigate
-       entire app without looking at screen
-
-    In Azaan Pro, accessibility is critical because many
-    elderly users use VoiceOver. I added Arabic accessibility
-    labels for all prayer time elements and ensured the
-    Qibla compass announces direction changes via
-    UIAccessibility.post(notification: .announcement)"
-
----
-
-Q41. What is LOCALIZATION in iOS?
-     WHY ASKED: International apps — practical real-world question.
-
-A:  "Localization adapts your app for different languages
-    and regions.
-
-    Steps:
-    1. Wrap strings in NSLocalizedString:
-       NSLocalizedString('prayer_fajr', comment: 'Fajr prayer time')
-
-    2. Create Localizable.strings for each language:
-       // en.lproj/Localizable.strings
-       'prayer_fajr' = 'Fajr';
-       // ar.lproj/Localizable.strings
-       'prayer_fajr' = 'الفجر';
-
-    3. Handle RTL (Right-to-Left) for Arabic:
-       Use leading/trailing instead of left/right in constraints
-       UI automatically mirrors for Arabic.
-
-    In Azaan Pro, I support English and Arabic localization
-    with full RTL support — because my user base is
-    primarily Arabic-speaking users in Qatar and
-    Middle East region."
-
----
-
-Q42. How do you handle DEEP LINKS in iOS?
-     WHY ASKED: Advanced navigation — asked in product companies.
-
-A:  "Deep links open specific screens from outside the app.
-
-    Two types:
-    1. URL Scheme (azaanpro://prayer/fajr):
-       Register in Info.plist, handle in SceneDelegate/AppDelegate
-
-    2. Universal Links (https://azaanpro.com/prayer/fajr):
-       More secure, works even if app not installed
-       Requires apple-app-site-association file on server
-
-    Handling in SwiftUI:
-    .onOpenURL { url in
-        router.handleDeepLink(url)
-    }
-
-    In Azaan Pro, I have deep links for:
-    - Sharing specific prayer times
-    - Opening Quran to specific chapter
-    - Ramadan countdown widget tap → opens Sehri/Iftar screen"
-
----
-
-Q43. What are iOS WIDGETS and how do you build them?
-     WHY ASKED: WidgetKit is trending — shows modern iOS knowledge.
-
-A:  "Widgets display app content on home screen and lock screen
-    built using WidgetKit framework (iOS 14+).
-
-    Key components:
-    1. TimelineProvider — provides data snapshots
-    2. TimelineEntry — data model for a point in time
-    3. Widget view — SwiftUI view
-
-    struct PrayerWidget: Widget {
-        var body: some WidgetConfiguration {
-            StaticConfiguration(kind: 'prayer', provider: PrayerProvider()) { entry in
-                PrayerWidgetView(entry: entry)
-            }
-            .configurationDisplayName('Prayer Times')
-            .supportedFamilies([.systemSmall, .systemMedium])
-        }
-    }
-
-    In Azaan Pro, I have a widget showing:
-    - Next prayer name and time countdown
-    - Sehri/Iftar times during Ramadan
-    This increased daily active users by 35% because
-    users check prayer times without opening the app."
-
----
-
-Q44. What is PUSH NOTIFICATION with RICH content?
-     WHY ASKED: Advanced notifications — shows deeper FCM knowledge.
-
-A:  "Rich notifications include images, buttons, and
-    custom UI beyond basic title + body.
-
-    Notification Service Extension — modifies notification before display:
-    override func didReceive(_ request: UNNotificationRequest,
-        withContentHandler contentHandler: ...) {
-
-        let content = request.content.mutableCopy() as! UNMutableNotificationContent
-        // Download and attach image
-        if let imageURL = content.userInfo['imageURL'] as? String {
-            downloadImage(from: imageURL) { attachment in
-                content.attachments = [attachment]
-                contentHandler(content)
-            }
-        }
-    }
-
-    Notification Content Extension — fully custom notification UI:
-    Shows custom SwiftUI/UIKit view inside notification.
-
-    Actionable notifications with buttons:
-    UNNotificationAction(identifier: 'SNOOZE', title: 'Snooze 5 min')
-    UNNotificationAction(identifier: 'DISMISS', title: 'Dismiss')
-
-    In Azaan Pro, Azaan notifications show mosque image
-    with Snooze/Dismiss action buttons — users love it."
-
----
-----------------------------------------------------------------
-SECTION 8: TRENDING TOPICS 2025 (Q45 - Q50)
-----------------------------------------------------------------
-
-Q45. What is SWIFT MACROS and how are they useful?
-     WHY ASKED: Swift 5.9 feature — very trending in 2025.
-
-A:  "Swift Macros (Swift 5.9) auto-generate boilerplate code
-    at compile time using @MacroName syntax.
-
-    Built-in macros:
-    @Observable  — auto-generates ObservableObject code (Q11)
-    @Model       — auto-generates SwiftData model (Q27)
-
-    Custom macro example:
-    @AddLogging  // custom macro
-    func fetchPrayerTimes() {
-        // macro auto-adds: print('fetchPrayerTimes called')
-    }
-
-    Benefits:
-    - Eliminate repetitive boilerplate
-    - Catch errors at compile time, not runtime
-    - Keep code clean and readable
-
-    I use @Observable and @Model macros in my latest
-    project updates — reduced model setup code by 80%."
-
----
-
-Q46. What is SWIFT CONCURRENCY vs OperationQueue vs GCD?
-     WHY ASKED: Concurrency evolution — shows you know history.
-
-A:  "Evolution of concurrency in iOS:
-
-    GCD (Grand Central Dispatch) — 2009:
-    DispatchQueue.global().async { /* background */ }
-    DispatchQueue.main.async { /* UI update */ }
-    Low-level, C-based API.
-
-    OperationQueue — more control, cancellable:
-    let op = BlockOperation { self.processData() }
-    op.cancel() // can cancel
-    queue.addOperation(op)
-
-    Swift Concurrency async/await — 2021 (BEST):
-    let data = try await fetchData() // clean, readable
-    async let a = fetchA()
-    async let b = fetchB()
-    let (resultA, resultB) = await (a, b) // parallel!
-
-    Swift Concurrency wins because:
-    - Readable linear code (no pyramid of doom)
-    - Built-in cancellation with Task.cancel()
-    - Compile-time safety with actors
-    - Structured — child tasks auto-cancel with parent
-
-    I have migrated my apps from GCD to async/await
-    — code reduced by 40%, zero threading bugs."
-
----
-
-Q47. What is VISIONOS and SPATIAL COMPUTING awareness?
-     WHY ASKED: Apple Vision Pro — forward-thinking question in 2025.
-
-A:  "visionOS is Apple's OS for Apple Vision Pro (2024).
-    Apps run as windows floating in physical space.
-
-    Key concepts:
-    - Volumes: 3D bounded app space
-    - Immersive Space: full spatial experience
-    - RealityKit: 3D content rendering
-    - WindowGroup: familiar from SwiftUI
-
-    SwiftUI apps run on visionOS with minimal changes:
-    @main struct AzaanProApp: App {
-        var body: some Scene {
-            WindowGroup { ContentView() } // works on visionOS!
-            ImmersiveSpace(id: 'QiblaSpace') {
-                QiblaCompassRealityView() // 3D compass!
-            }
-        }
-    }
-
-    Although I haven't shipped a visionOS app yet,
-    I understand the spatial paradigm and am exploring
-    how Azaan Pro's Qibla compass could become an
-    immersive 3D experience on Vision Pro."
-
----
-
-Q48. What is SWIFT TESTING framework (new in 2024)?
-     WHY ASKED: Replacing XCTest — very new trending question.
-
-A:  "Swift Testing is Apple's new testing framework (2024)
-    replacing XCTest — more expressive and Swifty.
-
-    OLD (XCTest):
-    func testCalorieCalc() {
-        XCTAssertEqual(calc.bmr(weight: 70), 1724, accuracy: 1)
-    }
-
-    NEW (Swift Testing):
-    @Test func calorieCalcBMR() {
-        #expect(calc.bmr(weight: 70) == 1724.0)
-    }
-
-    Advantages:
-    - @Test macro instead of func prefix naming convention
-    - #expect instead of XCTAssert — reads like natural language
-    - @Suite for grouping related tests
-    - Parameterized tests (test with multiple inputs):
-
-    @Test(arguments: [70, 80, 90]) func testBMRForWeights(weight: Int) {
-        #expect(calc.bmr(weight: weight) > 0)
-    }
-
-    I am actively adopting Swift Testing in my projects
-    and find it 50% more readable than XCTest."
-
----
-
-Q49. What is TipKit framework in iOS?
-     WHY ASKED: iOS 17 feature — shows you keep up with Apple updates.
-
-A:  "TipKit (iOS 17) is Apple's framework to display
-    contextual tips and feature discovery hints to users.
-
-    struct PrayerTimeTip: Tip {
-        var title: Text { Text('Long press for options') }
-        var message: Text? { Text('Hold any prayer to set a custom reminder') }
-        var image: Image? { Image(systemName: 'hand.tap') }
-    }
-
-    Show inline tip:
-    TipView(PrayerTimeTip())
-
-    Show popover tip:
-    .popoverTip(PrayerTimeTip())
-
-    Smart eligibility rules:
-    var rules: [Rule] {
-        #Rule(Self.hasViewedPrayerList) { $0.donations >= 3 }
-        // Only show tip after user viewed list 3 times
-    }
-
-    In Azaan Pro, I use TipKit to guide new users to
-    the Qibla compass and Tasbih counter — reducing
-    support emails about these hidden features by 60%."
-
----
-
-Q50. Where do you see iOS development going in next 2 years?
-     WHY ASKED: Vision and passion — asked by senior interviewers.
-
-A:  "iOS development is evolving in 5 exciting directions:
-
-    1. AI Integration — Apple Intelligence (iOS 18+)
-       On-device ML with CreateML, CoreML, and now
-       Apple Intelligence APIs for writing tools, image
-       generation, and smart suggestions.
-
-    2. SwiftUI Dominance — UIKit slowly phasing out for
-       new features. All new Apple APIs are SwiftUI-first.
-
-    3. Swift 6 & Strict Concurrency — Zero data races
-       guaranteed at compile time. The future of safe
-       concurrent code.
-
-    4. visionOS Growth — More spatial computing apps as
-       Vision Pro becomes mainstream.
-
-    5. Cross-platform with Swift — Swift on server, web,
-       and even embedded systems.
-
-    Personally, my next goals are:
-    - Implement Apple Intelligence features in Azaan Pro
-    - Master SwiftData and Swift 6 concurrency
-    - Explore visionOS with a 3D Qibla experience
-
-    I am not just following trends — I am building
-    skills that will matter in 2025 and beyond."
-
-================================================================
-         BONUS: QUESTIONS TO ASK THE INTERVIEWER
-         (Shows you are serious and professional)
-================================================================
-
-1. "What tech stack does your iOS team currently use?
-   SwiftUI or UIKit or both?"
-
-2. "What is the biggest technical challenge your iOS
-   team is solving right now?"
-
-3. "How does your team handle code reviews and what
-   does your release cycle look like?"
-
-4. "Are there opportunities to work on new features
-   from scratch or is it mostly maintenance?"
-
-5. "What does success look like in this role in
-   the first 90 days?"
-
-================================================================
-CLOSING LINE:
-"I don't just write code — I build products that people love.
-My 4 years of experience, 2 live apps, and continuous learning
-make me someone who will contribute from day one."
-================================================================
-
-           BEST OF LUCK AJIT! YOU GOT THIS! 💪🚀
-           The market needs iOS developers like you!
-===========================================
+    resendCode.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (resendCode.classList.contains('disabled')) return;
+      otpInputs.forEach(i => { i.value = ''; i.classList.remove('error'); });
+      otpInputs[0].focus();
+      otpError.textContent = '';
+      console.log('Resend code requested for', email || 'unknown email');
+      startResendCooldown();
+    });
+  </script>
+
+</body>
+</html>
